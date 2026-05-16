@@ -1,0 +1,12 @@
+{
+  "name": "SNEHALATA-Ecosystem Aura Ai Clothing Hub",
+  "description": "Aura AI-powered multi-vendor e-commerce ecosystem with governance and direct-to-vendor sales integration.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone",
+    "geolocation"
+  ],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
