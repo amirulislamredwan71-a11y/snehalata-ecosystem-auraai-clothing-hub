@@ -6,19 +6,83 @@
   import { getProducts, getVendors } from '$lib/mockData';
   import { BD_LOCATIONS } from '$lib/locationData';
 
+  let { data } = $props();
+
   let selectedCategory = $state('all');
   let selectedDistrict = $state('all');
   let searchQuery = $state('');
   let isSidebarOpen = $state(false);
-  let products = $state<any[]>([]);
-  let vendors = $state<any[]>([]);
+  // Seeded from the server load so the grid renders during SSR / first paint.
+  let products = $state<any[]>(data?.products ?? []);
+  let vendors = $state<any[]>(data?.vendors ?? []);
 
   $effect(() => {
-    if (browser) {
+    if (!browser) return;
+    const refresh = () => {
       products = getProducts();
       vendors = getVendors();
-    }
+    };
+    refresh();
+    // syncWithNeuralGrid() dispatches these once Supabase data arrives client-side.
+    window.addEventListener('productUpdated', refresh);
+    window.addEventListener('vendorUpdated', refresh);
+    return () => {
+      window.removeEventListener('productUpdated', refresh);
+      window.removeEventListener('vendorUpdated', refresh);
+    };
   });
+
+  const SITE_URL = 'https://snehalata.com';
+  let jsonLd = $derived(
+    JSON.stringify({
+      '@context': 'https://schema.org',
+      '@graph': [
+        {
+          '@type': 'Organization',
+          '@id': `${SITE_URL}/#organization`,
+          name: 'SNEHALATA Aura Neural Ecosystem',
+          url: SITE_URL,
+          description:
+            'AI-powered e-commerce ecosystem empowering local Bangladeshi artisans with global-standard technology.',
+          areaServed: 'BD'
+        },
+        {
+          '@type': 'WebSite',
+          '@id': `${SITE_URL}/#website`,
+          url: SITE_URL,
+          name: 'SNEHALATA Aura',
+          inLanguage: ['bn-BD', 'en'],
+          potentialAction: {
+            '@type': 'SearchAction',
+            target: `${SITE_URL}/?q={search_term_string}`,
+            'query-input': 'required name=search_term_string'
+          }
+        },
+        {
+          '@type': 'ItemList',
+          name: 'Neural Collection',
+          numberOfItems: products.length,
+          itemListElement: products.slice(0, 24).map((p, i) => ({
+            '@type': 'ListItem',
+            position: i + 1,
+            item: {
+              '@type': 'Product',
+              name: p.name,
+              image: p.imageUrl,
+              description: p.description,
+              category: p.category,
+              offers: {
+                '@type': 'Offer',
+                price: p.price,
+                priceCurrency: 'BDT',
+                availability: 'https://schema.org/InStock'
+              }
+            }
+          }))
+        }
+      ]
+    })
+  );
 
   let filteredProducts = $derived(products.filter(p => {
     const vendor = vendors.find(v => v.id === p.vendorId);
@@ -47,6 +111,35 @@
     { id: 'others', name: 'অন্যান্য (Others)', icon: Tag }
   ];
 </script>
+
+<svelte:head>
+  <title>SNEHALATA Aura — AI Neural Ecosystem for Bangladeshi Artisans</title>
+  <meta
+    name="description"
+    content="স্নেহলতা Aura — an AI-powered marketplace connecting Bangladesh's artisans to the world. Discover Jamdani sarees, Muslin panjabis, streetwear & more with virtual try-on, neural search and verified vendors." />
+  <link rel="canonical" href="https://snehalata.com/" />
+  <meta name="theme-color" content="#7c3aed" />
+
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="SNEHALATA Aura" />
+  <meta property="og:title" content="SNEHALATA Aura — AI Neural Ecosystem for Bangladeshi Artisans" />
+  <meta
+    property="og:description"
+    content="AI-powered marketplace for Bangladesh's artisans: Jamdani, Muslin, streetwear & more — with virtual try-on and neural search." />
+  <meta property="og:url" content="https://snehalata.com/" />
+  <meta property="og:image" content="https://snehalata.com/og-cover.svg" />
+  <meta property="og:locale" content="bn_BD" />
+  <meta property="og:locale:alternate" content="en_US" />
+
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="SNEHALATA Aura — AI Neural Ecosystem" />
+  <meta
+    name="twitter:description"
+    content="AI-powered marketplace for Bangladesh's artisans, with virtual try-on and neural search." />
+  <meta name="twitter:image" content="https://snehalata.com/og-cover.svg" />
+
+  {@html `<script type="application/ld+json">${jsonLd}<\/script>`}
+</svelte:head>
 
 <div class="min-h-screen bg-[#050505] text-white selection:bg-[#7c3aed]/30 font-sans">
   <!-- Search Header -->

@@ -12,6 +12,9 @@ node_modules
 .DS_Store
 Thumbs.db
 
+# Build/source archives should never be committed
+*.zip
+
 # Env
 .env
 .env.*

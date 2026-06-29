@@ -15,6 +15,18 @@
   });
 </script>
 
+<svelte:head>
+  <title>SNEHALATA Aura — AI Neural Ecosystem</title>
+  <meta
+    name="description"
+    content="স্নেহলতা Aura — AI-powered ecosystem empowering local Bangladeshi artisans with global-standard technology." />
+  <meta name="theme-color" content="#7c3aed" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="SNEHALATA Aura" />
+  <meta property="og:image" content="https://snehalata.com/og-cover.svg" />
+  <meta name="twitter:card" content="summary_large_image" />
+</svelte:head>
+
 <NeuralBackground />
 <div class="bg-aura-glow">
   <div class="glow-orb top-[-20%] left-[-10%]" />

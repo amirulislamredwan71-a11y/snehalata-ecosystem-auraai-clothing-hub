@@ -1,3 +1,7 @@
-# allow crawling everything by default
+# SNEHALATA Aura — allow crawling everything by default
 User-agent: *
-Disallow:
+Disallow: /admin-login
+Disallow: /ceo-dashboard
+Disallow: /dashboard
+
+Sitemap: https://snehalata.com/sitemap.xml
