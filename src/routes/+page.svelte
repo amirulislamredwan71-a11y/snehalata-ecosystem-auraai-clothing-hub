@@ -32,7 +32,7 @@
     };
   });
 
-  const SITE_URL = 'https://snehalata.com';
+  const SITE_URL = 'https://www.snehalata.com';
   let jsonLd = $derived(
     JSON.stringify({
       '@context': 'https://schema.org',
@@ -117,7 +117,7 @@
   <meta
     name="description"
     content="স্নেহলতা Aura — an AI-powered marketplace connecting Bangladesh's artisans to the world. Discover Jamdani sarees, Muslin panjabis, streetwear & more with virtual try-on, neural search and verified vendors." />
-  <link rel="canonical" href="https://snehalata.com/" />
+  <link rel="canonical" href="https://www.snehalata.com/" />
   <meta name="theme-color" content="#7c3aed" />
 
   <meta property="og:type" content="website" />
@@ -126,8 +126,8 @@
   <meta
     property="og:description"
     content="AI-powered marketplace for Bangladesh's artisans: Jamdani, Muslin, streetwear & more — with virtual try-on and neural search." />
-  <meta property="og:url" content="https://snehalata.com/" />
-  <meta property="og:image" content="https://snehalata.com/og-cover.svg" />
+  <meta property="og:url" content="https://www.snehalata.com/" />
+  <meta property="og:image" content="https://www.snehalata.com/og-cover.svg" />
   <meta property="og:locale" content="bn_BD" />
   <meta property="og:locale:alternate" content="en_US" />
 
@@ -136,7 +136,7 @@
   <meta
     name="twitter:description"
     content="AI-powered marketplace for Bangladesh's artisans, with virtual try-on and neural search." />
-  <meta name="twitter:image" content="https://snehalata.com/og-cover.svg" />
+  <meta name="twitter:image" content="https://www.snehalata.com/og-cover.svg" />
 
   {@html `<script type="application/ld+json">${jsonLd}<\/script>`}
 </svelte:head>

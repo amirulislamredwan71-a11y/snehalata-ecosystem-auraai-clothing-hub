@@ -9,7 +9,7 @@ import {
 } from '$lib/seedCatalog';
 import { fetchVendorsFromSupabase, fetchProductsFromSupabase } from '$lib/server/supabaseClient';
 
-const SITE_URL = 'https://snehalata.com';
+const SITE_URL = 'https://www.snehalata.com';
 
 const STATIC_ROUTES: Array<{ path: string; priority: string; changefreq: string }> = [
   { path: '/', priority: '1.0', changefreq: 'daily' },
