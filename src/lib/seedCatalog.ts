@@ -31,6 +31,71 @@ export const SEED_VENDORS: Vendor[] = [
     area: 'Uttara'
   },
   {
+    id: 4,
+    store_name: 'Rajshahi Silk House (রাজশাহী সিল্ক হাউস)',
+    owner_name: 'Saiful Karim',
+    slug: 'rajshahi-silk-house',
+    website_url: 'https://rajshahi-silk.example.com',
+    status: 'APPROVED',
+    description: 'বিশুদ্ধ রাজশাহী সিল্ক ও কাতান শাড়ির আদি ঠিকানা। Pure Rajshahi silk weavers.',
+    tradeLicense: 'TRD-2024-4401',
+    category_id: 1,
+    district: 'Rajshahi',
+    area: 'Boalia'
+  },
+  {
+    id: 5,
+    store_name: 'Tangail Tant Bazaar (টাঙ্গাইল তাঁত বাজার)',
+    owner_name: 'Mizanur Rahman',
+    slug: 'tangail-tant-bazaar',
+    website_url: 'https://tangail-tant.example.com',
+    status: 'APPROVED',
+    description: 'ঐতিহ্যবাহী টাঙ্গাইল তাঁতের শাড়ি, সরাসরি তাঁতির কাছ থেকে।',
+    tradeLicense: 'TRD-2024-5502',
+    category_id: 1,
+    district: 'Tangail',
+    area: 'Mirzapur'
+  },
+  {
+    id: 6,
+    store_name: 'Comilla Khadi & Crafts (কুমিল্লা খাদি)',
+    owner_name: 'Nasrin Akter',
+    slug: 'comilla-khadi-crafts',
+    website_url: 'https://comilla-khadi.example.com',
+    status: 'APPROVED',
+    description: 'হাতে বোনা খাদি কাপড় ও এক্সক্লুসিভ পাঞ্জাবি কালেকশন।',
+    tradeLicense: 'TRD-2024-6603',
+    category_id: 2,
+    district: 'Comilla',
+    area: 'Kandirpar'
+  },
+  {
+    id: 7,
+    store_name: 'Sylhet Couture House (সিলেট কুটির)',
+    owner_name: 'Rafiqul Islam',
+    slug: 'sylhet-couture-house',
+    website_url: 'https://sylhet-couture.example.com',
+    status: 'APPROVED',
+    description: 'মণিপুরী মোটিফে আধুনিক থ্রি-পিস ও ফিউশন ওয়্যার।',
+    tradeLicense: 'TRD-2024-7704',
+    category_id: 2,
+    district: 'Sylhet',
+    area: 'Kotwali'
+  },
+  {
+    id: 8,
+    store_name: 'Little Dhaka Kids (লিটল ঢাকা কিডস)',
+    owner_name: 'Tahmina Begum',
+    slug: 'little-dhaka-kids',
+    website_url: 'https://little-dhaka.example.com',
+    status: 'APPROVED',
+    description: 'নবজাতক ও শিশুদের জন্য নরম অর্গানিক কটন পোশাক।',
+    tradeLicense: 'TRD-2024-8805',
+    category_id: 2,
+    district: 'Dhaka',
+    area: 'Bashundhara'
+  },
+  {
     id: 3,
     store_name: 'Shadow Market',
     owner_name: 'Unknown',
@@ -74,6 +139,114 @@ export const SEED_PRODUCTS: Product[] = [
       'https://images.unsplash.com/photo-1556821840-3a63f95609a7?q=80&w=800&auto=format&fit=crop',
     externalUrl: 'https://example.com/urban-dhaka/p/neon-hoodie',
     category: 'Hoodie'
+  },
+  {
+    id: 103,
+    vendorId: 4,
+    name: 'Rajshahi Pure Silk Saree — Maroon',
+    price: 12500,
+    description: 'হালকা ওজনের বিশুদ্ধ রাজশাহী সিল্ক, কনট্রাস্ট আঁচল ও সূক্ষ্ম জড়ি পাড়।',
+    imageUrl: 'https://images.unsplash.com/photo-1610189012906-4783fda36799?q=80&w=800&auto=format&fit=crop',
+    category: 'Saree'
+  },
+  {
+    id: 104,
+    vendorId: 5,
+    name: 'Tangail Tant Saree — Off White',
+    price: 4200,
+    description: 'খাঁটি সুতি টাঙ্গাইল তাঁত, দৈনন্দিন ও উৎসব দুই-ই উপযোগী।',
+    imageUrl: 'https://images.unsplash.com/photo-1610189012906-4783fda36799?q=80&w=800&auto=format&fit=crop',
+    category: 'Saree'
+  },
+  {
+    id: 105,
+    vendorId: 4,
+    name: 'Katan Silk Saree — Royal Blue',
+    price: 9800,
+    description: 'রিচ কাতান টেক্সচার, বিয়ে ও দাওয়াতের জন্য পারফেক্ট।',
+    imageUrl: 'https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?q=80&w=800&auto=format&fit=crop',
+    category: 'Saree'
+  },
+  {
+    id: 202,
+    vendorId: 6,
+    name: 'Handloom Khadi Panjabi — Charcoal',
+    price: 2650,
+    description: 'হাতে বোনা খাদি কটন, ব্রিদেবল ও আরামদায়ক রেগুলার ফিট।',
+    imageUrl: 'https://images.unsplash.com/photo-1631640989396-b1836a04e386?q=80&w=800&auto=format&fit=crop',
+    category: 'Panjabi'
+  },
+  {
+    id: 203,
+    vendorId: 6,
+    name: 'Eid Embroidered Panjabi — Ivory',
+    price: 3950,
+    description: 'নেক ও কাফে সূক্ষ্ম হ্যান্ড এমব্রয়ডারি, প্রিমিয়াম কটন।',
+    imageUrl: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?q=80&w=800&auto=format&fit=crop',
+    category: 'Panjabi'
+  },
+  {
+    id: 301,
+    vendorId: 7,
+    name: 'Designer Three-Piece — Teal Fusion',
+    price: 3500,
+    description: 'মণিপুরী মোটিফ ও কন্ট্রাস্ট ওড়না সহ আনস্টিচড থ্রি-পিস।',
+    imageUrl: 'https://images.unsplash.com/photo-1610189012906-4783fda36799?q=80&w=800&auto=format&fit=crop',
+    category: 'Three-Piece'
+  },
+  {
+    id: 302,
+    vendorId: 7,
+    name: 'Block-Print Three-Piece — Terracotta',
+    price: 2800,
+    description: 'হ্যান্ড ব্লক-প্রিন্ট সুতি, গরমে আরামদায়ক ডেইলি ওয়্যার।',
+    imageUrl: 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=800&auto=format&fit=crop',
+    category: 'Three-Piece'
+  },
+  {
+    id: 401,
+    vendorId: 2,
+    name: 'Oversized Graphic Tee — Dhaka Map',
+    price: 850,
+    description: 'হেভিওয়েট ২৪০ জিএসএম কটন, ঢাকা-থিমড পাফ প্রিন্ট।',
+    imageUrl: 'https://images.unsplash.com/photo-1556821840-3a63f95609a7?q=80&w=800&auto=format&fit=crop',
+    category: 'T-Shirt'
+  },
+  {
+    id: 402,
+    vendorId: 2,
+    name: 'Minimalist Cotton Tee — Sand',
+    price: 650,
+    description: 'সফট কম্বড কটন, রিল্যাক্সড ফিট বেসিক এসেনশিয়াল।',
+    imageUrl: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?q=80&w=800&auto=format&fit=crop',
+    category: 'T-Shirt'
+  },
+  {
+    id: 501,
+    vendorId: 2,
+    name: 'Slim-Fit Chino Pant — Olive',
+    price: 1450,
+    description: 'স্ট্রেচেবল টুইল চিনো, অফিস থেকে আউটিং সব জায়গায়।',
+    imageUrl: 'https://images.unsplash.com/photo-1473966968600-fa801b869a1a?q=80&w=800&auto=format&fit=crop',
+    category: 'Pant'
+  },
+  {
+    id: 601,
+    vendorId: 8,
+    name: 'Organic Cotton Romper — Sky',
+    price: 750,
+    description: 'নবজাতকের জন্য সুপার সফট অর্গানিক কটন রম্পার সেট।',
+    imageUrl: 'https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?q=80&w=800&auto=format&fit=crop',
+    category: 'Baby'
+  },
+  {
+    id: 602,
+    vendorId: 8,
+    name: 'Newborn Nima-Set (5 pcs) — Pastel',
+    price: 980,
+    description: 'হাইপোঅ্যালার্জেনিক কটন, ৫ পিসের নিমা-সেট।',
+    imageUrl: 'https://images.unsplash.com/photo-1556821840-3a63f95609a7?q=80&w=800&auto=format&fit=crop',
+    category: 'Baby'
   }
 ];
 

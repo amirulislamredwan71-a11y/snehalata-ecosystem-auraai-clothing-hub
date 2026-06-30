@@ -3,10 +3,12 @@
   import { fade, fly, scale } from 'svelte/transition';
   import { Search, LayoutGrid, Tag, ChevronRight, TrendingUp, Zap, ArrowRight, ShieldCheck, ShoppingBag, Menu, X, Filter, Globe, Store } from '@lucide/svelte';
   import ProductCard from '$lib/components/ProductCard.svelte';
-  import { getProducts, getVendors } from '$lib/mockData';
+  import { getProducts, getVendors, getEcosystemStats } from '$lib/mockData';
   import { BD_LOCATIONS } from '$lib/locationData';
 
   let { data } = $props();
+
+  const stats = getEcosystemStats();
 
   let selectedCategory = $state('all');
   let selectedDistrict = $state('all');
@@ -142,10 +144,51 @@
 </svelte:head>
 
 <div class="min-h-screen bg-[#050505] text-white selection:bg-[#7c3aed]/30 font-sans">
+  <!-- Hero -->
+  <section class="relative overflow-hidden border-b border-white/5">
+    <div class="absolute inset-0 bg-gradient-to-b from-[#7c3aed]/15 via-transparent to-transparent pointer-events-none"></div>
+    <div class="max-w-7xl mx-auto px-6 py-20 lg:py-28 relative">
+      <div class="inline-flex items-center gap-2 px-4 py-2 mb-8 bg-white/5 border border-white/10 rounded-full">
+        <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+        <span class="text-[10px] font-black uppercase tracking-[0.3em] text-gray-300">Aura Neural Engine v3.1 · Live</span>
+      </div>
+      <h1 class="text-4xl md:text-6xl lg:text-7xl font-serif font-black italic leading-[1.05] max-w-4xl">
+        বাংলার আর্টিজানদের জন্য <span class="text-[#a78bfa]">AI Neural</span> ইকোসিস্টেম
+      </h1>
+      <p class="mt-6 text-gray-400 text-base md:text-lg max-w-2xl leading-relaxed">
+        Jamdani, Muslin, Tant ও streetwear — verified artisan-দের কাছ থেকে। Virtual try-on, neural search এবং Aura Governance সহ world-class shopping experience.
+      </p>
+      <div class="mt-10 flex flex-wrap items-center gap-4">
+        <a href="#collection"
+          class="px-8 py-4 bg-[#7c3aed] hover:bg-white hover:text-black rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] transition-all inline-flex items-center gap-3 cursor-pointer">
+          Explore Collection <ArrowRight size={16} />
+        </a>
+        <a href="/onboarding"
+          class="px-8 py-4 bg-white/5 border border-white/10 hover:border-[#7c3aed] rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] transition-all">
+          Become a Vendor
+        </a>
+      </div>
+      <div class="mt-16 grid grid-cols-3 gap-6 max-w-2xl">
+        <div>
+          <div class="text-3xl md:text-4xl font-black text-white tabular-nums">{stats.totalVendors.toLocaleString()}+</div>
+          <div class="text-[10px] font-black uppercase tracking-widest text-gray-500 mt-1">Verified Artisans</div>
+        </div>
+        <div>
+          <div class="text-3xl md:text-4xl font-black text-white tabular-nums">{Math.round(stats.activeProducts / 1000)}K+</div>
+          <div class="text-[10px] font-black uppercase tracking-widest text-gray-500 mt-1">Neural Products</div>
+        </div>
+        <div>
+          <div class="text-3xl md:text-4xl font-black text-white tabular-nums">{Math.round(stats.aiInteractions / 1000)}K+</div>
+          <div class="text-[10px] font-black uppercase tracking-widest text-gray-500 mt-1">AI Interactions</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- Search Header -->
-  <div class="sticky top-20 z-40 bg-black/80 backdrop-blur-3xl border-b border-white/5 py-6 px-6">
+  <div id="collection" class="sticky top-20 z-40 bg-black/80 backdrop-blur-3xl border-b border-white/5 py-6 px-6 scroll-mt-24">
     <div class="max-w-7xl mx-auto flex items-center gap-6">
-      <button onclick={() => isSidebarOpen = !isSidebarOpen}
+      <button onclick={() => isSidebarOpen = !isSidebarOpen} aria-label="Open categories menu"
         class="lg:hidden p-3 bg-white/5 rounded-2xl border border-white/10 hover:bg-white/10 transition-all cursor-pointer">
         <Menu size={20} />
       </button>
@@ -160,7 +203,7 @@
           <ShieldCheck size={14} class="text-green-500" />
           <span class="text-[10px] font-black uppercase tracking-widest text-green-500">Neural Verified</span>
         </div>
-        <a href="/cart" class="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center border border-white/10 hover:border-[#7c3aed] transition-colors">
+        <a href="/cart" aria-label="View cart" class="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center border border-white/10 hover:border-[#7c3aed] transition-colors">
           <ShoppingBag size={20} />
         </a>
       </div>
