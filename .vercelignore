@@ -1,0 +1,5 @@
+.env
+.env.*
+react-legacy
+*.zip
+.git
