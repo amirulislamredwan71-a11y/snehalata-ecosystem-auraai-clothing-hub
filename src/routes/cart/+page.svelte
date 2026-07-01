@@ -19,6 +19,11 @@
   });
 
   let saveAddress = $state(true);
+  let payMethod = $state('COD');
+  let payTxid = $state('');
+  let placing = $state(false);
+  let completedOrderId = $state<number | null>(null);
+  const PAY_NUMBER = '01712-426871';
 
   $effect(() => {
     cartItems = JSON.parse(localStorage.getItem('aura_cart') || '[]');
@@ -50,29 +55,42 @@
   const shipping = $derived(formData.district === 'Dhaka' ? 78 : 118);
   const total = $derived(subtotal + shipping);
 
-  function handlePlaceOrder() {
+  async function handlePlaceOrder() {
     error = null;
     if (!formData.name || !formData.phone || !formData.address) {
       error = 'Please fill in all required fields (Name, Phone, Address)';
       return;
     }
-
-    const newOrder: Order = {
-      id: `ORD-${Math.floor(1000 + Math.random() * 9000)}`,
-      customerName: formData.name,
-      totalAmount: total,
-      items: cartItems,
-      currentStatus: 'PLACED' as OrderStatus,
-      estimatedDelivery: formData.district === 'Dhaka' ? '১-২ কার্যদিবস' : '২-৩ কার্যদিবস',
-      timeline: []
-    };
-
-    addOrder(newOrder);
-    localStorage.removeItem('aura_cart');
-    cartItems = [];
-    window.dispatchEvent(new Event('cartUpdated'));
-    completedOrder = newOrder;
-    checkoutStep = 'DONE';
+    if (payMethod !== 'COD' && !payTxid.trim()) {
+      error = `Please enter your ${payMethod === 'BKASH' ? 'bKash' : 'Nagad'} Transaction ID`;
+      return;
+    }
+    placing = true;
+    try {
+      const res = await fetch('/api/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          customer: {
+            name: formData.name, phone: formData.phone, email: formData.email,
+            district: formData.district, area: formData.area, address: formData.address, note: formData.note
+          },
+          items: cartItems.map((i) => ({ id: i.id, quantity: i.quantity })),
+          payment: { method: payMethod, txid: payTxid || null }
+        })
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.message || 'Could not place order');
+      localStorage.removeItem('aura_cart');
+      cartItems = [];
+      window.dispatchEvent(new Event('cartUpdated'));
+      completedOrderId = data.orderId;
+      checkoutStep = 'DONE';
+    } catch (e: any) {
+      error = e?.message || 'Could not place order. Please try again.';
+    } finally {
+      placing = false;
+    }
   }
 </script>
 
@@ -95,7 +113,7 @@
       <CheckCircle2 size={40} class="text-green-500" />
     </div>
     <h1 class="text-3xl font-bold text-gray-900 mb-2">Order Received!</h1>
-    <p class="text-gray-500 mb-8 tracking-widest text-[10px] uppercase font-black">Reference: {completedOrder?.id}</p>
+    <p class="text-gray-500 mb-8 tracking-widest text-[10px] uppercase font-black">Reference: ORD-{completedOrderId}</p>
     <a href="/" class="px-10 py-4 bg-gray-900 text-white rounded-xl text-xs font-black uppercase tracking-widest hover:bg-aura-purple transition-all inline-block">
       Continue Shopping
     </a>
@@ -216,14 +234,31 @@
                 </div>
               </div>
 
-              <div class="p-6 bg-orange-50 border border-orange-100 rounded-2xl flex items-center gap-4 mt-10 animate-pulse">
-                <div class="w-10 h-10 bg-orange-500 rounded-full flex items-center justify-center text-white">
-                  <Wallet size={20} />
+              <div class="mt-10">
+                <h3 class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-4 flex items-center gap-2">
+                  <Wallet size={14} class="text-pink-600" /> Payment Method
+                </h3>
+                <div class="grid grid-cols-3 gap-3">
+                  {#each [['COD', 'Cash on Delivery'], ['BKASH', 'bKash'], ['NAGAD', 'Nagad']] as opt}
+                    <button type="button" onclick={() => payMethod = opt[0]}
+                      class="p-4 rounded-2xl border text-center transition-all {payMethod === opt[0] ? 'border-pink-600 bg-pink-50 ring-2 ring-pink-100' : 'border-gray-100 bg-white hover:border-gray-300'}">
+                      <span class="text-[11px] font-black text-gray-900">{opt[1]}</span>
+                    </button>
+                  {/each}
                 </div>
-                <div>
-                  <p class="text-xs font-bold text-orange-900">Cash on Delivery Available</p>
-                  <p class="text-[9px] font-bold text-orange-700 uppercase tracking-widest mt-1">bKash / Nagad / Rocket: +880 1712-426871</p>
-                </div>
+                {#if payMethod === 'COD'}
+                  <p class="mt-4 text-[11px] text-gray-600 bg-gray-50 border border-gray-100 rounded-xl p-4 leading-relaxed">
+                    ডেলিভারির সময় নগদ পরিশোধ করুন — কোনো অগ্রিম টাকা লাগবে না। <span class="text-gray-400">(Cash on Delivery)</span>
+                  </p>
+                {:else}
+                  <div class="mt-4 space-y-3 bg-pink-50 border border-pink-100 rounded-xl p-4">
+                    <p class="text-[11px] text-gray-700 leading-relaxed">
+                      {payMethod === 'BKASH' ? 'bKash' : 'Nagad'} <b>Send Money</b> → <b class="text-pink-700">{PAY_NUMBER}</b> (৳{total.toLocaleString()}), তারপর নিচে <b>Transaction ID</b> লিখুন:
+                    </p>
+                    <input type="text" bind:value={payTxid} placeholder="Transaction ID (e.g. 9A7B6C5D)"
+                      class="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-pink-600 transition-all" />
+                  </div>
+                {/if}
               </div>
 
               {#if error}
@@ -232,8 +267,8 @@
                 </p>
               {/if}
 
-              <button onclick={handlePlaceOrder} class="w-full py-6 bg-[#1A1C30] text-white rounded-2xl font-black uppercase tracking-[0.2em] text-xs shadow-2xl hover:bg-pink-600 transition-all flex items-center justify-center gap-4 active:scale-95">
-                <CheckCircle2 size={18} /> CONFIRM & PLACE ORDER
+              <button onclick={handlePlaceOrder} disabled={placing} class="w-full py-6 bg-[#1A1C30] text-white rounded-2xl font-black uppercase tracking-[0.2em] text-xs shadow-2xl hover:bg-pink-600 transition-all flex items-center justify-center gap-4 active:scale-95 disabled:opacity-60">
+                <CheckCircle2 size={18} /> {placing ? 'PLACING ORDER…' : 'CONFIRM & PLACE ORDER'}
               </button>
             </div>
           {/if}

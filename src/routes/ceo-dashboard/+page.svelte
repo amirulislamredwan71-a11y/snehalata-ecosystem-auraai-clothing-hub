@@ -1,7 +1,7 @@
 <script lang="ts">
   import { browser } from '$app/environment';
   import { fade, slide, scale } from 'svelte/transition';
-  import { TrendingUp, Users, ShoppingCart, Activity, Globe, Zap, ShieldCheck, ShieldAlert, Shield, Trash2, CheckCircle, XCircle, Plus, Search, Filter, RefreshCw, Package, Tag, Building2, BarChart3, CreditCard, Upload, Loader2, Image as ImageIcon, Network, KeyRound } from '@lucide/svelte';
+  import { TrendingUp, Users, ShoppingCart, Activity, Globe, Zap, ShieldCheck, ShieldAlert, Shield, Trash2, CheckCircle, XCircle, Plus, Search, Filter, RefreshCw, Package, Tag, Building2, BarChart3, CreditCard, Upload, Loader2, Image as ImageIcon, Network, KeyRound, ChevronDown } from '@lucide/svelte';
   import { getEcosystemStats, getVendors, getProducts, getOrders, getCategories, addProduct, deleteProduct, deleteVendor, deleteCategory, getOrderById, getLiveSales, syncWithNeuralGrid } from '$lib/mockData';
 
   const adminPass = () => (typeof localStorage !== 'undefined' ? localStorage.getItem('aura_admin_pass') || '' : '');
@@ -30,6 +30,32 @@
   let newCategory = $state({ name: '', description: '' });
   let vendorCred = $state<{ email: string; password: string; store: string } | null>(null);
   let pendingProducts = $state<any[]>([]);
+  let dbOrders = $state<any[]>([]);
+  let expandedOrder = $state<number | null>(null);
+
+  async function loadOrders() {
+    try {
+      const res = await fetch('/api/admin/orders', { headers: { 'x-admin-pass': adminPass() } });
+      const data = await res.json().catch(() => ({}));
+      dbOrders = res.ok ? data.orders || [] : [];
+    } catch {
+      dbOrders = [];
+    }
+  }
+
+  async function handleOrderStatus(id: number, status: string) {
+    try {
+      const res = await fetch(`/api/admin/orders?id=${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', 'x-admin-pass': adminPass() },
+        body: JSON.stringify({ status })
+      });
+      if (!res.ok) throw new Error((await res.json().catch(() => ({}))).message || `HTTP ${res.status}`);
+      await loadOrders();
+    } catch (err: any) {
+      alert('Order update failed: ' + (err?.message || 'error'));
+    }
+  }
 
   async function loadPending() {
     try {
@@ -99,6 +125,7 @@
     orders = getOrders();
     categories = getCategories();
     loadPending();
+    loadOrders();
     isLoading = false;
   }
 
@@ -672,46 +699,79 @@
           </div>
 
         {:else if activeTab === 'ORDERS'}
-          <div transition:fade={{ duration: 500 }} class="space-y-8">
-            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-              <h2 class="text-2xl font-serif font-black text-white">ECOSYSTEM TRANSACTIONS</h2>
-              <div class="flex items-center gap-4">
-                <span class="text-[10px] font-black uppercase tracking-widest text-gray-500">Real-time Stream</span>
+          <div transition:fade={{ duration: 500 }} class="space-y-6">
+            <div class="flex flex-col md:flex-row justify-between md:items-center gap-4">
+              <div>
+                <h2 class="text-2xl font-serif font-black text-white">Orders</h2>
+                <p class="text-[10px] text-gray-500 uppercase tracking-widest font-black">All customer orders · commission & vendor payouts</p>
+              </div>
+              <div class="flex flex-wrap gap-3 text-[10px] font-black uppercase tracking-widest">
+                <span class="px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-gray-300">{dbOrders.length} Orders</span>
+                <span class="px-4 py-2 rounded-xl bg-green-500/10 border border-green-500/20 text-green-400">Commission ৳{dbOrders.reduce((s, o) => s + Number(o.commission_total || 0), 0).toLocaleString()}</span>
               </div>
             </div>
 
-            <div class="bg-white/5 border border-white/10 rounded-[2rem] overflow-hidden">
-              <table class="w-full text-left">
-                <thead class="bg-white/[0.02] border-b border-white/5">
-                  <tr>
-                    <th class="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-gray-500">Order ID</th>
-                    <th class="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-gray-500">Customer</th>
-                    <th class="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-gray-500">Amount</th>
-                    <th class="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-gray-500">Status</th>
-                  </tr>
-                </thead>
-                <tbody class="divide-y divide-white/5">
-                  {#each orders as o (o.id)}
-                    <tr class="hover:bg-white/[0.02] transition-colors">
-                      <td class="px-8 py-5 font-mono text-xs text-aura-purple uppercase tracking-widest">{o.id}</td>
-                      <td class="px-8 py-5 text-sm font-bold text-white">{o.customerName || 'Syncing...'}</td>
-                      <td class="px-8 py-5 text-sm font-black text-green-400">৳{(o.totalAmount || 0).toLocaleString()}</td>
-                      <td class="px-8 py-5">
-                          <span
-                            class="px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border {o.currentStatus === 'SHIPPED' ? 'bg-blue-500/10 border-blue-500/20 text-blue-400' : o.currentStatus === 'DELIVERED' ? 'bg-green-500/10 border-green-500/20 text-green-400' : o.currentStatus === 'QUALITY_CHECK' ? 'bg-purple-500/10 border-purple-500/20 text-purple-400' : 'bg-yellow-500/10 border-yellow-500/20 text-yellow-400'}"
-                          >
-                          {o.currentStatus || 'PENDING'}
-                        </span>
-                      </td>
-                    </tr>
-                  {:else}
-                    <tr>
-                      <td colspan={4} class="px-8 py-20 text-center text-gray-600 font-black uppercase tracking-[0.3em] text-xs">No transactions detected in primary hub</td>
-                    </tr>
-                  {/each}
-                </tbody>
-              </table>
-            </div>
+            {#if dbOrders.length === 0}
+              <div class="py-32 text-center border-2 border-dashed border-white/5 rounded-[3rem]">
+                <CreditCard size={48} class="text-gray-800 mx-auto mb-4" />
+                <p class="text-gray-600 font-black uppercase tracking-widest text-xs">No orders yet</p>
+              </div>
+            {:else}
+              <div class="space-y-4">
+                {#each dbOrders as o (o.id)}
+                  <div class="bg-white/5 border border-white/10 rounded-2xl overflow-hidden">
+                    <div class="p-5 flex flex-col lg:flex-row lg:items-center gap-4">
+                      <div class="flex-1 min-w-0">
+                        <div class="flex items-center gap-2 flex-wrap">
+                          <span class="font-mono text-aura-purple text-sm font-black">ORD-{o.id}</span>
+                          <span class="px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-widest border {o.payment_method === 'COD' ? 'bg-orange-500/10 text-orange-400 border-orange-500/20' : 'bg-pink-500/10 text-pink-400 border-pink-500/20'}">{o.payment_method}</span>
+                          <span class="px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-widest border {o.payment_status === 'PAID' ? 'bg-green-500/10 text-green-400 border-green-500/20' : 'bg-amber-500/10 text-amber-400 border-amber-500/20'}">{o.payment_status}</span>
+                        </div>
+                        <p class="text-white font-bold text-sm mt-1 truncate">{o.customer_name} · {o.customer_phone}</p>
+                        <p class="text-[10px] text-gray-500 truncate">{o.district} · {o.area} — {o.address}</p>
+                        {#if o.payment_txid}<p class="text-[9px] text-gray-600 font-mono">TxID: {o.payment_txid}</p>{/if}
+                      </div>
+                      <div class="text-right shrink-0">
+                        <p class="text-lg font-black text-white">৳{Number(o.total).toLocaleString()}</p>
+                        <p class="text-[9px] text-green-400 font-black uppercase tracking-widest">Commission ৳{Number(o.commission_total).toLocaleString()}</p>
+                        <p class="text-[9px] text-gray-500 font-black uppercase tracking-widest">Payout ৳{Number(o.vendor_payout_total).toLocaleString()}</p>
+                      </div>
+                      <div class="flex items-center gap-2 shrink-0">
+                        <select value={o.status} onchange={(e) => handleOrderStatus(o.id, e.currentTarget.value)}
+                          class="bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-[10px] font-black uppercase tracking-widest text-white outline-none cursor-pointer">
+                          {#each ['PLACED', 'CONFIRMED', 'SHIPPED', 'DELIVERED', 'CANCELLED'] as s}
+                            <option value={s} class="bg-black">{s}</option>
+                          {/each}
+                        </select>
+                        <button onclick={() => expandedOrder = expandedOrder === o.id ? null : o.id}
+                          class="p-2 bg-white/5 border border-white/10 rounded-xl text-gray-400 hover:text-white transition-all">
+                          <ChevronDown size={16} class="transition-transform {expandedOrder === o.id ? 'rotate-180' : ''}" />
+                        </button>
+                      </div>
+                    </div>
+                    {#if expandedOrder === o.id}
+                      <div class="border-t border-white/5 bg-black/30 p-5 space-y-3">
+                        {#each o.order_items || [] as it}
+                          <div class="flex items-center justify-between gap-4">
+                            <div class="flex items-center gap-3 min-w-0">
+                              {#if it.image_url}<img src={it.image_url} class="w-10 h-10 rounded-lg object-cover shrink-0" alt={it.name} />{/if}
+                              <div class="min-w-0">
+                                <p class="text-white font-bold text-xs truncate">{it.name}</p>
+                                <p class="text-[9px] text-amber-400 font-black uppercase tracking-widest truncate">{it.vendors?.store_name || 'Vendor'} · x{it.quantity}</p>
+                              </div>
+                            </div>
+                            <div class="text-right shrink-0">
+                              <p class="text-white font-black text-xs">৳{Number(it.line_total).toLocaleString()}</p>
+                              <p class="text-[9px] text-gray-500">−{it.commission_rate}% → payout ৳{Number(it.vendor_payout).toLocaleString()}</p>
+                            </div>
+                          </div>
+                        {/each}
+                      </div>
+                    {/if}
+                  </div>
+                {/each}
+              </div>
+            {/if}
           </div>
 
         {:else if activeTab === 'TRACKING'}

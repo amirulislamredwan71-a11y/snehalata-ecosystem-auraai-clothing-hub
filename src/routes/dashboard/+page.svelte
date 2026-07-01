@@ -11,7 +11,32 @@
 
   let vendor: any = $state(null);
   let products: any[] = $state([]);
+  let vendorOrders = $state<any[]>([]);
   let loading = $state(true);
+
+  async function loadVendorOrders() {
+    try {
+      const res = await fetch('/api/vendor/orders', { headers: { Authorization: `Bearer ${vendorToken()}` } });
+      const data = await res.json().catch(() => ({}));
+      vendorOrders = res.ok ? data.items || [] : [];
+    } catch {
+      vendorOrders = [];
+    }
+  }
+
+  async function handleItemStatus(itemId: number, status: string) {
+    try {
+      const res = await fetch(`/api/vendor/orders?id=${itemId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${vendorToken()}` },
+        body: JSON.stringify({ status })
+      });
+      if (!res.ok) throw new Error((await res.json().catch(() => ({}))).message || `HTTP ${res.status}`);
+      await loadVendorOrders();
+    } catch (err: any) {
+      alert('Update failed: ' + (err?.message || 'error'));
+    }
+  }
   let showLogin = $state(false);
   let loginEmail = $state('');
   let loginPassword = $state('');
@@ -92,6 +117,7 @@
       } catch {
         products = getProductsByVendor(Number(currentVendor.id));
       }
+      loadVendorOrders();
     }
     loading = false;
   }
@@ -442,6 +468,42 @@
     <div class="max-w-7xl mx-auto px-6 py-12">
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
         <div class="lg:col-span-8 space-y-12">
+          <div>
+            <div class="flex items-center justify-between mb-8 px-2">
+              <div class="flex items-center gap-4">
+                <BarChart3 class="text-aura-purple" size={28} />
+                <h2 class="text-3xl font-serif font-black italic">Incoming Orders</h2>
+              </div>
+              <span class="text-[10px] font-black uppercase tracking-widest text-gray-500 bg-white/5 px-4 py-2 rounded-full border border-white/10">{vendorOrders.length} items</span>
+            </div>
+            {#if vendorOrders.length === 0}
+              <div class="py-16 border-2 border-dashed border-white/5 rounded-[3rem] text-center text-gray-700 text-sm font-serif italic">No orders yet for your products.</div>
+            {:else}
+              <div class="space-y-4">
+                {#each vendorOrders as it (it.id)}
+                  <div class="bg-white/5 border border-white/10 rounded-2xl p-5 flex flex-col sm:flex-row sm:items-center gap-4">
+                    {#if it.image_url}<img src={it.image_url} class="w-14 h-14 rounded-xl object-cover shrink-0" alt={it.name} />{/if}
+                    <div class="flex-1 min-w-0">
+                      <p class="text-white font-bold text-sm truncate">{it.name} <span class="text-gray-500">×{it.quantity}</span></p>
+                      <p class="text-[10px] text-gray-500 truncate">ORD-{it.orders?.id} · {it.orders?.customer_name} · {it.orders?.customer_phone}</p>
+                      <p class="text-[10px] text-gray-600 truncate">{it.orders?.district} — {it.orders?.address}</p>
+                    </div>
+                    <div class="text-right shrink-0">
+                      <p class="text-green-400 font-black">৳{Number(it.vendor_payout).toLocaleString()}</p>
+                      <p class="text-[8px] text-gray-500 uppercase tracking-widest">Your payout (−{it.commission_rate}%)</p>
+                    </div>
+                    <select value={it.item_status} onchange={(e) => handleItemStatus(it.id, e.currentTarget.value)}
+                      class="bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-[10px] font-black uppercase tracking-widest text-white outline-none cursor-pointer shrink-0">
+                      {#each ['PLACED', 'CONFIRMED', 'SHIPPED', 'DELIVERED'] as s}
+                        <option value={s} class="bg-black">{s}</option>
+                      {/each}
+                    </select>
+                  </div>
+                {/each}
+              </div>
+            {/if}
+          </div>
+
           {#if vendor.metadata?.vendor_type === 'SUBDOMAIN'}
             <div class="bg-gradient-to-br from-aura-purple/20 via-black to-black border border-white/5 rounded-[3rem] p-12 overflow-hidden relative group">
               <div class="absolute top-0 right-0 p-12 text-white/5 group-hover:text-white/10 transition-colors">
