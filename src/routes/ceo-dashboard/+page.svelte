@@ -8,7 +8,7 @@
   import type { EcosystemStats, Vendor, Product, Category } from '$lib/types';
   import { BD_LOCATIONS } from '$lib/locationData';
 
-  type Tab = 'OVERVIEW' | 'VENDORS' | 'PRODUCTS' | 'ORDERS' | 'CATEGORIES' | 'TRACKING';
+  type Tab = 'OVERVIEW' | 'VENDORS' | 'PRODUCTS' | 'REVIEW' | 'ORDERS' | 'CATEGORIES' | 'TRACKING';
 
   let isAuthenticated = $state(false);
   let stats = $state<EcosystemStats | null>(null);
@@ -29,6 +29,50 @@
   let newProduct = $state({ name: '', price: '', category: '', description: '', imageUrl: '' });
   let newCategory = $state({ name: '', description: '' });
   let vendorCred = $state<{ email: string; password: string; store: string } | null>(null);
+  let pendingProducts = $state<any[]>([]);
+
+  async function loadPending() {
+    try {
+      const res = await fetch('/api/admin/products?pending=1', { headers: { 'x-admin-pass': adminPass() } });
+      const data = await res.json().catch(() => ({}));
+      pendingProducts = res.ok ? data.products || [] : [];
+    } catch {
+      pendingProducts = [];
+    }
+  }
+
+  async function handleApproveProduct(id: string | number) {
+    isLoading = true;
+    try {
+      const res = await fetch(`/api/admin/products?id=${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', 'x-admin-pass': adminPass() },
+        body: JSON.stringify({ is_active: true })
+      });
+      if (!res.ok) throw new Error((await res.json().catch(() => ({}))).message || `HTTP ${res.status}`);
+      await loadPending();
+      await syncWithNeuralGrid();
+      loadData();
+    } catch (err: any) {
+      alert('Approve failed: ' + (err?.message || 'error'));
+    } finally {
+      isLoading = false;
+    }
+  }
+
+  async function handleRejectProduct(id: string | number) {
+    if (!confirm('Reject and delete this imported product?')) return;
+    isLoading = true;
+    try {
+      const res = await fetch(`/api/admin/products?id=${id}`, { method: 'DELETE', headers: { 'x-admin-pass': adminPass() } });
+      if (!res.ok) throw new Error((await res.json().catch(() => ({}))).message || `HTTP ${res.status}`);
+      await loadPending();
+    } catch (err: any) {
+      alert('Reject failed: ' + (err?.message || 'error'));
+    } finally {
+      isLoading = false;
+    }
+  }
 
   async function handleResetVendorPassword(id: string | number) {
     if (!confirm('Generate a brand-new password for this vendor? Their old password stops working.')) return;
@@ -54,6 +98,7 @@
     products = getProducts();
     orders = getOrders();
     categories = getCategories();
+    loadPending();
     isLoading = false;
   }
 
@@ -313,6 +358,13 @@
           <button onclick={() => activeTab = 'PRODUCTS'} class={tabBtnClass('PRODUCTS')}>
             <span class="{activeTab === 'PRODUCTS' ? 'text-white' : 'text-gray-600'} group-hover:text-aura-purple transition-colors"><Package size={14} /></span>
             <span>Inventory</span>
+          </button>
+          <button onclick={() => activeTab = 'REVIEW'} class={tabBtnClass('REVIEW')}>
+            <span class="{activeTab === 'REVIEW' ? 'text-white' : 'text-gray-600'} group-hover:text-aura-purple transition-colors"><ShieldCheck size={14} /></span>
+            <span>Review</span>
+            {#if pendingProducts.length > 0}
+              <span class="ml-1 px-2 py-0.5 bg-amber-500 text-black rounded-full text-[9px] font-black animate-pulse">{pendingProducts.length}</span>
+            {/if}
           </button>
           <button onclick={() => activeTab = 'ORDERS'} class={tabBtnClass('ORDERS')}>
             <span class="{activeTab === 'ORDERS' ? 'text-white' : 'text-gray-600'} group-hover:text-aura-purple transition-colors"><CreditCard size={14} /></span>
@@ -578,6 +630,45 @@
                 <div class="col-span-full py-20 text-center text-gray-600 font-black uppercase tracking-[0.3em] text-xs">No products found matching the search criteria</div>
               {/each}
             </div>
+          </div>
+
+        {:else if activeTab === 'REVIEW'}
+          <div transition:fade={{ duration: 500 }} class="space-y-8">
+            <div class="flex items-center justify-between gap-6 flex-wrap">
+              <div>
+                <h2 class="text-2xl font-serif font-black text-white">Import Review Queue</h2>
+                <p class="text-[10px] text-gray-500 uppercase tracking-widest font-black">Products auto-imported from vendor websites — approve to publish live</p>
+              </div>
+              <span class="text-[10px] font-black uppercase tracking-widest text-amber-400 bg-amber-500/10 border border-amber-500/20 px-4 py-2 rounded-full">{pendingProducts.length} Pending</span>
+            </div>
+            {#if pendingProducts.length === 0}
+              <div class="py-32 text-center border-2 border-dashed border-white/5 rounded-[3rem]">
+                <ShieldCheck size={48} class="text-gray-800 mx-auto mb-4" />
+                <p class="text-gray-600 font-black uppercase tracking-widest text-xs">No products awaiting review</p>
+              </div>
+            {:else}
+              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {#each pendingProducts as p (p.id)}
+                  <div class="bg-white/5 border border-white/10 rounded-2xl overflow-hidden">
+                    <div class="aspect-[4/3] overflow-hidden bg-black/40">
+                      {#if p.image_url}<img src={p.image_url} alt={p.name} class="w-full h-full object-cover" />{/if}
+                    </div>
+                    <div class="p-5 space-y-3">
+                      <div>
+                        <p class="text-[9px] text-amber-400 font-black uppercase tracking-widest">{p.vendors?.store_name || 'Vendor'}</p>
+                        <h3 class="text-white font-bold truncate">{p.name}</h3>
+                        <p class="text-green-400 font-black text-sm">৳{Number(p.price).toLocaleString()}</p>
+                      </div>
+                      <p class="text-[10px] text-gray-500 line-clamp-2">{p.description}</p>
+                      <div class="grid grid-cols-2 gap-3 pt-2">
+                        <button onclick={() => handleRejectProduct(p.id)} class="py-3 bg-red-500/10 border border-red-500/20 text-red-400 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-red-500 hover:text-white transition-all cursor-pointer">Reject</button>
+                        <button onclick={() => handleApproveProduct(p.id)} class="py-3 bg-green-500/10 border border-green-500/20 text-green-400 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-green-500 hover:text-white transition-all cursor-pointer">Approve</button>
+                      </div>
+                    </div>
+                  </div>
+                {/each}
+              </div>
+            {/if}
           </div>
 
         {:else if activeTab === 'ORDERS'}

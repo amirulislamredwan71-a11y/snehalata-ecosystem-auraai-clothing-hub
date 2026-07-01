@@ -68,7 +68,8 @@ export async function syncVendor(
       description: (it.description || `Imported from ${vendor.store_name}`).slice(0, 500),
       image_url: it.imageUrl || '',
       stock_quantity: 10,
-      vendor_id: vendor.id
+      vendor_id: vendor.id,
+      is_active: false // pending admin review before going live on the storefront
     }));
 
   if (!rows.length) return { imported: 0, found: items.length };

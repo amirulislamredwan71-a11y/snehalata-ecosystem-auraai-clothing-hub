@@ -71,7 +71,7 @@
     }
   }
 
-  function loadVendorData() {
+  async function loadVendorData() {
     loading = true;
     const activeId = browser ? localStorage.getItem('aura_active_vendor_id') : null;
     const activeEmail = browser ? localStorage.getItem('aura_active_vendor_email') : null;
@@ -81,8 +81,17 @@
     if (!currentVendor && activeEmail) currentVendor = allVendors.find((v: any) => v.email === activeEmail);
     if (currentVendor) {
       vendor = currentVendor;
-      products = getProductsByVendor(Number(currentVendor.id));
       if (currentVendor.website_url) externalUrlInput = currentVendor.website_url;
+      // Load THIS vendor's products (including pending-review) via the API.
+      try {
+        const res = await fetch('/api/vendor/products', { headers: { Authorization: `Bearer ${vendorToken()}` } });
+        const data = await res.json().catch(() => ({}));
+        products = res.ok
+          ? (data.products || []).map((p: any) => ({ ...p, imageUrl: p.image_url, vendorId: p.vendor_id }))
+          : getProductsByVendor(Number(currentVendor.id));
+      } catch {
+        products = getProductsByVendor(Number(currentVendor.id));
+      }
     }
     loading = false;
   }
@@ -582,6 +591,9 @@
                     >
                       <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                     </button>
+                    {#if p.is_active === false}
+                      <span class="absolute top-2 left-2 z-20 px-2.5 py-1 bg-amber-500 text-black rounded-lg text-[8px] font-black uppercase tracking-widest shadow-lg">Pending Review</span>
+                    {/if}
                     <ProductCard product={p} />
                   </div>
                 {/each}

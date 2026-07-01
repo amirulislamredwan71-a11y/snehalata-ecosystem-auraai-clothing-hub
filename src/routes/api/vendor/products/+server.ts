@@ -30,6 +30,17 @@ async function vendorFromToken(request: Request) {
   return { admin, vend };
 }
 
+export const GET: RequestHandler = async ({ request }) => {
+  const { admin, vend } = await vendorFromToken(request);
+  const { data, error: e } = await admin
+    .from('products')
+    .select('*')
+    .eq('vendor_id', vend.id)
+    .order('id', { ascending: false });
+  if (e) throw error(500, e.message);
+  return json({ ok: true, products: data });
+};
+
 export const POST: RequestHandler = async ({ request }) => {
   const { admin, vend } = await vendorFromToken(request);
   const b = await request.json();

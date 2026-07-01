@@ -33,8 +33,20 @@ function cleanProduct(body: any) {
     if (f === 'price' || f === 'stock_quantity') v = Number(v);
     row[f] = v;
   }
+  if (body.is_active !== undefined) row.is_active = Boolean(body.is_active);
   return row;
 }
+
+// List products for admin review. ?pending=1 → only items awaiting review (is_active=false).
+export const GET: RequestHandler = async ({ request, url }) => {
+  assertAdmin(request);
+  const sb = adminClient();
+  let query = sb.from('products').select('*, vendors(store_name)').order('id', { ascending: false });
+  if (url.searchParams.get('pending') === '1') query = query.eq('is_active', false);
+  const { data, error: e } = await query;
+  if (e) throw error(500, e.message);
+  return json({ ok: true, products: data });
+};
 
 export const POST: RequestHandler = async ({ request }) => {
   assertAdmin(request);
