@@ -29,6 +29,26 @@
   let newPass = $state('');
   let pwMsg = $state<string | null>(null);
   let pwLoading = $state(false);
+  let isSyncing = $state(false);
+
+  async function handleSync() {
+    isSyncing = true;
+    try {
+      const res = await fetch('/api/vendor/sync', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${vendorToken()}` }
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.message || `HTTP ${res.status}`);
+      await syncWithNeuralGrid();
+      loadVendorData();
+      alert(`Website sync complete — ${data.imported || 0} new product(s) imported (${data.found ?? 0} detected on your site).`);
+    } catch (err: any) {
+      alert('Sync failed: ' + (err?.message || 'unknown error'));
+    } finally {
+      isSyncing = false;
+    }
+  }
 
   async function handleChangePassword() {
     if (!newPass || newPass.length < 6) { pwMsg = 'Password must be at least 6 characters'; return; }
@@ -387,13 +407,26 @@
           </p>
         </div>
 
-        <button
-          onclick={() => isAddingProduct = true}
-          class="group px-10 py-5 bg-aura-purple text-white rounded-3xl font-black uppercase text-[11px] tracking-widest flex items-center gap-3 hover:bg-white hover:text-black transition-all shadow-[0_20px_40px_rgba(124,58,237,0.2)]"
-        >
-          <Plus size={18} />
-          <span class="relative">Add Neural Catalog Item</span>
-        </button>
+        <div class="flex flex-wrap items-center gap-3">
+          {#if vendor.website_url}
+            <button
+              onclick={handleSync}
+              disabled={isSyncing}
+              title="Import products from your own website"
+              class="group px-8 py-5 bg-white/5 border border-white/10 text-white rounded-3xl font-black uppercase text-[11px] tracking-widest flex items-center gap-3 hover:border-aura-purple transition-all disabled:opacity-50"
+            >
+              <Globe size={18} class={isSyncing ? 'animate-spin' : ''} />
+              <span>{isSyncing ? 'Syncing…' : 'Sync from Website'}</span>
+            </button>
+          {/if}
+          <button
+            onclick={() => isAddingProduct = true}
+            class="group px-10 py-5 bg-aura-purple text-white rounded-3xl font-black uppercase text-[11px] tracking-widest flex items-center gap-3 hover:bg-white hover:text-black transition-all shadow-[0_20px_40px_rgba(124,58,237,0.2)]"
+          >
+            <Plus size={18} />
+            <span class="relative">Add Neural Catalog Item</span>
+          </button>
+        </div>
       </div>
     </header>
 

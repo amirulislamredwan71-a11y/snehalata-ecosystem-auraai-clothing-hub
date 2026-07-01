@@ -9,16 +9,15 @@
     Tag, MapPin
   } from '@lucide/svelte';
   import { auditVendorDescription } from '$lib/geminiService';
-  import { addVendor, getCategories, syncWithNeuralGrid } from '$lib/mockData';
-  import { addVendorToSupabase } from '$lib/supabaseClient';
+  import { getCategories } from '$lib/mockData';
   import { BD_LOCATIONS } from '$lib/locationData';
-  import type { Vendor } from '$lib/types';
 
   let categories = $state<any[]>([]);
   let formData = $state({
     ownerName: '',
     shopName: '',
     email: '',
+    password: '',
     description: '',
     tradeLicense: '',
     websiteUrl: '',
@@ -53,46 +52,25 @@
 
       status = 'SAVING';
 
-      const vendorData = {
-        store_name: formData.shopName,
-        owner_name: formData.ownerName,
-        email: formData.email,
-        description: formData.description,
-        website_url: formData.websiteUrl,
-        category_id: formData.categoryId,
-        district: formData.district,
-        area: formData.area,
-        status: 'PENDING',
-        metadata: {
-          vendor_type: formData.vendorType
-        }
-      };
+      const res = await fetch('/api/vendor/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          shopName: formData.shopName,
+          ownerName: formData.ownerName,
+          email: formData.email,
+          password: formData.password,
+          description: formData.description,
+          websiteUrl: formData.websiteUrl,
+          district: formData.district,
+          area: formData.area,
+          category_id: formData.categoryId || null,
+          vendorType: formData.vendorType
+        })
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.message || 'Registration failed');
 
-      const { data: sbVendorData, error: sbError } = await addVendorToSupabase(vendorData);
-
-      if (sbError) {
-        console.error("Supabase Sync Failed:", sbError);
-      }
-
-      let sbId = Date.now();
-      if (sbVendorData) {
-        const arrData = Array.isArray(sbVendorData) ? sbVendorData : [sbVendorData];
-        const firstItem = arrData[0];
-        if (firstItem && typeof firstItem === 'object' && 'id' in firstItem) {
-          sbId = Number((firstItem as any).id) || sbId;
-        }
-      }
-
-      addVendor({
-        ...vendorData,
-        name: formData.shopName,
-        id: sbId
-      } as any);
-
-      localStorage.setItem('aura_active_vendor_id', String(sbId || Date.now()));
-      localStorage.setItem('aura_active_vendor_email', formData.email);
-
-      await syncWithNeuralGrid();
       status = 'SUCCESS';
     } catch (error: any) {
       console.error("Neural Onboarding Error:", error);
@@ -199,10 +177,11 @@
                 <div class="absolute inset-0 bg-green-500 blur-2xl opacity-20 animate-pulse" />
                 <ShieldCheck size={48} class="text-green-400 relative z-10" />
               </div>
-              <h2 class="text-3xl font-serif font-bold text-white mb-4">Neural Deployment Active</h2>
-              <p class="text-gray-400 text-sm mb-10 max-w-sm mx-auto leading-relaxed">{auditResult?.reason}</p>
+              <h2 class="text-3xl font-serif font-bold text-white mb-4">Registration Submitted</h2>
+              <p class="text-gray-400 text-sm mb-4 max-w-sm mx-auto leading-relaxed">Your node is <span class="text-amber-400 font-bold">pending SNEHALATA approval</span>. Sign in to your dashboard now — product sync & your storefront go live once an admin approves.</p>
+              <p class="text-gray-600 text-[11px] mb-10 max-w-sm mx-auto italic">{auditResult?.reason}</p>
               <a href="/dashboard" class="bg-white text-black px-12 py-5 rounded-2xl font-black uppercase tracking-[0.2em] text-[11px] hover:bg-aura-purple hover:text-white transition-all shadow-2xl active:scale-95 flex items-center justify-center gap-3 w-fit mx-auto">
-                Enter Command Center <ChevronRight size={18} />
+                Sign In to Dashboard <ChevronRight size={18} />
               </a>
             </div>
           {:else if status === 'PENDING_HUB'}
@@ -255,6 +234,15 @@
                       <div class="relative group">
                         <div class="absolute left-5 top-1/2 -translate-y-1/2 text-gray-600 group-focus-within:text-aura-purple transition-colors"><Globe size={18} /></div>
                         <input type="email" bind:value={formData.email} placeholder="Ex: shafi@example.com" required
+                          class="w-full bg-black/40 border border-white/10 rounded-2xl pl-14 pr-6 py-4 text-sm text-white focus:outline-none focus:border-aura-purple transition-all placeholder:text-gray-800" />
+                      </div>
+                    </div>
+
+                    <div class="space-y-2">
+                      <label class="text-[10px] text-gray-500 font-black uppercase tracking-widest px-1">Dashboard Password</label>
+                      <div class="relative group">
+                        <div class="absolute left-5 top-1/2 -translate-y-1/2 text-gray-600 group-focus-within:text-aura-purple transition-colors"><ShieldCheck size={18} /></div>
+                        <input type="password" bind:value={formData.password} placeholder="Set a password (min 6 characters)" required minlength="6"
                           class="w-full bg-black/40 border border-white/10 rounded-2xl pl-14 pr-6 py-4 text-sm text-white focus:outline-none focus:border-aura-purple transition-all placeholder:text-gray-800" />
                       </div>
                     </div>

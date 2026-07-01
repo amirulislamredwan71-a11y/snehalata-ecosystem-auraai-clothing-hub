@@ -81,27 +81,39 @@
     return tabBtnBase + " " + (activeTab === tab ? tabBtnActive : tabBtnInactive);
   }
 
-  function handleUpdateVendorStatus(id: string | number, status: string) {
+  async function handleUpdateVendorStatus(id: string | number, status: string) {
     isLoading = true;
-    const existing = getVendors().find(v => v.id === id);
-    if (!existing) return;
-    const dbVendors = JSON.parse(localStorage.getItem('aura_vendors') || '[]');
-    const idx = dbVendors.findIndex((v: any) => v.id === id);
-    if (idx !== -1) {
-      dbVendors[idx].status = status;
-    } else {
-      dbVendors.push({ ...existing, status });
+    try {
+      const res = await fetch(`/api/admin/vendors?id=${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', 'x-admin-pass': adminPass() },
+        body: JSON.stringify({ status })
+      });
+      if (!res.ok) throw new Error((await res.json().catch(() => ({}))).message || `HTTP ${res.status}`);
+      await syncWithNeuralGrid();
+      loadData();
+    } catch (err: any) {
+      alert('Vendor update failed: ' + (err?.message || 'unknown error'));
+    } finally {
+      isLoading = false;
     }
-    localStorage.setItem('aura_vendors', JSON.stringify(dbVendors));
-    window.dispatchEvent(new Event('vendorUpdated'));
-    loadData();
-    isLoading = false;
   }
 
-  function handleDeleteVendor(id: string | number) {
-    if (confirm('Are you sure you want to PERMANENTLY remove this vendor?')) {
-      deleteVendor(id);
+  async function handleDeleteVendor(id: string | number) {
+    if (!confirm('Permanently remove this vendor AND all their products?')) return;
+    isLoading = true;
+    try {
+      const res = await fetch(`/api/admin/vendors?id=${id}`, {
+        method: 'DELETE',
+        headers: { 'x-admin-pass': adminPass() }
+      });
+      if (!res.ok) throw new Error((await res.json().catch(() => ({}))).message || `HTTP ${res.status}`);
+      await syncWithNeuralGrid();
       loadData();
+    } catch (err: any) {
+      alert('Vendor delete failed: ' + (err?.message || 'unknown error'));
+    } finally {
+      isLoading = false;
     }
   }
 
