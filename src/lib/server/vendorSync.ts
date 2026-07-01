@@ -29,9 +29,20 @@ async function scrapeProducts(url: string) {
   });
   const $ = cheerio.load(resp.data);
   $('script, style, noscript, iframe, svg').remove();
-  const body = $('body').html() || '';
-  const result = await gemini.analyzeWebsiteProducts(body.substring(0, 30000));
-  return result?.products || [];
+  const body = ($('body').html() || '').substring(0, 30000);
+
+  // Gemini preview models can return transient 503s under load — retry a few times.
+  let lastErr: unknown;
+  for (let i = 0; i < 3; i++) {
+    try {
+      const result = await gemini.analyzeWebsiteProducts(body);
+      return result?.products || [];
+    } catch (e) {
+      lastErr = e;
+      await new Promise((r) => setTimeout(r, 2500 * (i + 1)));
+    }
+  }
+  throw lastErr;
 }
 
 /**
