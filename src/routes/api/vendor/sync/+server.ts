@@ -2,6 +2,9 @@ import { json, error } from '@sveltejs/kit';
 import { adminClient, syncVendor, isApproved } from '$lib/server/vendorSync';
 import type { RequestHandler } from './$types';
 
+// Scraping + a Gemini extraction call can take >10s; allow up to 60s (Vercel).
+export const config = { maxDuration: 60 };
+
 // Vendor-triggered "Sync Now": pull products from the vendor's own website into
 // snehalata's catalog (so they don't have to upload twice). Vendor-scoped via token.
 export const POST: RequestHandler = async ({ request }) => {

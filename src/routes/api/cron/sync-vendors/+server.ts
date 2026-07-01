@@ -3,6 +3,9 @@ import { env } from '$env/dynamic/private';
 import { adminClient, syncVendor, isApproved } from '$lib/server/vendorSync';
 import type { RequestHandler } from './$types';
 
+// Re-syncing several vendors (each a scrape + Gemini call) needs a long budget.
+export const config = { maxDuration: 60 };
+
 // Daily Vercel Cron: re-sync every approved vendor that has a linked website,
 // so their snehalata catalog mirrors their own site automatically.
 // Protected by CRON_SECRET (Vercel Cron sends it as a Bearer token).
