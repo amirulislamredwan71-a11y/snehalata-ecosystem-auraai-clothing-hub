@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { page } from '$app/stores';
   import { MessageSquare, X, Sparkles, Bot, User, Loader2, Cpu, Download, Image as ImageIcon, Trash2, ArrowUp } from '@lucide/svelte';
   import { generateAuraImage, generateAuraResponse, resetAuraChat } from '$lib/geminiService';
   import { fade, fly, scale } from 'svelte/transition';
@@ -91,10 +90,9 @@
     }
   }
 
-  const isFloatingHidden = !embedded && $page.url.pathname === '/';
 </script>
 
-<div class={embedded ? `relative w-full max-w-2xl mx-auto z-20 font-sans my-10 ${className}` : `fixed bottom-8 left-8 z-[150] font-sans ${isFloatingHidden ? 'hidden' : ''}`}>
+<div class={embedded ? `relative w-full max-w-2xl mx-auto z-20 font-sans my-10 ${className}` : `fixed bottom-6 left-6 z-[150] font-sans`}>
   {#if !embedded}
     <div class="flex flex-col items-center gap-2">
       {#if !isOpen}

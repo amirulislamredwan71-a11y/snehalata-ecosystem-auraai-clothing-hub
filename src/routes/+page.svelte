@@ -147,7 +147,7 @@
   <!-- Hero -->
   <section class="relative overflow-hidden border-b border-white/5">
     <div class="absolute inset-0 bg-gradient-to-b from-[#7c3aed]/15 via-transparent to-transparent pointer-events-none"></div>
-    <div class="max-w-7xl mx-auto px-6 py-20 lg:py-28 relative">
+    <div class="max-w-7xl mx-auto px-6 py-14 sm:py-20 lg:py-28 relative">
       <div class="inline-flex items-center gap-2 px-4 py-2 mb-8 bg-white/5 border border-white/10 rounded-full">
         <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
         <span class="text-[10px] font-black uppercase tracking-[0.3em] text-gray-300">Aura Neural Engine v3.1 · Live</span>
@@ -168,17 +168,17 @@
           Become a Vendor
         </a>
       </div>
-      <div class="mt-16 grid grid-cols-3 gap-6 max-w-2xl">
+      <div class="mt-12 sm:mt-16 grid grid-cols-3 gap-3 sm:gap-6 max-w-2xl">
         <div>
-          <div class="text-3xl md:text-4xl font-black text-white tabular-nums">{stats.totalVendors.toLocaleString()}+</div>
+          <div class="text-xl sm:text-3xl md:text-4xl font-black text-white tabular-nums">{stats.totalVendors.toLocaleString()}+</div>
           <div class="text-[10px] font-black uppercase tracking-widest text-gray-500 mt-1">Verified Artisans</div>
         </div>
         <div>
-          <div class="text-3xl md:text-4xl font-black text-white tabular-nums">{Math.round(stats.activeProducts / 1000)}K+</div>
+          <div class="text-xl sm:text-3xl md:text-4xl font-black text-white tabular-nums">{Math.round(stats.activeProducts / 1000)}K+</div>
           <div class="text-[10px] font-black uppercase tracking-widest text-gray-500 mt-1">Neural Products</div>
         </div>
         <div>
-          <div class="text-3xl md:text-4xl font-black text-white tabular-nums">{Math.round(stats.aiInteractions / 1000)}K+</div>
+          <div class="text-xl sm:text-3xl md:text-4xl font-black text-white tabular-nums">{Math.round(stats.aiInteractions / 1000)}K+</div>
           <div class="text-[10px] font-black uppercase tracking-widest text-gray-500 mt-1">AI Interactions</div>
         </div>
       </div>
