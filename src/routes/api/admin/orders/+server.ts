@@ -11,12 +11,21 @@ function assertAdmin(request: Request) {
 // All orders (master view) with their line items + vendor names + commission/payout.
 export const GET: RequestHandler = async ({ request }) => {
   assertAdmin(request);
-  const { data, error: e } = await adminClient()
+  const a = adminClient();
+  const { data: orders, error: e } = await a
     .from('orders')
-    .select('*, order_items(*, vendors(store_name))')
+    .select('*, order_items(*)')
     .order('id', { ascending: false });
   if (e) throw error(500, e.message);
-  return json({ ok: true, orders: data });
+  // attach vendor store names (order_items.vendor_id has no FK, so map manually)
+  const vids = [...new Set((orders || []).flatMap((o: any) => (o.order_items || []).map((i: any) => i.vendor_id)).filter(Boolean))];
+  const names: Record<string, string> = {};
+  if (vids.length) {
+    const { data: vs } = await a.from('vendors').select('id, store_name').in('id', vids);
+    for (const v of vs || []) names[v.id] = v.store_name;
+  }
+  for (const o of orders || []) for (const it of o.order_items || []) it.vendor_store_name = names[it.vendor_id] || 'Vendor';
+  return json({ ok: true, orders });
 };
 
 // Update an order's fulfillment status and/or payment status.

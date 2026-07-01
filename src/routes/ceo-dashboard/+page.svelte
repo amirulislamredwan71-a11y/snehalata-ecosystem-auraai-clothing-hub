@@ -757,7 +757,7 @@
                               {#if it.image_url}<img src={it.image_url} class="w-10 h-10 rounded-lg object-cover shrink-0" alt={it.name} />{/if}
                               <div class="min-w-0">
                                 <p class="text-white font-bold text-xs truncate">{it.name}</p>
-                                <p class="text-[9px] text-amber-400 font-black uppercase tracking-widest truncate">{it.vendors?.store_name || 'Vendor'} · x{it.quantity}</p>
+                                <p class="text-[9px] text-amber-400 font-black uppercase tracking-widest truncate">{it.vendor_store_name || 'Vendor'} · x{it.quantity}</p>
                               </div>
                             </div>
                             <div class="text-right shrink-0">
