@@ -274,9 +274,9 @@
       </div>
 
       <div class="text-center mb-12">
-        <h2 class="text-5xl font-serif font-black mb-6 italic tracking-tighter uppercase">
+        <h2 class="text-4xl sm:text-5xl font-serif font-black mb-6 italic tracking-tighter uppercase">
           Portal Entrance <br />
-          <span class="text-aura-purple text-6xl">Locked</span>
+          <span class="text-aura-purple text-5xl sm:text-6xl">Locked</span>
         </h2>
         <p class="text-gray-400 leading-relaxed font-medium max-w-sm mx-auto">
           Authenticate your business identity to access the <span class="text-white">Aura Management Grid</span>. Manage products, analyze neural traffic, and scale your artisan brand.
@@ -434,7 +434,7 @@
               </span>
             {/if}
           </div>
-          <h1 class="text-6xl font-serif font-black italic tracking-tighter mb-2">{vendor.store_name}</h1>
+          <h1 class="text-4xl sm:text-6xl font-serif font-black italic tracking-tighter mb-2 break-words">{vendor.store_name}</h1>
           <p class="text-gray-500 font-bold uppercase tracking-widest text-[10px] flex items-center gap-4">
             {vendor.email} • Neural ID: {vendor.id}
             <button onclick={() => { showPwModal = true; pwMsg = null; }} class="text-aura-purple hover:underline cursor-pointer">Change Password</button>

@@ -3,30 +3,52 @@
   import { goto } from '$app/navigation';
   import { fade, scale, fly } from 'svelte/transition';
   import { Search, Truck, MapPin, Loader2, ArrowRight, Navigation2, Zap, Volume2, Clock, ShieldCheck, Box, AlertCircle, Sparkles } from '@lucide/svelte';
-  import { getOrderById } from '$lib/mockData';
   import { generateAuraSpeech } from '$lib/geminiService';
-  import type { Order } from '$lib/types';
 
   let searchInput = $state($page.params.orderId || '');
-  let order: Order | null = $state(null);
+  let order: any = $state(null);
   let loading = $state(false);
   let error = $state('');
   let isSpeaking = $state(false);
 
-  function fetchOrder(id: string) {
+  const STATUS_FLOW = ['PLACED', 'CONFIRMED', 'SHIPPED', 'DELIVERED'];
+  const STATUS_LABEL: Record<string, string> = {
+    PLACED: 'অর্ডার প্লেস হয়েছে',
+    CONFIRMED: 'ভেন্ডর কনফার্মড',
+    SHIPPED: 'শিপিং চলছে',
+    DELIVERED: 'ডেলিভারড'
+  };
+
+  async function fetchOrder(id: string) {
     loading = true;
     error = '';
-
-    setTimeout(() => {
-      const foundOrder = getOrderById(id);
-      if (foundOrder) {
-        order = foundOrder;
-      } else {
-        order = null;
-        error = 'অর্ডারটি খুঁজে পাওয়া যায়নি। দয়া করে Order ID টি চেক করুন। (Try: ORD-5001)';
-      }
+    try {
+      const res = await fetch(`/api/orders/track?id=${encodeURIComponent(id)}`);
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.message || 'Not found');
+      const o = data.order;
+      const curIdx = STATUS_FLOW.indexOf(o.status);
+      const cancelled = o.status === 'CANCELLED';
+      order = {
+        id: 'ORD-' + o.id,
+        currentStatus: o.status,
+        totalAmount: Number(o.total),
+        estimatedDelivery: o.district === 'Dhaka' ? '১-২ কার্যদিবস' : '২-৩ কার্যদিবস',
+        items: (o.items || []).map((it: any) => ({ name: it.name, category: it.item_status || 'ITEM', imageUrl: it.image_url })),
+        timeline: STATUS_FLOW.map((s, i) => ({
+          status: s,
+          label: STATUS_LABEL[s],
+          timestamp: !cancelled && i <= curIdx ? '✓' : '—',
+          completed: !cancelled && i <= curIdx,
+          description: s === 'DELIVERED' ? 'আপনার ঠিকানায় পৌঁছে যাবে' : 'Aura Neural Logistics'
+        }))
+      };
+    } catch {
+      order = null;
+      error = 'অর্ডারটি খুঁজে পাওয়া যায়নি। দয়া করে Order ID টি চেক করুন।';
+    } finally {
       loading = false;
-    }, 1200);
+    }
   }
 
   $effect(() => {
@@ -44,7 +66,7 @@
   async function playStatusBriefing() {
     if (!order || isSpeaking) return;
     isSpeaking = true;
-    const text = `আসসালামু আলাইকুম। আপনার অর্ডার ${order.id} বর্তমানে ${order.currentStatus} পর্যায়ে আছে। এটি ${order.estimatedDelivery} তারিখের মধ্যে আপনার ঠিকানায় পৌঁছাবে বলে আশা করা হচ্ছে।`;
+    const text = `আসসালামু আলাইকুম। আপনার অর্ডার ${order.id} বর্তমানে ${order.currentStatus} পর্যায়ে আছে। এটি ${order.estimatedDelivery}-এর মধ্যে আপনার ঠিকানায় পৌঁছাবে বলে আশা করা হচ্ছে।`;
 
     const base64 = await generateAuraSpeech(text);
     if (base64) {
@@ -75,14 +97,14 @@
           <Navigation2 size={14} class="text-aura-purple" />
           <span class="text-[10px] font-black uppercase tracking-widest text-aura-purple">Neural Logistics System</span>
         </div>
-        <h1 class="text-5xl font-serif font-black text-white">Neural Hub <span class="text-aura-purple">Tracking</span></h1>
+        <h1 class="text-4xl sm:text-5xl font-serif font-black text-white">Neural Hub <span class="text-aura-purple">Tracking</span></h1>
       </div>
 
       <div class="w-full md:w-96">
         <form onsubmit={handleSearch} class="relative flex items-center bg-white/5 border border-white/10 rounded-2xl overflow-hidden focus-within:border-aura-purple transition-all p-1">
-          <Search class="ml-4 text-gray-600" size={18} />
-          <input type="text" bind:value={searchInput} placeholder="TRACK ID: ORD-5001" class="flex-1 bg-transparent border-none text-white px-4 py-3 focus:outline-none placeholder-gray-700 font-mono text-sm" />
-          <button type="submit" class="bg-white text-black px-6 py-3 rounded-xl font-black uppercase tracking-widest text-[10px] hover:bg-aura-purple hover:text-white transition-all">Locate</button>
+          <Search class="ml-4 text-gray-600 shrink-0" size={18} />
+          <input type="text" bind:value={searchInput} placeholder="TRACK ID: ORD-1" class="flex-1 min-w-0 bg-transparent border-none text-white px-4 py-3 focus:outline-none placeholder-gray-700 font-mono text-sm" />
+          <button type="submit" class="bg-white text-black px-6 py-3 rounded-xl font-black uppercase tracking-widest text-[10px] hover:bg-aura-purple hover:text-white transition-all shrink-0">Locate</button>
         </form>
       </div>
     </div>
@@ -116,8 +138,8 @@
 
             <div class="relative pl-10 space-y-12">
               <div class="absolute left-[15px] top-2 bottom-2 w-0.5 bg-white/5"></div>
-              {#each order.timeline as step, index}
-                <div class="relative group opacity-{step.completed ? '100' : '20'}">
+              {#each order.timeline as step}
+                <div class="relative group {step.completed ? 'opacity-100' : 'opacity-20'}">
                   <div class="absolute -left-[10px] top-0 w-5 h-5 rounded-full border-4 border-aura-black z-10 transition-all duration-500 {step.completed ? 'bg-aura-purple shadow-[0_0_15px_rgba(124,58,237,0.8)]' : 'bg-gray-800'}">
                     {#if step.status === order.currentStatus}
                       <div class="absolute inset-0 bg-aura-purple rounded-full animate-ping opacity-50"></div>
@@ -141,14 +163,13 @@
               <h3 class="text-[10px] font-black uppercase tracking-widest text-white">Neural Delivery Insights</h3>
             </div>
             <p class="text-xs text-gray-400 leading-relaxed italic">
-              "Aura has analyzed current traffic patterns in {order.currentStatus === 'SHIPPED' ? 'Dhaka South' : 'the Hub'}. 
-              Expect arrival {order.currentStatus === 'SHIPPED' ? 'precisely at 4:30 PM' : 'on schedule'}. Weather: Optimal."
+              "Aura has analyzed current traffic patterns. Expect arrival {order.currentStatus === 'SHIPPED' ? 'shortly' : 'on schedule'}. Payment: {order.currentStatus}."
             </p>
           </div>
         </div>
 
         <div class="lg:col-span-8 space-y-8">
-          <div class="bg-aura-glass border border-aura-glassBorder rounded-[3rem] overflow-hidden relative group h-[500px] shadow-2xl">
+          <div class="bg-aura-glass border border-aura-glassBorder rounded-[3rem] overflow-hidden relative group h-[380px] sm:h-[500px] shadow-2xl">
             <div class="absolute inset-0 bg-[#0a0a0a]">
               <div class="absolute inset-0 opacity-10" style="background-image: radial-gradient(circle at 1px 1px, white 1px, transparent 0); background-size: 40px 40px" />
               <svg class="absolute inset-0 w-full h-full opacity-20" viewBox="0 0 800 500">
@@ -171,22 +192,22 @@
             </div>
 
             <div class="absolute top-8 left-8 p-6 bg-black/60 backdrop-blur-xl border border-white/10 rounded-3xl">
-              <div class="text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2">Real-time Location</div>
+              <div class="text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2">Order</div>
               <div class="text-white font-serif text-lg font-bold flex items-center gap-2">
-                <MapPin class="text-aura-purple" size={18} /> Banani High Road, Sec 2
+                <MapPin class="text-aura-purple" size={18} /> {order.id}
               </div>
             </div>
 
             <div class="absolute bottom-8 right-8 p-6 bg-black/60 backdrop-blur-xl border border-white/10 rounded-3xl">
               <div class="flex items-center gap-6">
                 <div>
-                  <div class="text-[10px] font-black uppercase tracking-widest text-gray-500 mb-1">Distance</div>
-                  <div class="text-white font-bold">2.4 KM</div>
+                  <div class="text-[10px] font-black uppercase tracking-widest text-gray-500 mb-1">Status</div>
+                  <div class="text-white font-bold">{order.currentStatus}</div>
                 </div>
                 <div class="w-px h-8 bg-white/10"></div>
                 <div>
-                  <div class="text-[10px] font-black uppercase tracking-widest text-gray-500 mb-1">Speed</div>
-                  <div class="text-white font-bold">32 KM/H</div>
+                  <div class="text-[10px] font-black uppercase tracking-widest text-gray-500 mb-1">ETA</div>
+                  <div class="text-white font-bold">{order.estimatedDelivery}</div>
                 </div>
               </div>
             </div>
@@ -197,7 +218,7 @@
               <div class="p-3 bg-white/5 rounded-2xl border border-white/10"><Box class="text-aura-purple" size={24} /></div>
               <div>
                 <div class="text-[9px] font-black uppercase tracking-widest text-gray-600 mb-1">Package</div>
-                <div class="text-xs font-bold text-white">{order.items.length} Eco-Certified Items</div>
+                <div class="text-xs font-bold text-white">{order.items.length} Item{order.items.length === 1 ? '' : 's'}</div>
               </div>
             </div>
             <div class="bg-aura-glass border border-aura-glassBorder rounded-3xl p-6 flex items-center gap-4 hover:border-aura-purple/30 transition-all">
@@ -216,20 +237,19 @@
             </div>
           </div>
 
-          <div class="bg-aura-glass border border-aura-glassBorder rounded-[2.5rem] p-10">
+          <div class="bg-aura-glass border border-aura-glassBorder rounded-[2.5rem] p-6 sm:p-10">
             <div class="flex justify-between items-center mb-8">
               <h3 class="text-xl font-serif font-bold text-white">Package Manifest</h3>
               <div class="text-2xl font-black text-white">৳{order.totalAmount.toLocaleString()}</div>
             </div>
             <div class="space-y-4">
-              {#each order.items as item, idx}
-                <div key={idx} class="flex items-center gap-6 p-4 bg-white/[0.02] border border-white/5 rounded-2xl group hover:border-aura-purple/30 transition-all">
-                  <img src={item.imageUrl} class="w-16 h-16 rounded-xl object-cover grayscale group-hover:grayscale-0 transition-all" alt={item.name} />
-                  <div class="flex-1">
-                    <h4 class="text-sm font-bold text-white">{item.name}</h4>
+              {#each order.items as item}
+                <div class="flex items-center gap-6 p-4 bg-white/[0.02] border border-white/5 rounded-2xl group hover:border-aura-purple/30 transition-all">
+                  {#if item.imageUrl}<img src={item.imageUrl} class="w-16 h-16 rounded-xl object-cover grayscale group-hover:grayscale-0 transition-all" alt={item.name} />{/if}
+                  <div class="flex-1 min-w-0">
+                    <h4 class="text-sm font-bold text-white truncate">{item.name}</h4>
                     <p class="text-[10px] text-gray-600 uppercase font-black tracking-widest">{item.category}</p>
                   </div>
-                  <a href="/store/royal-bengal-looms" class="text-gray-600 hover:text-aura-purple"><ArrowRight size={20} /></a>
                 </div>
               {/each}
             </div>

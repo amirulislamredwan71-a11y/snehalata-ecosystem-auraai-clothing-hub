@@ -298,8 +298,8 @@
                 <span class="font-black tabular-nums">৳{subtotal.toLocaleString()}</span>
               </div>
               <div class="flex justify-between items-center text-xs">
-                <span class="text-gray-500 font-bold uppercase tracking-widest">Shipping (—)</span>
-                <span class="font-black tabular-nums">—</span>
+                <span class="text-gray-500 font-bold uppercase tracking-widest">Shipping {formData.district === 'Dhaka' ? '(Inside Dhaka)' : ''}</span>
+                <span class="font-black tabular-nums">৳{shipping}</span>
               </div>
             </div>
             <div class="mb-8 pt-6 border-t border-white/5">

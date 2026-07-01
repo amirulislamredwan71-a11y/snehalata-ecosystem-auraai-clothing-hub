@@ -521,8 +521,8 @@
               </div>
             </div>
 
-            <div class="bg-white/5 border border-white/10 rounded-[2rem] overflow-hidden">
-              <table class="w-full text-left">
+            <div class="bg-white/5 border border-white/10 rounded-[2rem] overflow-x-auto">
+              <table class="w-full text-left min-w-[720px]">
                 <thead class="bg-white/[0.02] border-b border-white/5">
                   <tr>
                     <th class="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-gray-500">Artisan Brand</th>
@@ -707,7 +707,9 @@
               </div>
               <div class="flex flex-wrap gap-3 text-[10px] font-black uppercase tracking-widest">
                 <span class="px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-gray-300">{dbOrders.length} Orders</span>
+                <span class="px-4 py-2 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-400">Sales ৳{dbOrders.reduce((s, o) => s + Number(o.total || 0), 0).toLocaleString()}</span>
                 <span class="px-4 py-2 rounded-xl bg-green-500/10 border border-green-500/20 text-green-400">Commission ৳{dbOrders.reduce((s, o) => s + Number(o.commission_total || 0), 0).toLocaleString()}</span>
+                <span class="px-4 py-2 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400">Payouts ৳{dbOrders.reduce((s, o) => s + Number(o.vendor_payout_total || 0), 0).toLocaleString()}</span>
               </div>
             </div>
 
