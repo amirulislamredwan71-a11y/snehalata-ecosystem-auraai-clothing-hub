@@ -12,6 +12,38 @@ function assertAdmin(request: Request) {
   }
 }
 
+function genPassword() {
+  const a = Math.random().toString(36).slice(2, 8);
+  const b = Math.random().toString(36).slice(2, 6);
+  const n = Math.floor(10 + Math.random() * 89);
+  return `Sneh-${a}${b}@${n}`;
+}
+
+// Admin: generate & set a fresh unique password for a vendor's login.
+export const POST: RequestHandler = async ({ request, url }) => {
+  assertAdmin(request);
+  const id = url.searchParams.get('id');
+  if (!id) throw error(400, 'id query param required');
+  const a = adminClient();
+  const { data: vend } = await a.from('vendors').select('email, store_name').eq('id', id).single();
+  if (!vend?.email) throw error(404, 'No email on this vendor');
+
+  const { data: list } = await a.auth.admin.listUsers({ page: 1, perPage: 1000 });
+  let user = list?.users?.find((u) => (u.email || '').toLowerCase() === vend.email.toLowerCase());
+
+  const password = genPassword();
+  if (!user) {
+    // no login yet (legacy vendor) — create one
+    const { data: created, error: ce } = await a.auth.admin.createUser({ email: vend.email, password, email_confirm: true });
+    if (ce) throw error(500, ce.message);
+    user = created.user;
+  } else {
+    const { error: ue } = await a.auth.admin.updateUserById(user.id, { password });
+    if (ue) throw error(500, ue.message);
+  }
+  return json({ ok: true, email: vend.email, store_name: vend.store_name, password });
+};
+
 export const PATCH: RequestHandler = async ({ request, url }) => {
   assertAdmin(request);
   const id = url.searchParams.get('id');

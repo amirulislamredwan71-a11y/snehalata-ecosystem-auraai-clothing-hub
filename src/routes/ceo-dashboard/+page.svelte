@@ -1,7 +1,7 @@
 <script lang="ts">
   import { browser } from '$app/environment';
   import { fade, slide, scale } from 'svelte/transition';
-  import { TrendingUp, Users, ShoppingCart, Activity, Globe, Zap, ShieldCheck, ShieldAlert, Shield, Trash2, CheckCircle, XCircle, Plus, Search, Filter, RefreshCw, Package, Tag, Building2, BarChart3, CreditCard, Upload, Loader2, Image as ImageIcon, Network } from '@lucide/svelte';
+  import { TrendingUp, Users, ShoppingCart, Activity, Globe, Zap, ShieldCheck, ShieldAlert, Shield, Trash2, CheckCircle, XCircle, Plus, Search, Filter, RefreshCw, Package, Tag, Building2, BarChart3, CreditCard, Upload, Loader2, Image as ImageIcon, Network, KeyRound } from '@lucide/svelte';
   import { getEcosystemStats, getVendors, getProducts, getOrders, getCategories, addProduct, deleteProduct, deleteVendor, deleteCategory, getOrderById, getLiveSales, syncWithNeuralGrid } from '$lib/mockData';
 
   const adminPass = () => (typeof localStorage !== 'undefined' ? localStorage.getItem('aura_admin_pass') || '' : '');
@@ -28,6 +28,22 @@
   let isUploadingImage = $state(false);
   let newProduct = $state({ name: '', price: '', category: '', description: '', imageUrl: '' });
   let newCategory = $state({ name: '', description: '' });
+  let vendorCred = $state<{ email: string; password: string; store: string } | null>(null);
+
+  async function handleResetVendorPassword(id: string | number) {
+    if (!confirm('Generate a brand-new password for this vendor? Their old password stops working.')) return;
+    isLoading = true;
+    try {
+      const res = await fetch(`/api/admin/vendors?id=${id}`, { method: 'POST', headers: { 'x-admin-pass': adminPass() } });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.message || `HTTP ${res.status}`);
+      vendorCred = { email: data.email, password: data.password, store: data.store_name };
+    } catch (err: any) {
+      alert('Password reset failed: ' + (err?.message || 'unknown error'));
+    } finally {
+      isLoading = false;
+    }
+  }
 
   function loadData() {
     isLoading = true;
@@ -237,6 +253,7 @@
   }
 
   let filteredVendors = $derived(vendors.filter(v => v?.store_name?.toLowerCase()?.includes(searchTerm.toLowerCase()) || false));
+  let pendingCount = $derived(vendors.filter((v: any) => String(v.status).toLowerCase() === 'pending').length);
   let filteredProducts = $derived(products.filter(p => p?.name?.toLowerCase()?.includes(searchTerm.toLowerCase()) || false));
 </script>
 
@@ -289,6 +306,9 @@
           >
             <span class="{activeTab === 'VENDORS' ? 'text-white' : 'text-gray-600'} group-hover:text-aura-purple transition-colors"><Building2 size={14} /></span>
             <span>Vendors</span>
+            {#if pendingCount > 0}
+              <span class="ml-1 px-2 py-0.5 bg-amber-500 text-black rounded-full text-[9px] font-black animate-pulse" title="{pendingCount} pending approval">{pendingCount}</span>
+            {/if}
           </button>
           <button onclick={() => activeTab = 'PRODUCTS'} class={tabBtnClass('PRODUCTS')}>
             <span class="{activeTab === 'PRODUCTS' ? 'text-white' : 'text-gray-600'} group-hover:text-aura-purple transition-colors"><Package size={14} /></span>
@@ -491,6 +511,13 @@
                               <ShieldAlert size={16} />
                             </button>
                           {/if}
+                          <button
+                            onclick={() => handleResetVendorPassword(v.id)}
+                            class="p-2.5 bg-blue-500/10 text-blue-400 rounded-lg hover:bg-blue-500 hover:text-white transition-all shadow-lg"
+                            title="Reset Vendor Password"
+                          >
+                            <KeyRound size={16} />
+                          </button>
                           <button
                             onclick={() => handleDeleteVendor(v.id)}
                             class="p-2.5 bg-red-500/10 text-red-500 rounded-lg hover:bg-red-500 hover:text-white transition-all shadow-lg"
@@ -766,6 +793,35 @@
         {/if}
       {/key}
     </main>
+
+    {#if vendorCred}
+      <div class="fixed inset-0 z-[120] flex items-center justify-center p-6 backdrop-blur-3xl bg-black/70" transition:fade={{ duration: 200 }}>
+        <div class="w-full max-w-md bg-[#0A0A0A] border border-white/10 rounded-[2rem] p-8 shadow-2xl" transition:scale={{ duration: 300 }}>
+          <div class="flex items-center gap-3 mb-6">
+            <div class="p-3 bg-blue-500/10 rounded-xl"><KeyRound size={22} class="text-blue-400" /></div>
+            <div>
+              <h2 class="text-xl font-serif font-black text-white">New Vendor Password</h2>
+              <p class="text-[9px] uppercase tracking-widest text-gray-500 font-black">Share these credentials with the vendor</p>
+            </div>
+          </div>
+          <div class="space-y-3 mb-8">
+            <div class="bg-white/5 border border-white/10 rounded-xl p-4">
+              <p class="text-[9px] uppercase tracking-widest text-gray-500 font-black mb-1">Store</p>
+              <p class="text-sm text-white font-bold">{vendorCred.store}</p>
+            </div>
+            <div class="bg-white/5 border border-white/10 rounded-xl p-4">
+              <p class="text-[9px] uppercase tracking-widest text-gray-500 font-black mb-1">Email</p>
+              <p class="text-sm text-white font-mono select-all">{vendorCred.email}</p>
+            </div>
+            <div class="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4">
+              <p class="text-[9px] uppercase tracking-widest text-blue-300 font-black mb-1">Password</p>
+              <p class="text-lg text-white font-mono font-black select-all">{vendorCred.password}</p>
+            </div>
+          </div>
+          <button onclick={() => vendorCred = null} class="w-full py-4 bg-white text-black rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-aura-purple hover:text-white transition-all cursor-pointer">Done</button>
+        </div>
+      </div>
+    {/if}
 
     {#if isCategoryModalOpen}
       <div class="fixed inset-0 z-[100] flex items-center justify-center p-4 backdrop-blur-3xl bg-black/60" transition:fade={{ duration: 200 }}>
