@@ -25,6 +25,31 @@
   let externalUrlInput = $state('');
   let isStylizing = $state(false);
   let accentColor = $state('#7c3aed');
+  let showPwModal = $state(false);
+  let newPass = $state('');
+  let pwMsg = $state<string | null>(null);
+  let pwLoading = $state(false);
+
+  async function handleChangePassword() {
+    if (!newPass || newPass.length < 6) { pwMsg = 'Password must be at least 6 characters'; return; }
+    pwLoading = true; pwMsg = null;
+    try {
+      const res = await fetch('/api/vendor/password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${vendorToken()}` },
+        body: JSON.stringify({ newPassword: newPass })
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.message || `HTTP ${res.status}`);
+      pwMsg = 'Password updated successfully.';
+      newPass = '';
+      setTimeout(() => { showPwModal = false; pwMsg = null; }, 1200);
+    } catch (err: any) {
+      pwMsg = 'Failed: ' + (err?.message || 'unknown error');
+    } finally {
+      pwLoading = false;
+    }
+  }
 
   function loadVendorData() {
     loading = true;
@@ -318,6 +343,27 @@
       </div>
     {/if}
 
+    {#if showPwModal}
+      <div class="fixed inset-0 z-[130] flex items-center justify-center p-6" transition:fade={{ duration: 200 }}>
+        <div class="absolute inset-0 bg-black/90 backdrop-blur-3xl" onclick={() => showPwModal = false}></div>
+        <div class="relative bg-[#0A0A0A] border border-white/10 rounded-[3rem] w-full max-w-md p-10 shadow-2xl" transition:scale={{ duration: 300 }}>
+          <h2 class="text-3xl font-serif font-black italic mb-2">Change Password</h2>
+          <p class="text-gray-500 text-[10px] font-black uppercase tracking-widest mb-8">Set a new access key for your vendor node</p>
+          <input type="password" bind:value={newPass} placeholder="New password (min 6 chars)"
+            class="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-sm focus:border-aura-purple outline-none transition-all mb-4" />
+          {#if pwMsg}
+            <p class="text-[11px] font-bold mb-4 {pwMsg.startsWith('Password updated') ? 'text-green-400' : 'text-red-400'}">{pwMsg}</p>
+          {/if}
+          <div class="flex gap-3">
+            <button onclick={() => showPwModal = false} class="flex-1 py-4 bg-white/5 border border-white/10 rounded-2xl text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-white transition-all cursor-pointer">Cancel</button>
+            <button onclick={handleChangePassword} disabled={pwLoading} class="flex-[2] py-4 bg-aura-purple text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-white hover:text-black transition-all disabled:opacity-50 cursor-pointer">
+              {pwLoading ? 'Updating...' : 'Update Password'}
+            </button>
+          </div>
+        </div>
+      </div>
+    {/if}
+
     <header class="bg-black/50 backdrop-blur-3xl border-b border-white/5 py-12 px-6">
       <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
         <div>
@@ -336,7 +382,8 @@
           <h1 class="text-6xl font-serif font-black italic tracking-tighter mb-2">{vendor.store_name}</h1>
           <p class="text-gray-500 font-bold uppercase tracking-widest text-[10px] flex items-center gap-4">
             {vendor.email} • Neural ID: {vendor.id}
-            <button onclick={handleLogout} class="text-red-500 hover:underline">Switch Account</button>
+            <button onclick={() => { showPwModal = true; pwMsg = null; }} class="text-aura-purple hover:underline cursor-pointer">Change Password</button>
+            <button onclick={handleLogout} class="text-red-500 hover:underline cursor-pointer">Switch Account</button>
           </p>
         </div>
 
