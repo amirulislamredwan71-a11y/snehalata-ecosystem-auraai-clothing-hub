@@ -93,5 +93,29 @@ export const POST: RequestHandler = async ({ request }) => {
     // Grid tables not migrated yet — order still succeeds.
   }
 
+  // A6 governance — COD-fraud risk score (fast heuristic; best-effort). Surfaced
+  // to the admin so risky COD orders can be confirmed by phone before dispatch.
+  try {
+    let score = 0;
+    const reasons: string[] = [];
+    if (method === 'COD') { score += 25; reasons.push('COD'); }
+    if (!c.email) { score += 15; reasons.push('no email'); }
+    if (String(c.address || '').trim().length < 20) { score += 20; reasons.push('short address'); }
+    if (method === 'COD' && total > 5000) { score += 20; reasons.push('high-value COD'); }
+    const { data: prior } = await a
+      .from('orders')
+      .select('id,status')
+      .eq('customer_phone', c.phone)
+      .neq('id', order.id);
+    if ((prior || []).some((o: any) => String(o.status).toUpperCase() === 'DELIVERED')) {
+      score -= 25; reasons.push('returning buyer');
+    }
+    if ((prior || []).length >= 3) { score += 10; reasons.push('high velocity'); }
+    score = Math.max(0, Math.min(100, score));
+    await a.from('orders').update({ fraud_score: score, fraud_reason: reasons.join(', ') }).eq('id', order.id);
+  } catch {
+    // fraud columns not migrated yet — order still succeeds.
+  }
+
   return json({ ok: true, orderId: order.id, total, itemCount: lineItems.length });
 };

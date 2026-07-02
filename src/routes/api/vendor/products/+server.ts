@@ -2,6 +2,8 @@ import { json, error } from '@sveltejs/kit';
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { env } from '$env/dynamic/private';
 import { env as pub } from '$env/dynamic/public';
+import { moderateListing } from '$lib/server/gemini.server';
+import { withTimeout } from '$lib/seedCatalog';
 import type { RequestHandler } from './$types';
 
 // Vendor-scoped product CRUD. The vendor's Supabase session token (from
@@ -56,7 +58,24 @@ export const POST: RequestHandler = async ({ request }) => {
   };
   const { data, error: e } = await admin.from('products').insert(row).select().single();
   if (e) throw error(500, e.message);
-  return json({ ok: true, product: data });
+
+  // A6 governance — moderate the listing (best-effort). Flagged items are held
+  // out of the storefront (is_active=false) for admin review. Degrades silently
+  // if Gemini is slow or the moderation columns aren't migrated yet.
+  let moderation: any = null;
+  try {
+    const m = await withTimeout(moderateListing(row.name, row.description, row.price, row.category), 12000);
+    if (m) {
+      moderation = m;
+      const patch: any = { moderation_score: Math.round(Number(m.trust_score) || 0), moderation_note: m.note || null };
+      if (m.verdict === 'REVIEW') patch.is_active = false;
+      await admin.from('products').update(patch).eq('id', data.id);
+    }
+  } catch {
+    /* moderation columns not migrated yet, or Gemini offline — ignore */
+  }
+
+  return json({ ok: true, product: data, moderation });
 };
 
 export const DELETE: RequestHandler = async ({ request, url }) => {

@@ -728,6 +728,11 @@
                           <span class="font-mono text-aura-purple text-sm font-black">ORD-{o.id}</span>
                           <span class="px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-widest border {o.payment_method === 'COD' ? 'bg-orange-500/10 text-orange-400 border-orange-500/20' : 'bg-pink-500/10 text-pink-400 border-pink-500/20'}">{o.payment_method}</span>
                           <span class="px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-widest border {o.payment_status === 'PAID' ? 'bg-green-500/10 text-green-400 border-green-500/20' : 'bg-amber-500/10 text-amber-400 border-amber-500/20'}">{o.payment_status}</span>
+                          {#if o.fraud_score != null && o.fraud_score >= 50}
+                            <span class="px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-widest border bg-red-500/10 text-red-400 border-red-500/20" title={o.fraud_reason || ''}>⚠ Risk {o.fraud_score}</span>
+                          {:else if o.fraud_score != null && o.fraud_score >= 25}
+                            <span class="px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-widest border bg-amber-500/10 text-amber-400 border-amber-500/20" title={o.fraud_reason || ''}>Risk {o.fraud_score}</span>
+                          {/if}
                         </div>
                         <p class="text-white font-bold text-sm mt-1 truncate">{o.customer_name} · {o.customer_phone}</p>
                         <p class="text-[10px] text-gray-500 truncate">{o.district} · {o.area} — {o.address}</p>
