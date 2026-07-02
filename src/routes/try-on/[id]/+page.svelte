@@ -4,6 +4,7 @@
   import { ArrowLeft, Upload, Sparkles, RefreshCcw, Camera, X, ShoppingBag, CheckCircle2, Trash2 } from '@lucide/svelte';
   import { getProducts } from '$lib/mockData';
   import { generateTryOnTransformation, generateStyleSuggestion } from '$lib/geminiService';
+  import { track } from '$lib/analytics';
   import type { Product } from '$lib/types';
 
   let allProducts = $state<Product[]>([]);
@@ -102,6 +103,8 @@
 
       if (result) {
         generatedImage = result;
+        // Neural Grid A1 — try-on is a signature signal.
+        track('try_on', { product_id: product ? Number(product.id) : null, vendor_id: product ? Number(product.vendorId) : null });
       } else {
         error = 'AI ট্রান্সফরমেশন ব্যর্থ হয়েছে। দয়া করে আরো পরিষ্কার ছবি ব্যবহার করে পুনরায় চেষ্টা করুন।';
       }
@@ -113,7 +116,7 @@
   }
 </script>
 
-<div class="min-h-screen bg-black pb-20 selection:bg-aura-purple selection:text-white">
+<div class="min-h-screen bg-[#060507] pb-20 selection:bg-aura-purple selection:text-white">
   <div class="max-w-7xl mx-auto px-6 py-10">
     <a href="/" class="inline-flex items-center gap-2 text-gray-500 hover:text-white mb-8 transition-colors text-xs font-bold uppercase tracking-widest">
       <ArrowLeft size={14} /> Back to Hub

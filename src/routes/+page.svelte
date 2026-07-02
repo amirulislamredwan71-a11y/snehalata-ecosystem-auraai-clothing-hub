@@ -12,6 +12,13 @@
   // Neural Grid A1 — prefer real server-computed stats; fall back to seed.
   const stats = $derived(data?.stats ?? getEcosystemStats());
 
+  // Compact, honest number formatting — shows real small counts (e.g. "15", "247"), not "0K+".
+  function fmt(n: number): string {
+    if (n >= 1_000_000) return (n / 1_000_000).toFixed(1).replace(/\.0$/, '') + 'M+';
+    if (n >= 1_000) return (n / 1_000).toFixed(1).replace(/\.0$/, '') + 'K+';
+    return String(n ?? 0);
+  }
+
   // Debounced search-intent capture for the Grid.
   let searchTimer: ReturnType<typeof setTimeout>;
   function onSearchInput() {
@@ -190,15 +197,15 @@
       </div>
       <div class="mt-12 sm:mt-16 grid grid-cols-3 gap-3 sm:gap-6 max-w-2xl">
         <div>
-          <div class="text-xl sm:text-3xl md:text-4xl font-black text-white tabular-nums">{stats.totalVendors.toLocaleString()}+</div>
+          <div class="text-xl sm:text-3xl md:text-4xl font-black text-aura-gold tabular-nums">{fmt(stats.totalVendors)}</div>
           <div class="text-[10px] font-black uppercase tracking-widest text-gray-500 mt-1">Verified Artisans</div>
         </div>
         <div>
-          <div class="text-xl sm:text-3xl md:text-4xl font-black text-white tabular-nums">{Math.round(stats.activeProducts / 1000)}K+</div>
+          <div class="text-xl sm:text-3xl md:text-4xl font-black text-white tabular-nums">{fmt(stats.activeProducts)}</div>
           <div class="text-[10px] font-black uppercase tracking-widest text-gray-500 mt-1">Neural Products</div>
         </div>
         <div>
-          <div class="text-xl sm:text-3xl md:text-4xl font-black text-white tabular-nums">{Math.round(stats.aiInteractions / 1000)}K+</div>
+          <div class="text-xl sm:text-3xl md:text-4xl font-black text-white tabular-nums">{fmt(stats.aiInteractions)}</div>
           <div class="text-[10px] font-black uppercase tracking-widest text-gray-500 mt-1">AI Interactions</div>
         </div>
       </div>
