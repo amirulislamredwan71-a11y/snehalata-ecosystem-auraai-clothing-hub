@@ -27,6 +27,14 @@
     isModalOpen = true;
     // Neural Grid A1 — product view signal (deduped per session in the tracker).
     track('view', { product_id: Number(product.id), vendor_id: vendor ? Number(vendor.id) : null });
+    // Neural Grid A2 — remember recently viewed (most-recent-first, max 12) for the "For You" rail.
+    try {
+      const key = 'aura_recently_viewed';
+      const prev: number[] = JSON.parse(localStorage.getItem(key) || '[]');
+      const next = [Number(product.id), ...prev.filter((id) => id !== Number(product.id))].slice(0, 12);
+      localStorage.setItem(key, JSON.stringify(next));
+      window.dispatchEvent(new Event('recentlyViewedUpdated'));
+    } catch { /* ignore storage errors */ }
   }
 
   function addToCart(imgUrl: string, qty: number) {

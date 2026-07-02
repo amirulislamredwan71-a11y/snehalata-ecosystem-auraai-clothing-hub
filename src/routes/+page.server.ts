@@ -9,7 +9,7 @@ import {
   withTimeout
 } from '$lib/seedCatalog';
 import { fetchVendorsFromSupabase, fetchProductsFromSupabase } from '$lib/server/supabaseClient';
-import { getRealStats } from '$lib/server/stats';
+import { getRealStats, getTrending } from '$lib/server/stats';
 
 // Render the storefront on the server so crawlers, link unfurlers and the first
 // paint all see real products instead of an empty grid. Supabase rows (when the
@@ -19,12 +19,13 @@ export const load: PageServerLoad = async () => {
   let vendors = [...SEED_VENDORS];
   let products = [...SEED_PRODUCTS];
 
-  const [remote, stats] = await Promise.all([
+  const [remote, stats, trending] = await Promise.all([
     withTimeout(
       Promise.all([fetchVendorsFromSupabase(), fetchProductsFromSupabase()]),
       2500
     ),
-    withTimeout(getRealStats(), 2500)
+    withTimeout(getRealStats(), 2500),
+    withTimeout(getTrending(8), 2500)
   ]);
 
   if (remote) {
@@ -38,5 +39,5 @@ export const load: PageServerLoad = async () => {
     }
   }
 
-  return { products, vendors, stats: stats ?? SEED_STATS };
+  return { products, vendors, stats: stats ?? SEED_STATS, trending: trending ?? [] };
 };

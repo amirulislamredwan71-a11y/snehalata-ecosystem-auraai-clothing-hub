@@ -1,7 +1,7 @@
 <script lang="ts">
   import { browser } from '$app/environment';
   import { fade, fly, scale } from 'svelte/transition';
-  import { Search, LayoutGrid, Tag, ChevronRight, TrendingUp, Zap, ArrowRight, ShieldCheck, ShoppingBag, Menu, X, Filter, Globe, Store, Feather, Gem, Scissors, Flower2 } from '@lucide/svelte';
+  import { Search, LayoutGrid, Tag, ChevronRight, TrendingUp, Zap, ArrowRight, ShieldCheck, ShoppingBag, Menu, X, Filter, Globe, Store, Feather, Gem, Scissors, Flower2, History } from '@lucide/svelte';
   import ProductCard from '$lib/components/ProductCard.svelte';
   import { getProducts, getVendors, getEcosystemStats } from '$lib/mockData';
   import { BD_LOCATIONS } from '$lib/locationData';
@@ -37,19 +37,38 @@
   let products = $state<any[]>(data?.products ?? []);
   let vendors = $state<any[]>(data?.vendors ?? []);
 
+  // Neural Grid A7 — real trending products (server, ranked by trend_score).
+  const trending = $derived<any[]>(data?.trending ?? []);
+  // Neural Grid A2 — "For You": products this visitor recently opened (client, localStorage).
+  let recentlyViewed = $state<any[]>([]);
+
+  function loadRecentlyViewed() {
+    if (!browser) return;
+    try {
+      const ids: number[] = JSON.parse(localStorage.getItem('aura_recently_viewed') || '[]');
+      const map = new Map(products.map((p) => [Number(p.id), p]));
+      recentlyViewed = ids.map((id) => map.get(Number(id))).filter(Boolean).slice(0, 4);
+    } catch {
+      recentlyViewed = [];
+    }
+  }
+
   $effect(() => {
     if (!browser) return;
     const refresh = () => {
       products = getProducts();
       vendors = getVendors();
+      loadRecentlyViewed();
     };
     refresh();
     // syncWithNeuralGrid() dispatches these once Supabase data arrives client-side.
     window.addEventListener('productUpdated', refresh);
     window.addEventListener('vendorUpdated', refresh);
+    window.addEventListener('recentlyViewedUpdated', loadRecentlyViewed);
     return () => {
       window.removeEventListener('productUpdated', refresh);
       window.removeEventListener('vendorUpdated', refresh);
+      window.removeEventListener('recentlyViewedUpdated', loadRecentlyViewed);
     };
   });
 
@@ -301,6 +320,42 @@
 
     <!-- Main Content -->
     <main class="flex-1 p-6 lg:p-12">
+      <!-- Neural Grid A7 — real trending rail -->
+      {#if selectedCategory === 'all' && searchQuery === '' && trending.length > 0}
+        <section class="mb-16">
+          <div class="flex items-center gap-4 mb-8">
+            <div class="p-3 bg-aura-gold/10 rounded-2xl text-aura-gold"><TrendingUp size={16} /></div>
+            <div>
+              <h3 class="text-2xl sm:text-3xl font-serif font-black italic">Trending on the Grid</h3>
+              <p class="text-[10px] font-black uppercase tracking-[0.3em] text-gray-600">Ranked live by real views, carts & orders</p>
+            </div>
+          </div>
+          <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-10">
+            {#each trending.slice(0, 4) as p (p.id)}
+              <ProductCard product={p} vendor={vendors.find(v => v.id === p.vendorId)} />
+            {/each}
+          </div>
+        </section>
+      {/if}
+
+      <!-- Neural Grid A2 — behavioral "For You" rail -->
+      {#if selectedCategory === 'all' && searchQuery === '' && recentlyViewed.length > 0}
+        <section class="mb-16">
+          <div class="flex items-center gap-4 mb-8">
+            <div class="p-3 bg-aura-purple/10 rounded-2xl text-aura-purple"><History size={16} /></div>
+            <div>
+              <h3 class="text-2xl sm:text-3xl font-serif font-black italic">For You · Recently Viewed</h3>
+              <p class="text-[10px] font-black uppercase tracking-[0.3em] text-gray-600">Picked from what you explored</p>
+            </div>
+          </div>
+          <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-10">
+            {#each recentlyViewed as p (p.id)}
+              <ProductCard product={p} vendor={vendors.find(v => v.id === p.vendorId)} />
+            {/each}
+          </div>
+        </section>
+      {/if}
+
       <div class="flex flex-col md:flex-row md:items-center justify-between mb-12 gap-8">
         <div class="flex items-center gap-4">
           <h2 class="text-4xl font-serif font-black italic leading-none">
