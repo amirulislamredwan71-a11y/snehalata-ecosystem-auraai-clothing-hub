@@ -56,6 +56,7 @@ export const POST = async ({ request }) => {
     );
     return json({ text });
   } catch (error: any) {
-    return json({ error: error.message }, { status: 500 });
+    console.error('AURA CHAT ERROR:', error?.stack || error?.message || error);
+    return json({ error: String(error?.message || error) }, { status: 500 });
   }
 };
