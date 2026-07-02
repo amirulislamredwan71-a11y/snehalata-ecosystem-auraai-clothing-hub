@@ -153,7 +153,7 @@
         <span class="text-[10px] font-black uppercase tracking-[0.3em] text-gray-300">Aura Neural Engine v3.1 · Live</span>
       </div>
       <h1 class="text-4xl md:text-6xl lg:text-7xl font-serif font-black italic leading-[1.05] max-w-4xl">
-        বাংলার আর্টিজানদের জন্য <span class="text-[#a78bfa]">AI Neural</span> ইকোসিস্টেম
+        বাংলার আর্টিজানদের জন্য <span class="text-aura-gold">AI Neural</span> ইকোসিস্টেম
       </h1>
       <p class="mt-6 text-gray-400 text-base md:text-lg max-w-2xl leading-relaxed">
         Jamdani, Muslin, Tant ও streetwear — verified artisan-দের কাছ থেকে। Virtual try-on, neural search এবং Aura Governance সহ world-class shopping experience.

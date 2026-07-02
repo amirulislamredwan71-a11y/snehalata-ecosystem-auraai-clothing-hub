@@ -4,15 +4,34 @@
   --font-sans: 'Inter', 'Hind Siliguri', sans-serif;
   --font-serif: 'Cinzel', 'Hind Siliguri', serif;
   --font-bengali: 'Hind Siliguri', sans-serif;
+
+  /* Brand / Neural surfaces (dark, cinematic) */
   --color-aura-purple: #7c3aed;
-  --color-aura-black: #000000;
+  --color-aura-purple-deep: #4c2a86;
+  --color-aura-purple-soft: #8b6fd6;
+  --color-aura-black: #060507;
+  --color-aura-ink: #1b1410;
+  --color-aura-gold: #c79a3e;
+  --color-aura-terra: #7d3b2e;
+  --color-aura-success: #1e8a5b;
   --color-aura-glass: rgba(255, 255, 255, 0.03);
   --color-aura-glassBorder: rgba(255, 255, 255, 0.08);
+
+  /* Commerce surfaces (warm, light, high-trust) */
+  --color-ivory: #ebe2d4;
+  --color-commerce-bg: #faf6ee;
+  --color-commerce-surface: #f5f0e6;
+  --color-commerce-surface2: #efe9dd;
+  --color-commerce-ink: #1b1410;
+  --color-commerce-text: #5c5348;
+  --color-commerce-muted: #7a6f63;
+  --color-commerce-faint: #9a8f80;
+  --color-commerce-border: #e2d9c9;
 }
 
 body {
-  background-color: #000000;
-  color: white;
+  background-color: #060507;
+  color: #f5efe4;
   margin: 0;
   font-family: var(--font-sans);
   overflow-x: hidden;
@@ -22,16 +41,27 @@ body {
   position: fixed;
   inset: 0;
   z-index: -1;
-  background: radial-gradient(circle at 50% -20%, #15002b 0%, #000000 100%);
+  background: radial-gradient(circle at 50% -20%, #1a0e2b 0%, #060507 72%);
 }
 
 .glow-orb {
   position: absolute;
   width: 50vw;
   height: 50vw;
-  background: radial-gradient(circle, rgba(124, 58, 237, 0.05) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(124, 58, 237, 0.06) 0%, transparent 70%);
   filter: blur(80px);
   pointer-events: none;
+}
+
+/* Warm heritage-gold accent orb variant */
+.glow-orb-gold {
+  background: radial-gradient(circle, rgba(199, 154, 62, 0.07) 0%, transparent 70%);
+}
+
+/* Commerce (light) page wrapper — warm ivory, dark ink text for trust/conversion */
+.commerce-surface {
+  background: var(--color-commerce-bg);
+  color: var(--color-commerce-ink);
 }
 
 .bn-heavy {
