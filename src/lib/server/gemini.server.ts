@@ -41,6 +41,64 @@ export const generateAuraResponse = async (message: string, history: any[], inve
   return result.text;
 };
 
+// A5 — conversational commerce: Aura chat that can call real tools (grounded in
+// live data). The endpoint supplies `execTool` so this module stays free of DB deps.
+const AURA_TOOLS = {
+  functionDeclarations: [
+    {
+      name: 'search_catalog',
+      description: 'Search the live SNEHALATA product catalog. Call this whenever the user wants to find, see, browse or buy products.',
+      parameters: {
+        type: Type.OBJECT,
+        properties: { query: { type: Type.STRING, description: 'keywords or category, e.g. "red silk saree" or "panjabi"' } },
+        required: ['query']
+      }
+    },
+    {
+      name: 'get_order_status',
+      description: 'Look up the current fulfillment status of an order by its numeric order ID.',
+      parameters: {
+        type: Type.OBJECT,
+        properties: { order_id: { type: Type.STRING, description: 'the order id, e.g. 5001' } },
+        required: ['order_id']
+      }
+    }
+  ]
+};
+
+export const generateAuraResponseWithTools = async (
+  message: string,
+  history: any[],
+  inventory: string,
+  vendors: string,
+  execTool: (name: string, args: any) => Promise<any>
+) => {
+  const chat = ai.chats.create({
+    model: 'gemini-3-flash-preview',
+    config: { systemInstruction: buildAuraContext(inventory, vendors), temperature: 0.7, tools: [AURA_TOOLS] },
+    history: history || []
+  });
+
+  let res = await chat.sendMessage({ message });
+  // Resolve up to 3 rounds of tool calls, feeding real results back to the model.
+  for (let i = 0; i < 3; i++) {
+    const calls = res.functionCalls;
+    if (!calls || !calls.length) break;
+    const parts: any[] = [];
+    for (const call of calls) {
+      let result: any;
+      try {
+        result = await execTool(call.name as string, call.args || {});
+      } catch (e: any) {
+        result = { error: e?.message || 'tool failed' };
+      }
+      parts.push({ functionResponse: { name: call.name, response: { result } } });
+    }
+    res = await chat.sendMessage({ message: parts });
+  }
+  return res.text;
+};
+
 export const getAIRecommendations = async (historySummary: string, availableProducts: string) => {
     const response = await ai.models.generateContent({
         model: 'gemini-3.1-flash-lite',
