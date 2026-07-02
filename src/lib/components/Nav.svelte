@@ -1,5 +1,6 @@
 <script lang="ts">
   import { page } from '$app/stores';
+  import { fade } from 'svelte/transition';
   import { ShoppingBag, Search, Menu, X, Sparkles, History, PackageSearch, UserPlus, Globe, LayoutDashboard, LayoutGrid } from '@lucide/svelte';
   import Logo from './Logo.svelte';
   

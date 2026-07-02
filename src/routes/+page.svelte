@@ -213,6 +213,9 @@
     { id: 'pant', name: 'প্যান্ট (Pant)', icon: Tag },
     { id: 'baby', name: 'বেবি আইটেম (Baby)', icon: Tag },
     { id: 'market', name: 'মার্কেট প্লেস (Market)', icon: TrendingUp },
+    { id: 'cosmetics', name: 'কসমেটিকস (Cosmetics)', icon: Tag },
+    { id: 'undergarments', name: 'আন্ডারগার্মেন্টস (Undergarments)', icon: Tag },
+    { id: 'gadgets', name: 'গ্যাজেট (Gadgets)', icon: Tag },
     { id: 'others', name: 'অন্যান্য (Others)', icon: Tag }
   ];
 

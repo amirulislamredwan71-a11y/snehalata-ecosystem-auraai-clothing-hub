@@ -445,7 +445,15 @@
                 <option value="General">Category</option>
                 <option value="Saree">Saree</option>
                 <option value="Panjabi">Panjabi</option>
+                <option value="Three-Piece">Three-Piece</option>
+                <option value="T-Shirt">T-Shirt</option>
+                <option value="Pant">Pant</option>
+                <option value="Baby">Baby</option>
+                <option value="Cosmetics">Cosmetics</option>
+                <option value="Undergarments">Undergarments</option>
+                <option value="Gadgets">Gadgets</option>
                 <option value="Modern">Modern</option>
+                <option value="Others">Others</option>
               </select>
             </div>
             <textarea placeholder="Neural Description" bind:value={newProduct.description}
