@@ -265,3 +265,43 @@ export const auditVendorDescription = async (shopName: string, description: stri
     });
     return JSON.parse(response.text || '{"status": "REJECTED", "reason": "Audit failed"}');
 };
+
+// A4 — vendor AI merchandising: one product photo → a ready-to-edit catalog listing.
+export const analyzeProductImage = async (base64Image: string) => {
+    const data = base64Image.includes(',') ? base64Image.split(',')[1] : base64Image;
+    const response = await ai.models.generateContent({
+        model: 'gemini-3-flash-preview',
+        contents: {
+            parts: [
+                { inlineData: { data, mimeType: 'image/jpeg' } },
+                { text: `You are Aura's merchandising AI for SNEHALATA, a premium Bangladeshi heritage clothing marketplace (Jamdani, Muslin, Nakshi Kantha, silk, panjabi, modern fusion, etc.). Look at this product photo and produce a catalog listing:
+- title: concise, appealing English product title (max 8 words)
+- description_en: 2-3 sentences highlighting fabric, craft and styling
+- description_bn: the same idea in natural, elegant Bengali
+- category: EXACTLY one of Saree, Panjabi, Three-Piece, T-Shirt, Pant, Baby, Others
+- tags: 4-6 short lowercase tags
+- suggested_price_bdt: a realistic BDT retail price (number only)
+- quality_score: 0-100, how clear/professional this photo is as a listing image
+- authenticity_note: one short line on the heritage/authenticity signal you observe` }
+            ]
+        },
+        config: {
+            responseMimeType: 'application/json',
+            responseSchema: {
+                type: Type.OBJECT,
+                properties: {
+                    title: { type: Type.STRING },
+                    description_en: { type: Type.STRING },
+                    description_bn: { type: Type.STRING },
+                    category: { type: Type.STRING },
+                    tags: { type: Type.ARRAY, items: { type: Type.STRING } },
+                    suggested_price_bdt: { type: Type.NUMBER },
+                    quality_score: { type: Type.NUMBER },
+                    authenticity_note: { type: Type.STRING }
+                },
+                required: ['title', 'description_en', 'category', 'suggested_price_bdt', 'quality_score']
+            }
+        }
+    });
+    return JSON.parse(response.text || 'null');
+};

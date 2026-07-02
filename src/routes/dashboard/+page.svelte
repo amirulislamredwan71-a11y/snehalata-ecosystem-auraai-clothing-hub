@@ -1,7 +1,7 @@
 <script lang="ts">
   import { browser } from '$app/environment';
   import { fade, scale } from 'svelte/transition';
-  import { Zap, LayoutDashboard, Users, ShieldCheck, Cpu, Network, Package, Plus, Layout, Palette, Eye, Globe, BarChart3 } from '@lucide/svelte';
+  import { Zap, LayoutDashboard, Users, ShieldCheck, Cpu, Network, Package, Plus, Layout, Palette, Eye, Globe, BarChart3, Sparkles, Loader2 } from '@lucide/svelte';
   import ProductCard from '$lib/components/ProductCard.svelte';
   import { analyzeWebsiteProducts } from '$lib/geminiService';
   import { getVendors, getProductsByVendor, syncWithNeuralGrid } from '$lib/mockData';
@@ -44,6 +44,47 @@
   let isLoggingIn = $state(false);
   let isAddingProduct = $state(false);
   let newProduct = $state({ name: '', price: '', category: 'General', description: '', imageUrl: '' });
+  // A4 — AI merchandising (photo → listing) state.
+  let merchLoading = $state(false);
+  let merchQuality = $state<number | null>(null);
+  let merchNote = $state<string>('');
+
+  async function handleMerchandise(e: Event) {
+    const input = e.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+    merchLoading = true; merchQuality = null; merchNote = '';
+    try {
+      const base64 = await new Promise<string>((res, rej) => {
+        const r = new FileReader();
+        r.onloadend = () => res(r.result as string);
+        r.onerror = rej;
+        r.readAsDataURL(file);
+      });
+      const resp = await fetch('/api/vendor/merchandise', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${vendorToken()}` },
+        body: JSON.stringify({ image: base64 })
+      });
+      const data = await resp.json().catch(() => ({}));
+      if (!resp.ok) throw new Error(data.message || 'AI merchandising failed');
+      const s = data.suggestion || {};
+      newProduct = {
+        name: s.title || newProduct.name,
+        price: s.suggested_price_bdt ? String(Math.round(s.suggested_price_bdt)) : newProduct.price,
+        category: s.category || newProduct.category,
+        description: [s.description_bn, s.description_en].filter(Boolean).join('\n\n') || newProduct.description,
+        imageUrl: base64
+      };
+      merchQuality = typeof s.quality_score === 'number' ? Math.round(s.quality_score) : null;
+      merchNote = s.authenticity_note || '';
+    } catch (err: any) {
+      alert('AI merchandising: ' + (err?.message || 'failed'));
+    } finally {
+      merchLoading = false;
+      input.value = '';
+    }
+  }
   let isAnalysisMode = $state(false);
   let analysisProgress = $state(0);
   let detectedItems: any[] = $state([]);
@@ -209,6 +250,7 @@
       loadVendorData();
       isAddingProduct = false;
       newProduct = { name: '', price: '', category: 'General', description: '', imageUrl: '' };
+      merchQuality = null; merchNote = '';
     } catch (err: any) {
       alert('Add failed: ' + (err?.message || 'unknown error'));
     }
@@ -374,6 +416,25 @@
           <div class="absolute top-0 right-0 p-10 opacity-5 pointer-events-none"><Plus size={120} /></div>
           <h2 class="text-3xl font-serif font-black italic mb-8">Add Neural Asset</h2>
           <div class="space-y-6">
+            <label class="block cursor-pointer">
+              <input type="file" accept="image/*" onchange={handleMerchandise} class="hidden" disabled={merchLoading} />
+              <div class="w-full py-4 rounded-2xl border border-dashed border-aura-gold/40 bg-aura-gold/5 text-aura-gold flex items-center justify-center gap-3 text-[11px] font-black uppercase tracking-widest hover:bg-aura-gold/10 transition-all">
+                {#if merchLoading}
+                  <Loader2 size={16} class="animate-spin" /> Aura reading your photo…
+                {:else}
+                  <Sparkles size={16} /> AI: fill listing from a photo
+                {/if}
+              </div>
+            </label>
+            {#if merchQuality !== null}
+              <div class="-mt-2 text-[10px] text-center text-gray-500">
+                Aura photo quality: <span class="text-aura-gold font-black">{merchQuality}/100</span>
+                {#if merchNote}<span class="block text-gray-600 italic mt-1">{merchNote}</span>{/if}
+              </div>
+            {/if}
+            {#if newProduct.imageUrl}
+              <img src={newProduct.imageUrl} alt="Preview" class="w-full h-40 object-cover rounded-2xl border border-white/10" />
+            {/if}
             <input type="text" placeholder="Item Name" bind:value={newProduct.name}
               class="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-sm focus:border-aura-purple outline-none transition-all" />
             <div class="grid grid-cols-2 gap-4">
