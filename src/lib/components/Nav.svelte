@@ -24,13 +24,13 @@
   }
 </script>
 
-<nav class="sticky top-0 z-50 bg-black/80 backdrop-blur-3xl border-b border-white/5 shadow-2xl">
+<nav class="sticky top-0 z-50 bg-[#060507]/85 backdrop-blur-3xl border-b border-white/5 shadow-2xl">
   <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
     <a href="/" class="flex items-center gap-4 group">
       <Logo />
       <span class="text-lg font-bold tracking-wider hidden sm:block">
         <span class="text-white">SNEHALATA</span>
-        <span class="text-aura-purple text-xs ml-1 font-normal">ECOSYSTEM</span>
+        <span class="text-aura-gold text-xs ml-1 font-normal tracking-[0.3em]">ECOSYSTEM</span>
       </span>
     </a>
 
@@ -84,7 +84,7 @@
   </div>
 
   {#if isMobileOpen}
-    <div class="lg:hidden bg-black/95 border-b border-white/10 py-6 px-6" transition:fade={{ duration: 200 }}>
+    <div class="lg:hidden bg-[#060507]/97 border-b border-aura-gold/10 py-6 px-6" transition:fade={{ duration: 200 }}>
       <div class="flex flex-col gap-6">
         <a href="/" onclick={() => isMobileOpen = false} class="flex items-center gap-2 text-sm font-black uppercase tracking-wider"
            class:text-aura-purple={$page.url.pathname === '/'} class:text-gray-400={$page.url.pathname !== '/'}>

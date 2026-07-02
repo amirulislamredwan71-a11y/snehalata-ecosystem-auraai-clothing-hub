@@ -3,7 +3,7 @@
   import Logo from './Logo.svelte';
 </script>
 
-<footer class="bg-black border-t border-white/[0.08] py-12 px-6 mt-auto">
+<footer class="bg-[#060507] border-t border-aura-gold/15 py-12 px-6 mt-auto">
   <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8">
     <div class="col-span-1 md:col-span-1">
       <div class="mb-4">
@@ -50,6 +50,6 @@
   
   <div class="max-w-7xl mx-auto mt-10 pt-6 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-gray-600">
     <p>&copy; {new Date().getFullYear()} Snehalata Ecosystem. All rights reserved.</p>
-    <p>Powered by Aura Neural Engine v3.1</p>
+    <p>Powered by <span class="text-aura-gold/80 font-semibold tracking-wide">Aura Neural Engine</span> v3.1</p>
   </div>
 </footer>

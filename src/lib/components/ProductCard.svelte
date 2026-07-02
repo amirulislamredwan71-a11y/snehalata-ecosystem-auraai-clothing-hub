@@ -79,7 +79,7 @@
 
 <div class="group space-y-4">
   <div onclick={() => isModalOpen = true}
-    class="relative aspect-[3/4] rounded-[2.5rem] overflow-hidden bg-white/5 border border-white/5 group-hover:border-[#7c3aed]/40 transition-all duration-500 shadow-xl cursor-pointer">
+    class="relative aspect-[3/4] rounded-[2.5rem] overflow-hidden bg-white/5 border border-white/5 group-hover:border-aura-gold/40 transition-all duration-500 shadow-xl cursor-pointer">
     
     <img src={currentImageUrl} alt={product.name}
       class="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110 grayscale-[0.2] group-hover:grayscale-0" />
@@ -103,7 +103,7 @@
         {#if vendor}
           <a href={`/store/${vendor.slug}`} class="text-[8px] text-gray-600 uppercase tracking-widest block hover:text-white transition-colors">{vendor.store_name}</a>
         {/if}
-        <div class="text-[13px] sm:text-[15px] font-black text-white tabular-nums mt-1">৳{product.price.toLocaleString()}</div>
+        <div class="text-[13px] sm:text-[15px] font-black text-aura-gold tabular-nums mt-1">৳{product.price.toLocaleString()}</div>
       </div>
     </div>
 
@@ -190,7 +190,7 @@
               </div>
               <div>
                 <h2 class="text-3xl font-serif font-bold text-white mb-2">{product.name}</h2>
-                <div class="text-[#7c3aed] font-black text-2xl tracking-tighter">৳{product.price.toLocaleString()}</div>
+                <div class="text-aura-gold font-black text-2xl tracking-tighter">৳{product.price.toLocaleString()}</div>
               </div>
             </header>
 
