@@ -2,7 +2,7 @@ import { json } from '@sveltejs/kit';
 import * as gemini from '$lib/server/gemini.server';
 import { adminClient } from '$lib/server/vendorSync';
 
-export const config = { maxDuration: 30 };
+export const config = { maxDuration: 60 };
 
 // A5 — execute Aura's tool calls against live data (service_role, read-only here).
 async function execTool(name: string, args: any) {
