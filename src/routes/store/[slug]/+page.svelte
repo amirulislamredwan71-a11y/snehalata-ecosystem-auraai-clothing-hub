@@ -17,14 +17,15 @@
 </script>
 
 {#if !vendor}
-  <div class="min-h-screen flex flex-col items-center justify-center gap-4 bg-black">
+  <div class="min-h-screen flex flex-col items-center justify-center gap-4 bg-[#060507]">
     <h1 class="text-2xl font-serif text-gray-500">স্টোর খুঁজে পাওয়া যায়নি</h1>
-    <a href="/" class="text-aura-purple hover:underline">নীড়ে ফিরে যান</a>
+    <a href="/" class="text-aura-gold hover:underline">নীড়ে ফিরে যান</a>
   </div>
 {:else}
-  <div class="min-h-screen bg-black pb-20">
-    <div class="h-64 bg-gradient-to-r from-gray-900 to-black relative overflow-hidden">
-      <div class="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-black to-transparent"></div>
+  <div class="min-h-screen bg-[#060507] pb-20">
+    <div class="h-64 bg-gradient-to-r from-[#1b1410] to-[#060507] relative overflow-hidden">
+      <div class="absolute inset-0 opacity-[0.15]" style="background-image: radial-gradient(circle at 20% 30%, rgba(199,154,62,0.25), transparent 45%)"></div>
+      <div class="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-[#060507] to-transparent"></div>
     </div>
 
     <div class="max-w-7xl mx-auto px-6 -mt-32 relative z-10">
@@ -51,7 +52,7 @@
               {#if vendor.district}
                 <span>•</span>
                 <span class="flex items-center gap-1">
-                  <MapPin size={12} class="text-aura-purple" /> {vendor.district}{vendor.area ? `, ${vendor.area}` : ''}
+                  <MapPin size={12} class="text-aura-gold" /> {vendor.district}{vendor.area ? `, ${vendor.area}` : ''}
                 </span>
               {/if}
             </div>
@@ -67,7 +68,7 @@
         </div>
       </div>
 
-      <h2 class="text-2xl font-serif font-bold mb-8 border-l-4 border-aura-purple pl-4">এক্সক্লুসিভ কালেকশন</h2>
+      <h2 class="text-2xl font-serif font-bold mb-8 border-l-4 border-aura-gold pl-4">এক্সক্লুসিভ কালেকশন</h2>
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {#each products as product (product.id)}
           <ProductCard {product} {vendor} />
