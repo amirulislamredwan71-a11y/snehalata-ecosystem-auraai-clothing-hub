@@ -327,10 +327,15 @@ export const auditVendorDescription = async (shopName: string, description: stri
 // A3 — semantic search: embed text into a 768-d vector (text-embedding-004).
 export const embedText = async (text: string): Promise<number[] | null> => {
     try {
-        const res: any = await ai.models.embedContent({ model: 'text-embedding-004', contents: text });
+        const res: any = await ai.models.embedContent({
+            model: 'gemini-embedding-001',
+            contents: text,
+            config: { outputDimensionality: 768 }
+        });
         const vals = res?.embeddings?.[0]?.values || res?.embedding?.values;
         return Array.isArray(vals) && vals.length ? vals : null;
-    } catch {
+    } catch (e: any) {
+        console.error('EMBED ERROR:', e?.message || e);
         return null;
     }
 };
