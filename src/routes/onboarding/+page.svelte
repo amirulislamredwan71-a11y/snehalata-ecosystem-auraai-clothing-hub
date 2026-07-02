@@ -99,12 +99,12 @@
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
       <div class="space-y-10 lg:sticky lg:top-24">
         <div>
-          <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-aura-purple/10 border border-aura-purple/20 mb-6">
-            <Sparkles size={14} class="text-aura-purple" />
-            <span class="text-[10px] font-black uppercase tracking-widest text-aura-purple">Artisan Revolution v3.0</span>
+          <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-aura-gold/10 border border-aura-gold/20 mb-6">
+            <Sparkles size={14} class="text-aura-gold" />
+            <span class="text-[10px] font-black uppercase tracking-widest text-aura-gold">Artisan Revolution v3.0</span>
           </div>
           <h1 class="text-5xl md:text-6xl font-serif font-black text-white mb-6 leading-tight">
-            Scale Your <span class="text-aura-purple">Heritage</span>
+            Scale Your <span class="text-aura-gold">Heritage</span>
           </h1>
           <p class="text-gray-400 text-lg leading-relaxed max-w-xl">
             Join the SNEHALATA ecosystem. Aura AI verifies your authenticity and deploys your digital storefront globally in seconds.
