@@ -2,12 +2,14 @@ import type { PageServerLoad } from './$types';
 import {
   SEED_VENDORS,
   SEED_PRODUCTS,
+  SEED_STATS,
   mapVendorRow,
   mapProductRow,
   dedupeById,
   withTimeout
 } from '$lib/seedCatalog';
 import { fetchVendorsFromSupabase, fetchProductsFromSupabase } from '$lib/server/supabaseClient';
+import { getRealStats } from '$lib/server/stats';
 
 // Render the storefront on the server so crawlers, link unfurlers and the first
 // paint all see real products instead of an empty grid. Supabase rows (when the
@@ -17,10 +19,13 @@ export const load: PageServerLoad = async () => {
   let vendors = [...SEED_VENDORS];
   let products = [...SEED_PRODUCTS];
 
-  const remote = await withTimeout(
-    Promise.all([fetchVendorsFromSupabase(), fetchProductsFromSupabase()]),
-    2500
-  );
+  const [remote, stats] = await Promise.all([
+    withTimeout(
+      Promise.all([fetchVendorsFromSupabase(), fetchProductsFromSupabase()]),
+      2500
+    ),
+    withTimeout(getRealStats(), 2500)
+  ]);
 
   if (remote) {
     const [vendorRes, productRes] = remote;
@@ -33,5 +38,5 @@ export const load: PageServerLoad = async () => {
     }
   }
 
-  return { products, vendors };
+  return { products, vendors, stats: stats ?? SEED_STATS };
 };

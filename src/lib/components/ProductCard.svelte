@@ -2,6 +2,7 @@
   import { goto } from '$app/navigation';
   import { Eye, X, Plus, Minus, CheckCircle2, ShoppingBag, Shirt, Sparkles, ShieldCheck, Palette, Loader2, Share2, Zap } from '@lucide/svelte';
   import { editAuraImage } from '$lib/geminiService';
+  import { track } from '$lib/analytics';
   import { fade, scale, fly } from 'svelte/transition';
   import type { Product, Vendor } from '$lib/types';
 
@@ -22,6 +23,12 @@
     { id: 'bohemian', name: 'Boho', prompt: 'Apply a bohemian aesthetic with earthy tones, natural textures, warm sunlight, and a cozy, eclectic vibe.', icon: '🌿' },
   ];
 
+  function openModal() {
+    isModalOpen = true;
+    // Neural Grid A1 — product view signal (deduped per session in the tracker).
+    track('view', { product_id: Number(product.id), vendor_id: vendor ? Number(vendor.id) : null });
+  }
+
   function addToCart(imgUrl: string, qty: number) {
     const cart = JSON.parse(localStorage.getItem('aura_cart') || '[]');
     const existing = cart.findIndex((i: any) => i.id === product.id);
@@ -29,6 +36,7 @@
     else cart.push({ ...product, imageUrl: imgUrl, quantity: qty });
     localStorage.setItem('aura_cart', JSON.stringify(cart));
     window.dispatchEvent(new Event('cartUpdated'));
+    track('add_to_cart', { product_id: Number(product.id), vendor_id: vendor ? Number(vendor.id) : null, meta: { qty } });
   }
 
   function handleQuickAdd(e: MouseEvent) {
@@ -78,7 +86,7 @@
 </script>
 
 <div class="group space-y-4">
-  <div onclick={() => isModalOpen = true}
+  <div onclick={openModal}
     class="relative aspect-[3/4] rounded-[2.5rem] overflow-hidden bg-white/5 border border-white/5 group-hover:border-aura-gold/40 transition-all duration-500 shadow-xl cursor-pointer">
     
     <img src={currentImageUrl} alt={product.name}

@@ -5,10 +5,22 @@
   import ProductCard from '$lib/components/ProductCard.svelte';
   import { getProducts, getVendors, getEcosystemStats } from '$lib/mockData';
   import { BD_LOCATIONS } from '$lib/locationData';
+  import { track } from '$lib/analytics';
 
   let { data } = $props();
 
-  const stats = getEcosystemStats();
+  // Neural Grid A1 — prefer real server-computed stats; fall back to seed.
+  const stats = $derived(data?.stats ?? getEcosystemStats());
+
+  // Debounced search-intent capture for the Grid.
+  let searchTimer: ReturnType<typeof setTimeout>;
+  function onSearchInput() {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(() => {
+      const q = searchQuery.trim();
+      if (q.length >= 2) track('search', { meta: { q: q.slice(0, 80) } });
+    }, 900);
+  }
 
   let selectedCategory = $state('all');
   let selectedDistrict = $state('all');
@@ -235,7 +247,7 @@
       </button>
       <div class="flex-1 relative group">
         <Search class="absolute left-6 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-[#7c3aed] transition-colors" size={20} />
-        <input type="text" bind:value={searchQuery}
+        <input type="text" bind:value={searchQuery} oninput={onSearchInput}
           placeholder="SNEHALATA Aura AI-তে সার্চ করুন..."
           class="w-full bg-white/5 border border-white/10 rounded-[2rem] py-4 pl-16 pr-6 text-sm focus:outline-none focus:border-[#7c3aed]/50 focus:ring-8 focus:ring-[#7c3aed]/5 transition-all placeholder:text-gray-600" />
       </div>

@@ -66,5 +66,32 @@ export const POST: RequestHandler = async ({ request }) => {
   const { error: ie } = await a.from('order_items').insert(lineItems.map((li) => ({ ...li, order_id: order.id })));
   if (ie) throw error(500, ie.message);
 
+  // Neural Grid A1 — record purchase events + bump product stats (best-effort; the
+  // most reliable purchase signal since it's server-side and can't be missed/spoofed).
+  try {
+    await a.from('events').insert(
+      lineItems.map((li) => ({
+        event_type: 'purchase',
+        product_id: li.product_id,
+        vendor_id: li.vendor_id,
+        session_id: `order:${order.id}`,
+        meta: { order_id: order.id, qty: li.quantity, line_total: li.line_total }
+      }))
+    );
+    await Promise.all(
+      lineItems.map((li) =>
+        a
+          .rpc('bump_product_stats', {
+            p_product_id: li.product_id,
+            p_purchases: li.quantity,
+            p_revenue: li.line_total
+          })
+          .then(() => {}, () => {})
+      )
+    );
+  } catch {
+    // Grid tables not migrated yet — order still succeeds.
+  }
+
   return json({ ok: true, orderId: order.id, total, itemCount: lineItems.length });
 };
