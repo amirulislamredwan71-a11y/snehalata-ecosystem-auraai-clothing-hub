@@ -141,7 +141,7 @@
           name: 'SNEHALATA Aura Neural Ecosystem',
           url: SITE_URL,
           description:
-            'AI-powered e-commerce ecosystem empowering local Bangladeshi artisans with global-standard technology.',
+            "Bangladesh's unified AI marketplace — every brand, showroom and shop in one place, with AI try-on, semantic search and Neural Grid intelligence that makes shopping effortless.",
           areaServed: 'BD'
         },
         {
@@ -225,29 +225,29 @@
 </script>
 
 <svelte:head>
-  <title>SNEHALATA Aura — AI Neural Ecosystem for Bangladeshi Artisans</title>
+  <title>SNEHALATA Aura — Bangladesh's Unified AI Marketplace | Every Brand in One Place</title>
   <meta
     name="description"
-    content="স্নেহলতা Aura — an AI-powered marketplace connecting Bangladesh's artisans to the world. Discover Jamdani sarees, Muslin panjabis, streetwear & more with virtual try-on, neural search and verified vendors." />
+    content="স্নেহলতা Aura — বাংলাদেশের সব ব্র্যান্ড, শোরুম ও দোকান এক AI প্ল্যাটফর্মে। জামদানি থেকে আধুনিক ফ্যাশন, গ্যাজেট থেকে প্রতিদিনের প্রয়োজন — virtual try-on, semantic search আর Neural Grid দিয়ে সহজ কেনাকাটা।" />
   <link rel="canonical" href="https://www.snehalata.com/" />
   <meta name="theme-color" content="#7c3aed" />
 
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="SNEHALATA Aura" />
-  <meta property="og:title" content="SNEHALATA Aura — AI Neural Ecosystem for Bangladeshi Artisans" />
+  <meta property="og:title" content="SNEHALATA Aura — Bangladesh's Unified AI Marketplace" />
   <meta
     property="og:description"
-    content="AI-powered marketplace for Bangladesh's artisans: Jamdani, Muslin, streetwear & more — with virtual try-on and neural search." />
+    content="Every brand, showroom & shop in Bangladesh — unified in one AI platform. Virtual try-on, semantic search & Neural Grid intelligence that makes shopping effortless." />
   <meta property="og:url" content="https://www.snehalata.com/" />
   <meta property="og:image" content="https://www.snehalata.com/og-cover.svg" />
   <meta property="og:locale" content="bn_BD" />
   <meta property="og:locale:alternate" content="en_US" />
 
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="SNEHALATA Aura — AI Neural Ecosystem" />
+  <meta name="twitter:title" content="SNEHALATA Aura — Bangladesh's Unified AI Marketplace" />
   <meta
     name="twitter:description"
-    content="AI-powered marketplace for Bangladesh's artisans, with virtual try-on and neural search." />
+    content="Every brand, showroom & shop in Bangladesh — unified in one AI platform, with try-on, semantic search & Neural Grid." />
   <meta name="twitter:image" content="https://www.snehalata.com/og-cover.svg" />
 
   {@html `<script type="application/ld+json">${jsonLd}<\/script>`}
@@ -263,10 +263,10 @@
         <span class="text-[10px] font-black uppercase tracking-[0.3em] text-gray-300">Aura Neural Engine v3.1 · Live</span>
       </div>
       <h1 class="text-4xl md:text-6xl lg:text-7xl font-serif font-black italic leading-[1.05] max-w-4xl">
-        বাংলার আর্টিজানদের জন্য <span class="text-aura-gold">AI Neural</span> ইকোসিস্টেম
+        বাংলাদেশের সব ব্র্যান্ড ও দোকান এক <span class="text-aura-gold">AI Neural</span> প্ল্যাটফর্মে
       </h1>
       <p class="mt-6 text-gray-400 text-base md:text-lg max-w-2xl leading-relaxed">
-        Jamdani, Muslin, Tant ও streetwear — verified artisan-দের কাছ থেকে। Virtual try-on, neural search এবং Aura Governance সহ world-class shopping experience.
+        দেশের সেরা ব্র্যান্ড, শোরুম আর হাজারো দোকানের সব পণ্য এক জায়গায় — জামদানি থেকে আধুনিক ফ্যাশন, গ্যাজেট থেকে প্রতিদিনের প্রয়োজন। Aura Neural Grid প্রতিটি ক্রেতার কেনাকাটা করে আরও সহজ, দ্রুত ও নিরাপদ।
       </p>
       <div class="mt-10 flex flex-wrap items-center gap-4">
         <a href="#collection"
@@ -281,7 +281,7 @@
       <div class="mt-12 sm:mt-16 grid grid-cols-3 gap-3 sm:gap-6 max-w-2xl">
         <div>
           <div class="text-xl sm:text-3xl md:text-4xl font-black text-aura-gold tabular-nums">{fmt(stats.totalVendors)}</div>
-          <div class="text-[10px] font-black uppercase tracking-widest text-gray-500 mt-1">Verified Artisans</div>
+          <div class="text-[10px] font-black uppercase tracking-widest text-gray-500 mt-1">Verified Sellers</div>
         </div>
         <div>
           <div class="text-xl sm:text-3xl md:text-4xl font-black text-white tabular-nums">{fmt(stats.activeProducts)}</div>

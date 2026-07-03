@@ -9,6 +9,28 @@ const ai = new GoogleGenAI({
   }
 });
 
+// Gemini preview models 503 ("high demand / UNAVAILABLE") under load. Retry those
+// transient failures with a short backoff before giving up. Non-transient errors
+// (bad request, auth) throw immediately.
+async function withRetry<T>(fn: () => Promise<T>, tries = 3): Promise<T> {
+  let lastErr: any;
+  for (let i = 0; i < tries; i++) {
+    try {
+      return await fn();
+    } catch (e: any) {
+      lastErr = e;
+      const msg = String(e?.message || e).toLowerCase();
+      const transient =
+        msg.includes('503') || msg.includes('unavailable') || msg.includes('overloaded') ||
+        msg.includes('high demand') || msg.includes('429') || msg.includes('resource_exhausted') ||
+        msg.includes('rate limit') || msg.includes('500') || msg.includes('internal');
+      if (!transient || i === tries - 1) throw e;
+      await new Promise((r) => setTimeout(r, 600 * (i + 1)));
+    }
+  }
+  throw lastErr;
+}
+
 const buildAuraContext = (inventory: string, vendors: string) => {
   return `IDENTITY: You are Aura AI (স্নেহলতা ইকোসিস্টেম গাইড).
   TONE: Elegant, futuristic, warm, and helpful. Always maintain a sophisticated "Neural Guardian" persona.
@@ -79,7 +101,7 @@ export const generateAuraResponseWithTools = async (
     history: history || []
   });
 
-  let res = await chat.sendMessage({ message });
+  let res = await withRetry(() => chat.sendMessage({ message }));
   // Resolve up to 3 rounds of tool calls, feeding real results back to the model.
   for (let i = 0; i < 3; i++) {
     const calls = res.functionCalls;
@@ -94,9 +116,19 @@ export const generateAuraResponseWithTools = async (
       }
       parts.push({ functionResponse: { name: call.name, response: { result } } });
     }
-    res = await chat.sendMessage({ message: parts });
+    res = await withRetry(() => chat.sendMessage({ message: parts }));
   }
   return res.text;
+};
+
+// Plain, no-tools fallback on the stable model — used when tool-calling 503s.
+export const generateAuraFallback = async (message: string, inventory: string, vendors: string) => {
+  const response = await withRetry(() => ai.models.generateContent({
+    model: 'gemini-flash-latest',
+    contents: message,
+    config: { systemInstruction: buildAuraContext(inventory, vendors), temperature: 0.7 }
+  }));
+  return response.text;
 };
 
 export const getAIRecommendations = async (historySummary: string, availableProducts: string) => {
@@ -140,7 +172,7 @@ export const analyzeSearchIntent = async (userPrompt: string) => {
 };
 
 export const generateTryOnTransformation = async (userImg: string, productImg: string) => {
-    const response = await ai.models.generateContent({
+    const response = await withRetry(() => ai.models.generateContent({
         model: 'gemini-2.5-flash-image',
         contents: {
             parts: [
@@ -149,7 +181,7 @@ export const generateTryOnTransformation = async (userImg: string, productImg: s
                 { text: "Overlay this garment onto the person naturally." }
             ]
         }
-    });
+    }));
     for (const part of response.candidates?.[0]?.content?.parts || []) {
         if (part.inlineData) return part.inlineData.data;
     }
@@ -283,7 +315,7 @@ export const complexThinkingAura = async (prompt: string) => {
 };
 
 export const generateStyleTransfer = async (base64Image: string, styleInstruction: string) => {
-    const response = await ai.models.generateContent({
+    const response = await withRetry(() => ai.models.generateContent({
         model: 'gemini-2.5-flash-image',
         contents: {
             parts: [
@@ -291,7 +323,7 @@ export const generateStyleTransfer = async (base64Image: string, styleInstructio
                 { text: `Re-imagine this image in the style of: ${styleInstruction}. Maintain the core composition but shift the artistic medium and visual grammar.` }
             ]
         }
-    });
+    }));
     for (const part of response.candidates?.[0]?.content?.parts || []) {
       if (part.inlineData) return part.inlineData.data;
     }
@@ -327,11 +359,11 @@ export const auditVendorDescription = async (shopName: string, description: stri
 // A3 — semantic search: embed text into a 768-d vector (text-embedding-004).
 export const embedText = async (text: string): Promise<number[] | null> => {
     try {
-        const res: any = await ai.models.embedContent({
+        const res: any = await withRetry(() => ai.models.embedContent({
             model: 'gemini-embedding-001',
             contents: text,
             config: { outputDimensionality: 768 }
-        });
+        }));
         const vals = res?.embeddings?.[0]?.values || res?.embedding?.values;
         return Array.isArray(vals) && vals.length ? vals : null;
     } catch (e: any) {
@@ -358,7 +390,7 @@ export const captionImage = async (base64Image: string): Promise<string> => {
 
 // A6 — governance: moderate a product listing before it goes live.
 export const moderateListing = async (name: string, description: string, price: number, category: string) => {
-    const response = await ai.models.generateContent({
+    const response = await withRetry(() => ai.models.generateContent({
         model: 'gemini-3.1-flash-lite',
         contents: `Moderate this listing for SNEHALATA, a premium Bangladeshi heritage clothing marketplace.
 Name: ${name}
@@ -380,14 +412,14 @@ Return trust_score 0-100 (100 = clearly authentic & appropriate), verdict (APPRO
                 required: ['trust_score', 'verdict', 'note']
             }
         }
-    });
+    }));
     return JSON.parse(response.text || '{"trust_score":50,"verdict":"APPROVE","note":"auto-approved"}');
 };
 
 // A4 — vendor AI merchandising: one product photo → a ready-to-edit catalog listing.
 export const analyzeProductImage = async (base64Image: string) => {
     const data = base64Image.includes(',') ? base64Image.split(',')[1] : base64Image;
-    const response = await ai.models.generateContent({
+    const response = await withRetry(() => ai.models.generateContent({
         model: 'gemini-3-flash-preview',
         contents: {
             parts: [
@@ -420,6 +452,6 @@ export const analyzeProductImage = async (base64Image: string) => {
                 required: ['title', 'description_en', 'category', 'suggested_price_bdt', 'quality_score']
             }
         }
-    });
+    }));
     return JSON.parse(response.text || 'null');
 };

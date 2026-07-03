@@ -45,8 +45,11 @@ async function execTool(name: string, args: any) {
 }
 
 export const POST = async ({ request }) => {
+  const body = await request.json().catch(() => ({} as any));
+  const { message, history, inventory = '', vendors = '' } = body;
+
+  // Primary: tool-calling chat (grounded in live data), with 503-retry inside.
   try {
-    const { message, history, inventory, vendors } = await request.json();
     const text = await gemini.generateAuraResponseWithTools(
       message,
       history || [],
@@ -55,8 +58,18 @@ export const POST = async ({ request }) => {
       execTool
     );
     return json({ text });
-  } catch (error: any) {
-    console.error('AURA CHAT ERROR:', error?.stack || error?.message || error);
-    return json({ error: String(error?.message || error) }, { status: 500 });
+  } catch (toolErr: any) {
+    console.error('AURA CHAT tool-calling failed, falling back:', toolErr?.message || toolErr);
   }
+
+  // Fallback 1: plain no-tools reply on the stable model (still catalog-aware).
+  try {
+    const text = await gemini.generateAuraFallback(message, inventory, vendors);
+    return json({ text });
+  } catch (fallbackErr: any) {
+    console.error('AURA CHAT fallback failed:', fallbackErr?.message || fallbackErr);
+  }
+
+  // Fallback 2: never 500 — a friendly message so the UI never shows "unstable".
+  return json({ text: 'Aura is very busy right now — please try again in a few seconds. 🙏' });
 };

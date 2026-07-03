@@ -10,7 +10,7 @@
         <Logo />
       </div>
       <p class="text-gray-500 text-sm leading-relaxed mt-4">
-        The ultimate AI-powered ecosystem empowering local artisans with global standard technology.
+        Bangladesh's unified AI marketplace — every brand, showroom & shop in one place, made effortless by the Aura Neural Grid.
       </p>
     </div>
 

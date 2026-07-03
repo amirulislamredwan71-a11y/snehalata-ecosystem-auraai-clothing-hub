@@ -15,6 +15,7 @@
   let activeTool = $state<'TRYON' | 'STYLE'>('TRYON');
   let stylePrompt = $state('Vintage Heritage / Warm Film');
   let result = $state<any>(null);
+  let studioError = $state<string | null>(null);
   let isProcessing = $state(false);
   let isCameraActive = $state(false);
   let selectedProduct = $state<Product | null>(null);
@@ -105,6 +106,8 @@
 
     isProcessing = true;
     result = null;
+    studioError = null;
+    const busyMsg = 'Aura is very busy right now — please try again in a few seconds.';
 
     try {
       if (isCameraActive && !capturedImage) {
@@ -114,14 +117,17 @@
       if (activeTool === 'TRYON') {
         if (selectedProduct && capturedImage) {
           const transformed = await generateTryOnTransformation(capturedImage, selectedProduct.imageUrl!);
-          result = { type: 'TRYON', url: transformed, product: selectedProduct };
+          if (transformed) result = { type: 'TRYON', url: transformed, product: selectedProduct };
+          else studioError = busyMsg;
         }
       } else if (capturedImage) {
         const transformed = await generateStyleTransfer(capturedImage, stylePrompt);
-        result = { type: 'STYLE', url: transformed };
+        if (transformed) result = { type: 'STYLE', url: transformed };
+        else studioError = busyMsg;
       }
     } catch (error: any) {
       console.error(error);
+      studioError = busyMsg;
     } finally {
       isProcessing = false;
     }
@@ -369,6 +375,14 @@
                   <a href={result.url} download="aura-style.png" class="absolute bottom-6 right-6 p-6 bg-white text-black rounded-full shadow-2xl hover:scale-110 transition-transform"><Download size={24} /></a>
                 </div>
               {/if}
+            </div>
+          {:else if studioError}
+            <div class="flex flex-col items-center justify-center gap-6 text-center p-10">
+              <div class="w-16 h-16 rounded-[2rem] bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
+                <Zap size={28} class="text-amber-400" />
+              </div>
+              <p class="text-gray-300 text-sm max-w-xs leading-relaxed">{studioError}</p>
+              <button type="button" onclick={handleRun} class="px-8 py-4 bg-white text-black rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-aura-purple hover:text-white transition-all">Try Again</button>
             </div>
           {:else}
             <div class="w-full h-full relative group">
