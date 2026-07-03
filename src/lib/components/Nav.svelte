@@ -73,7 +73,7 @@
             <span class="absolute -top-2 -right-2 bg-[#7c3aed] text-white text-[9px] w-4 h-4 rounded-full flex items-center justify-center font-bold border border-black shadow-lg">{cartCount}</span>
           {/if}
         </a>
-        <button type="button" onclick={() => isMobileOpen = !isMobileOpen} class="lg:hidden text-white cursor-pointer p-1 -m-1">
+        <button type="button" aria-label="Open menu" onclick={() => isMobileOpen = !isMobileOpen} class="lg:hidden text-white cursor-pointer p-2 -m-2 touch-manipulation">
           {#if isMobileOpen}
             <X size={24} />
           {:else}

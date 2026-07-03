@@ -363,6 +363,20 @@
     </div>
   </div>
 
+  <!-- Mobile category rail — always visible so categories never "disappear" behind a drawer -->
+  <div class="lg:hidden border-b border-white/5 bg-[#060507]/70 backdrop-blur-xl">
+    <div class="max-w-7xl mx-auto px-4 py-3">
+      <div class="flex gap-2 overflow-x-auto no-scrollbar">
+        {#each ECO_CATEGORIES as cat}
+          <button type="button" onclick={() => { selectedCategory = cat.id; semanticActive = false; }}
+            class="flex-shrink-0 px-4 py-2 rounded-xl text-[11px] font-bold border transition-all touch-manipulation {selectedCategory === cat.id ? 'bg-aura-purple border-aura-purple text-white' : 'bg-white/5 border-white/10 text-gray-400'}">
+            {cat.name}
+          </button>
+        {/each}
+      </div>
+    </div>
+  </div>
+
   <div class="max-w-7xl mx-auto flex relative">
     <!-- Sidebar -->
     <aside class="hidden lg:block w-80 h-[calc(100vh-100px)] sticky top-[100px] overflow-y-auto p-8 border-r border-white/5 no-scrollbar">

@@ -164,8 +164,8 @@
       <p class="text-gray-500 max-w-xl mx-auto">Try heritage looks on yourself with live AR, or restyle your photo — all powered by the Aura Neural Engine.</p>
     </header>
 
-    <div class="grid grid-cols-1 lg:grid-cols-4 gap-10">
-      <aside class="flex lg:flex-col gap-3 overflow-x-auto no-scrollbar">
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 lg:gap-10">
+      <aside class="flex lg:flex-col gap-3 overflow-x-auto no-scrollbar min-w-0">
         <div class="min-w-[220px] lg:min-w-0">
           {@render toolTab(activeTool === 'TRYON', Camera, 'Neural AR Try-On', 'Live Vision • Virtual Fit', () => activeTool = 'TRYON')}
         </div>
@@ -174,8 +174,8 @@
         </div>
       </aside>
 
-      <main class="lg:col-span-3 space-y-8">
-        <div class="bg-aura-glass border border-aura-glassBorder rounded-[2.5rem] p-8 shadow-2xl relative overflow-hidden">
+      <main class="lg:col-span-3 space-y-8 min-w-0">
+        <div class="bg-aura-glass border border-aura-glassBorder rounded-[2.5rem] p-5 sm:p-8 shadow-2xl relative overflow-hidden">
           <div class="absolute top-0 right-0 w-64 h-64 bg-aura-purple/5 blur-[100px] pointer-events-none" />
 
           <div class="relative z-10 space-y-6">
@@ -328,7 +328,7 @@
           </div>
         </div>
 
-        <div class="bg-aura-glass border border-aura-glassBorder rounded-[2.5rem] min-h-[500px] flex items-center justify-center relative overflow-hidden {activeTool === 'TRYON' ? 'aspect-video' : ''}">
+        <div class="w-full bg-aura-glass border border-aura-glassBorder rounded-[2.5rem] min-h-[420px] sm:min-h-[500px] flex items-center justify-center relative overflow-hidden {activeTool === 'TRYON' ? 'lg:aspect-video' : ''}">
           {#if isProcessing}
             <div class="absolute left-0 right-0 h-1 bg-gradient-to-r from-transparent via-aura-purple to-transparent z-20 shadow-[0_0_20px_rgba(124,58,237,1)] scan-line" />
             <div class="flex flex-col items-center gap-6 relative z-10">
