@@ -117,13 +117,13 @@
       if (activeTool === 'TRYON') {
         if (selectedProduct && capturedImage) {
           const transformed = await generateTryOnTransformation(capturedImage, selectedProduct.imageUrl!);
-          if (transformed) result = { type: 'TRYON', url: transformed, product: selectedProduct };
-          else studioError = busyMsg;
+          if (transformed.image) result = { type: 'TRYON', url: transformed.image, product: selectedProduct };
+          else studioError = transformed.error || busyMsg;
         }
       } else if (capturedImage) {
         const transformed = await generateStyleTransfer(capturedImage, stylePrompt);
-        if (transformed) result = { type: 'STYLE', url: transformed };
-        else studioError = busyMsg;
+        if (transformed.image) result = { type: 'STYLE', url: transformed.image };
+        else studioError = transformed.error || busyMsg;
       }
     } catch (error: any) {
       console.error(error);

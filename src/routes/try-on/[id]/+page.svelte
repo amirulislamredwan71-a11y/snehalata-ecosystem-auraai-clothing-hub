@@ -100,12 +100,12 @@
 
       const result = await generateTryOnTransformation(userImage, productBase64);
 
-      if (result) {
-        generatedImage = result;
+      if (result.image) {
+        generatedImage = result.image;
         // Neural Grid A1 — try-on is a signature signal.
         track('try_on', { product_id: product ? Number(product.id) : null, vendor_id: product ? Number(product.vendorId) : null });
       } else {
-        error = 'AI ট্রান্সফরমেশন ব্যর্থ হয়েছে। দয়া করে আরো পরিষ্কার ছবি ব্যবহার করে পুনরায় চেষ্টা করুন।';
+        error = result.error || 'AI ট্রান্সফরমেশন ব্যর্থ হয়েছে। দয়া করে আরো পরিষ্কার ছবি ব্যবহার করে পুনরায় চেষ্টা করুন।';
       }
     } catch {
       error = 'একটি অপ্রত্যাশিত ত্রুটি ঘটেছে। Aura সিস্টেম পুনরায় চেক করা হচ্ছে।';

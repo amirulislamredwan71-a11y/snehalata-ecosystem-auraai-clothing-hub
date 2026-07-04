@@ -77,9 +77,9 @@
         isGeneratingImage = true;
         const instruction = currentInput || 'Enhance this clothing/outfit photo: clean studio background, soft even lighting, keep the garment realistic and flattering.';
         const edited = await editAuraImage(instruction, img);
-        messages = [...messages, edited
-          ? { id: Date.now().toString(), text: 'এই যে আপনার ছবিটি Aura Vision দিয়ে এডিট করে দিলাম ✨ (পুরো Virtual Try-On করতে Aura Studio ব্যবহার করুন।)', sender: 'aura', image: edited }
-          : { id: Date.now().toString(), text: 'ছবিটি এই মুহূর্তে এডিট করা যাচ্ছে না — Aura একটু ব্যস্ত, একটু পরে আবার চেষ্টা করুন 🙏', sender: 'aura' }];
+        messages = [...messages, edited.image
+          ? { id: Date.now().toString(), text: 'এই যে আপনার ছবিটি Aura Vision দিয়ে এডিট করে দিলাম ✨ (পুরো Virtual Try-On করতে Aura Studio ব্যবহার করুন।)', sender: 'aura', image: edited.image }
+          : { id: Date.now().toString(), text: edited.error || 'ছবিটি এই মুহূর্তে এডিট করা যাচ্ছে না — Aura একটু ব্যস্ত, একটু পরে আবার চেষ্টা করুন 🙏', sender: 'aura' }];
         isGeneratingImage = false; isTyping = false;
         return;
       }

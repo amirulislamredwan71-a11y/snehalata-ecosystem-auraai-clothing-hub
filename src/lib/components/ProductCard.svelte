@@ -88,7 +88,7 @@
       // keeping the ProductCard's initial bundle lean (many cards hydrate on the HUB).
       const { editAuraImage } = await import('$lib/geminiService');
       const refined = await editAuraImage(presetPrompt, base64);
-      if (refined) currentImageUrl = refined;
+      if (refined.image) currentImageUrl = refined.image;
     } catch (e) { console.error("Style refinement failed", e); }
     finally { isRefining = false; }
   }

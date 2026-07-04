@@ -178,9 +178,10 @@ export const generateTryOnTransformation = async (userImg: string, productImg: s
             parts: [
                 { inlineData: { data: userImg.split(',')[1], mimeType: 'image/jpeg' } },
                 { inlineData: { data: productImg.split(',')[1], mimeType: 'image/jpeg' } },
-                { text: "Overlay this garment onto the person naturally." }
+                { text: "Photorealistic virtual try-on. Dress the PERSON in the first image with the GARMENT/product shown in the second image. Keep the person's face, body, skin tone and pose exactly the same; replace only their outfit with the garment, fitted naturally with realistic folds, drape, lighting and shadows. Return only the edited photo." }
             ]
-        }
+        },
+        config: { responseModalities: [Modality.IMAGE] }
     }));
     for (const part of response.candidates?.[0]?.content?.parts || []) {
         if (part.inlineData) return part.inlineData.data;
@@ -244,10 +245,11 @@ export const generateAuraImage = async (prompt: string, referenceImageBase64?: s
         } 
       });
     }
-    const response = await ai.models.generateContent({ 
-      model: 'gemini-2.5-flash-image', 
-      contents: { parts } 
-    });
+    const response = await withRetry(() => ai.models.generateContent({
+      model: 'gemini-2.5-flash-image',
+      contents: { parts },
+      config: { responseModalities: [Modality.IMAGE] }
+    }));
     for (const part of response.candidates?.[0]?.content?.parts || []) {
       if (part.inlineData) return part.inlineData.data;
     }
@@ -320,9 +322,10 @@ export const generateStyleTransfer = async (base64Image: string, styleInstructio
         contents: {
             parts: [
                 { inlineData: { data: base64Image.split(',')[1], mimeType: 'image/jpeg' } },
-                { text: `Re-imagine this image in the style of: ${styleInstruction}. Maintain the core composition but shift the artistic medium and visual grammar.` }
+                { text: `Re-imagine this image in the style of: ${styleInstruction}. Maintain the core composition but shift the artistic medium and visual grammar. Return only the edited image.` }
             ]
-        }
+        },
+        config: { responseModalities: [Modality.IMAGE] }
     }));
     for (const part of response.candidates?.[0]?.content?.parts || []) {
       if (part.inlineData) return part.inlineData.data;

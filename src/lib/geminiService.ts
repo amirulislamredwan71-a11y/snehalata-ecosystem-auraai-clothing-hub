@@ -53,17 +53,20 @@ export const generateAuraSpeech = async (text: string) => {
   }
 };
 
-export const generateTryOnTransformation = async (userImg: string, productImg: string) => {
+export type ImageResult = { image: string | null; error: string | null; code: string | null };
+
+export const generateTryOnTransformation = async (userImg: string, productImg: string): Promise<ImageResult> => {
   try {
     const response = await fetch("/api/gemini/try-on", {
       method: "POST", headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ userImg, productImg }),
     });
     const data = await response.json();
-    return data.image ? `data:image/png;base64,${data.image}` : null;
+    if (data.image) return { image: `data:image/png;base64,${data.image}`, error: null, code: null };
+    return { image: null, error: data.message || 'Aura Vision is busy — please try again.', code: data.error || 'busy' };
   } catch (e) {
     console.error("Aura Try-On Error", e);
-    return null;
+    return { image: null, error: 'Neural link interrupted — please try again.', code: 'network' };
   }
 };
 
@@ -95,17 +98,18 @@ export const generateAuraProImage = async (prompt: string, size: '1K' | '2K' | '
   }
 };
 
-export const generateStyleTransfer = async (image: string, style: string) => {
+export const generateStyleTransfer = async (image: string, style: string): Promise<ImageResult> => {
   try {
     const response = await fetch("/api/gemini/style-transfer", {
       method: "POST", headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ image, style }),
     });
     const data = await response.json();
-    return data.image ? `data:image/png;base64,${data.image}` : null;
+    if (data.image) return { image: `data:image/png;base64,${data.image}`, error: null, code: null };
+    return { image: null, error: data.message || 'Aura Vision is busy — please try again.', code: data.error || 'busy' };
   } catch (e) {
     console.error("Aura Style Transfer Error", e);
-    return null;
+    return { image: null, error: 'Neural link interrupted — please try again.', code: 'network' };
   }
 };
 
