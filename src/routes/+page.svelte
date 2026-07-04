@@ -561,38 +561,6 @@
         </section>
       {/if}
 
-      <!-- Category Sections (All) -->
-      {#if !semanticActive && selectedCategory === 'all' && searchQuery === ''}
-        <div class="space-y-32 mb-32">
-          {#each ECO_CATEGORIES.filter(c => c.id !== 'all').slice(0, 4) as cat}
-            {@const catProducts = products.filter(p => p.category.toLowerCase().includes(cat.id)).slice(0, 4)}
-            {#if catProducts.length > 0}
-              <section>
-                <div class="flex items-center justify-between mb-12">
-                  <div class="flex items-center gap-4">
-                    <div class="p-3 bg-[#7c3aed]/10 rounded-2xl text-[#7c3aed]">
-                      <svelte:component this={cat.icon} size={16} />
-                    </div>
-                    <h3 class="text-3xl font-serif font-black italic">{cat.name}</h3>
-                  </div>
-                  <button onclick={() => selectCategory(cat.id)}
-                    class="text-[10px] font-black uppercase tracking-widest text-gray-500 hover:text-white transition-colors flex items-center gap-2 cursor-pointer">
-                    Explore All <ChevronRight size={14} />
-                  </button>
-                </div>
-                <div class="grid grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-10">
-                  {#each catProducts as p}
-                    <div transition:fly={{ y: 20, duration: 300, delay: 50 * catProducts.indexOf(p) }}>
-                      <ProductCard product={p} />
-                    </div>
-                  {/each}
-                </div>
-              </section>
-            {/if}
-          {/each}
-        </div>
-      {/if}
-
       <!-- Product Grid -->
       {#if searchLoading}
         <div class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-10">

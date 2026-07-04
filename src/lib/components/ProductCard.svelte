@@ -1,7 +1,6 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
   import { Eye, X, Plus, Minus, CheckCircle2, ShoppingBag, Shirt, Sparkles, ShieldCheck, Palette, Loader2, Share2, Zap } from '@lucide/svelte';
-  import { editAuraImage } from '$lib/geminiService';
   import { track } from '$lib/analytics';
   import { productImg, imgFallback } from '$lib/imageUpload';
   import { fade, scale, fly } from 'svelte/transition';
@@ -85,6 +84,9 @@
     isRefineModalOpen = false;
     try {
       const base64 = await convertUrlToBase64(currentImageUrl);
+      // Lazy-load the heavy AI service only when the user actually refines a style,
+      // keeping the ProductCard's initial bundle lean (many cards hydrate on the HUB).
+      const { editAuraImage } = await import('$lib/geminiService');
       const refined = await editAuraImage(presetPrompt, base64);
       if (refined) currentImageUrl = refined;
     } catch (e) { console.error("Style refinement failed", e); }

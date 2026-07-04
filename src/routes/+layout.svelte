@@ -3,15 +3,28 @@
   import Nav from '$lib/components/Nav.svelte';
   import Footer from '$lib/components/Footer.svelte';
   import FloatingCart from '$lib/components/FloatingCart.svelte';
-  import ChatAssistant from '$lib/components/ChatAssistant.svelte';
   import NeuralBackground from '$lib/components/NeuralBackground.svelte';
   import { browser } from '$app/environment';
   import { syncWithNeuralGrid } from '$lib/mockData';
 
   let { children } = $props();
 
+  // Aura chat is a floating, non-critical widget → load it AFTER the page is
+  // interactive so it never blocks initial hydration (was slowing the HUB page).
+  let ChatAssistant = $state<any>(null);
+
   $effect(() => {
-    if (browser) syncWithNeuralGrid();
+    if (!browser) return;
+    syncWithNeuralGrid();
+    const load = () =>
+      import('$lib/components/ChatAssistant.svelte').then((m) => {
+        ChatAssistant = m.default;
+      });
+    if ('requestIdleCallback' in window) {
+      (window as any).requestIdleCallback(load, { timeout: 2500 });
+    } else {
+      setTimeout(load, 400);
+    }
   });
 </script>
 
@@ -42,4 +55,6 @@
 </div>
 
 <FloatingCart />
-<ChatAssistant />
+{#if ChatAssistant}
+  <ChatAssistant />
+{/if}
