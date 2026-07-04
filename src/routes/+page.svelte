@@ -594,6 +594,17 @@
       {/if}
 
       <!-- Product Grid -->
+      {#if searchLoading}
+        <div class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-10">
+          {#each Array(8) as _, si (si)}
+            <div class="animate-pulse space-y-3">
+              <div class="aspect-[3/4] rounded-[2.5rem] bg-white/5 border border-white/5"></div>
+              <div class="h-3 rounded-full bg-white/5 w-3/4"></div>
+              <div class="h-3 rounded-full bg-white/5 w-1/3"></div>
+            </div>
+          {/each}
+        </div>
+      {:else}
       <div class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-10">
         {#each displayProducts as p, idx (p.id)}
           <div transition:fly={{ y: 30, duration: 400, delay: idx * 50 }}>
@@ -607,15 +618,16 @@
               <Search size={32} class="text-gray-800" />
             </div>
             <h3 class="text-2xl font-serif font-bold mb-2">No Neural Signal</h3>
-            <p class="text-gray-500 text-sm max-w-xs mx-auto">Try another category or decipher your search query.</p>
+            <p class="text-gray-500 text-sm max-w-xs mx-auto">Try another category or refine your search.</p>
           </div>
         {/if}
       </div>
+      {/if}
 
       {#if !semanticActive && filteredProducts.length > 0}
         <div class="mt-32 text-center border-t border-white/5 pt-20">
           <button class="group px-12 py-5 bg-[#0A0A0A] border border-white/10 rounded-[2rem] hover:border-[#7c3aed] transition-all duration-700 relative overflow-hidden inline-flex items-center gap-4 cursor-pointer">
-            <span class="relative z-10 text-[11px] font-black uppercase tracking-[0.4em] text-white">Load More Decrypted Artifacts</span>
+            <span class="relative z-10 text-[11px] font-black uppercase tracking-[0.4em] text-white">Explore Full Collection</span>
             <ArrowRight size={16} class="group-hover:translate-x-2 transition-transform text-[#7c3aed]" />
           </button>
           <p class="mt-12 text-[10px] text-gray-700 font-black uppercase tracking-[0.5em] leading-relaxed">
