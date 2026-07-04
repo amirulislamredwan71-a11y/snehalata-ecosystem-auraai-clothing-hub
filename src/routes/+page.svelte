@@ -332,13 +332,13 @@
     <div class="max-w-7xl mx-auto px-6 py-16 sm:py-20">
       <div class="flex items-center gap-4 mb-4">
         <span class="h-px w-10 bg-aura-gold/60"></span>
-        <span class="text-[10px] font-black uppercase tracking-[0.4em] text-aura-gold">Heritage of Bengal</span>
+        <span class="text-[10px] font-black uppercase tracking-[0.4em] text-aura-gold">Featured Collection · Heritage of Bengal</span>
       </div>
       <h2 class="text-3xl sm:text-4xl font-serif font-black italic mb-4 max-w-3xl leading-tight">
         শতাব্দীর <span class="text-aura-gold">তাঁত ও কারুশিল্প</span>, বিশ্বমানে
       </h2>
       <p class="text-gray-400 text-sm sm:text-base max-w-2xl leading-relaxed mb-12">
-        Every artifact carries a lineage — woven, stitched and dyed by verified Bangladeshi artisans, then elevated by the Aura Neural Engine.
+        সব ব্র্যান্ড, শোরুম ও দোকানের পাশাপাশি এখানে দেশের ঐতিহ্যবাহী তাঁত ও কারুশিল্পও — যাচাই করা, Aura Neural Grid দিয়ে সাজানো। This is one of many collections on Snehalata.
       </p>
       <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
         {#each HERITAGE_CRAFTS as craft}

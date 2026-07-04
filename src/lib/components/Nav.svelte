@@ -1,7 +1,7 @@
 <script lang="ts">
   import { page } from '$app/stores';
   import { fade } from 'svelte/transition';
-  import { ShoppingBag, Search, Menu, X, Sparkles, History, PackageSearch, UserPlus, Globe, LayoutDashboard, LayoutGrid } from '@lucide/svelte';
+  import { ShoppingBag, Search, Menu, X, Sparkles, History, PackageSearch, Store, LayoutGrid } from '@lucide/svelte';
   import Logo from './Logo.svelte';
   
   let isMobileOpen = $state(false);
@@ -20,9 +20,6 @@
     return () => window.removeEventListener('cartUpdated', updateCart);
   });
   
-  function searchClick() {
-    alert('Neural search feature coming soon in Aura v2.0');
-  }
 </script>
 
 <nav class="sticky top-0 z-50 bg-[#060507]/95 backdrop-blur-lg border-b border-white/5 shadow-2xl">
@@ -47,40 +44,30 @@
       </a>
     </div>
 
-    <div class="flex items-center gap-8">
-      <div class="hidden xl:flex items-center gap-6 pr-6 border-r border-white/10">
-        <a href="/" class="flex items-center gap-2 text-[9px] font-black uppercase tracking-[0.3em] text-gray-500 hover:text-aura-purple transition-all group">
-          <Globe size={12} class="text-gray-700 group-hover:text-aura-purple transition-colors" /> Ecosystem Hub
-        </a>
-        <a href="/onboarding" class="flex items-center gap-2 text-[9px] font-black uppercase tracking-[0.3em] text-gray-500 hover:text-aura-purple transition-all group">
-          <UserPlus size={12} class="text-gray-700 group-hover:text-aura-purple transition-colors" /> Registration
-        </a>
-        <a href="/dashboard" class="flex items-center gap-2 text-[9px] font-black uppercase tracking-[0.3em] text-gray-500 hover:text-aura-purple transition-all group">
-          <LayoutDashboard size={12} class="text-gray-700 group-hover:text-aura-purple transition-colors" /> Vendor Portal
-        </a>
-        <a href="/tracking" class="flex items-center gap-2 text-[9px] font-black uppercase tracking-[0.3em] text-gray-500 hover:text-aura-purple transition-all group">
-          <PackageSearch size={12} class="text-gray-700 group-hover:text-aura-purple transition-colors" /> Track Order
-        </a>
-      </div>
+    <div class="flex items-center gap-5">
+      <a href="/tracking" class="hidden xl:flex items-center gap-2 text-[9px] font-black uppercase tracking-[0.3em] text-gray-500 hover:text-aura-purple transition-all">
+        <PackageSearch size={12} /> Track Order
+      </a>
+      <a href="/sell" class="hidden lg:flex items-center gap-2 px-4 py-2 rounded-xl bg-aura-gold/10 border border-aura-gold/25 text-[9px] font-black uppercase tracking-[0.25em] text-aura-gold hover:bg-aura-gold/20 transition-colors">
+        <Store size={12} /> Sell on Snehalata
+      </a>
 
-      <div class="flex items-center gap-6">
-        <button onclick={searchClick} class="text-gray-500 hover:text-white transition-colors cursor-pointer">
-          <Search size={20} />
-        </button>
-        <a href="/cart" class="text-gray-500 hover:text-white relative group">
-          <ShoppingBag size={20} class="group-hover:scale-110 transition-transform" />
-          {#if cartCount > 0}
-            <span class="absolute -top-2 -right-2 bg-[#7c3aed] text-white text-[9px] w-4 h-4 rounded-full flex items-center justify-center font-bold border border-black shadow-lg">{cartCount}</span>
-          {/if}
-        </a>
-        <button type="button" aria-label="Open menu" onclick={() => isMobileOpen = !isMobileOpen} class="lg:hidden text-white cursor-pointer p-2 -m-2 touch-manipulation">
-          {#if isMobileOpen}
-            <X size={24} />
-          {:else}
-            <Menu size={24} />
-          {/if}
-        </button>
-      </div>
+      <a href="/" aria-label="Search Snehalata" class="text-gray-500 hover:text-white transition-colors cursor-pointer">
+        <Search size={20} />
+      </a>
+      <a href="/cart" class="text-gray-500 hover:text-white relative group">
+        <ShoppingBag size={20} class="group-hover:scale-110 transition-transform" />
+        {#if cartCount > 0}
+          <span class="absolute -top-2 -right-2 bg-[#7c3aed] text-white text-[9px] w-4 h-4 rounded-full flex items-center justify-center font-bold border border-black shadow-lg">{cartCount}</span>
+        {/if}
+      </a>
+      <button type="button" aria-label="Open menu" onclick={() => isMobileOpen = !isMobileOpen} class="lg:hidden text-white cursor-pointer p-2 -m-2 touch-manipulation">
+        {#if isMobileOpen}
+          <X size={24} />
+        {:else}
+          <Menu size={24} />
+        {/if}
+      </button>
     </div>
   </div>
 
@@ -99,16 +86,14 @@
            class:text-aura-purple={$page.url.pathname.startsWith('/orders')} class:text-gray-400={!$page.url.pathname.startsWith('/orders')}>
           <History size={16} /> History
         </a>
+        <a href="/tracking" onclick={() => isMobileOpen = false} class="flex items-center gap-2 text-sm font-black uppercase tracking-wider text-gray-400 hover:text-white">
+          <PackageSearch size={16} /> Track Order
+        </a>
         <div class="h-px bg-white/10 my-2" />
-        <a href="/onboarding" onclick={() => isMobileOpen = false} class="flex items-center gap-2 text-sm text-gray-400 hover:text-white">
-          <UserPlus size={14} /> Vendor Registration
+        <a href="/sell" onclick={() => isMobileOpen = false} class="flex items-center justify-center gap-2 text-sm font-black uppercase tracking-wider text-aura-gold bg-aura-gold/10 border border-aura-gold/25 rounded-xl py-3">
+          <Store size={16} /> Sell on Snehalata
         </a>
-        <a href="/dashboard" onclick={() => isMobileOpen = false} class="flex items-center gap-2 text-sm text-gray-400 hover:text-white">
-          <LayoutDashboard size={14} /> Vendor Portal
-        </a>
-        <a href="/tracking" onclick={() => isMobileOpen = false} class="flex items-center gap-2 text-sm text-gray-400 hover:text-white">
-          <PackageSearch size={14} /> Track Order
-        </a>
+        <p class="text-[10px] text-gray-600 text-center -mt-1">দোকান/ব্র্যান্ড থাকলে — বিক্রেতা হন</p>
       </div>
     </div>
   {/if}
