@@ -1,6 +1,7 @@
 // Shared, browser-agnostic seed catalog for the Snehalata / Aura Neural Grid.
 // Imported by both the client store (mockData.ts) and the server load (+page.server.ts)
 // so the storefront renders identical data during SSR and on the client.
+// Product images are REAL showcase photos served from /static/products (no mock Unsplash).
 import type { Product, Vendor, Category, EcosystemStats } from '$lib/types';
 
 export const SEED_VENDORS: Vendor[] = [
@@ -89,164 +90,141 @@ export const SEED_VENDORS: Vendor[] = [
     slug: 'little-dhaka-kids',
     website_url: 'https://little-dhaka.example.com',
     status: 'APPROVED',
-    description: 'নবজাতক ও শিশুদের জন্য নরম অর্গানিক কটন পোশাক।',
+    description: 'শিশুদের জন্য প্রিমিয়াম কটন টি-শার্ট ও নরম পোশাক।',
     tradeLicense: 'TRD-2024-8805',
     category_id: 2,
     district: 'Dhaka',
     area: 'Bashundhara'
-  },
-  {
-    id: 3,
-    store_name: 'Shadow Market',
-    owner_name: 'Unknown',
-    slug: 'shadow-market',
-    status: 'BLOCKED',
-    description: 'Unverified seller detected by Aura Governance.',
-    tradeLicense: 'INVALID',
-    district: 'Unknown'
   }
 ];
 
+// 14 REAL showcase products — images live in /static/products (deployed with the app).
 export const SEED_PRODUCTS: Product[] = [
   {
-    id: 101,
-    vendorId: 1,
-    name: 'Midnight Black জামদানি শাড়ি',
-    price: 15500,
-    description: 'হাতে বোনা ১০০ কাউন্ট সুতার সাথে গোল্ড জড়ি কাজ। A masterpiece of Dhakai Jamdani.',
-    imageUrl:
-      'https://images.unsplash.com/photo-1610189012906-4783fda36799?q=80&w=800&auto=format&fit=crop',
-    externalUrl: 'https://example.com/royal-bengal/p/jamdani-black',
-    category: 'Saree'
-  },
-  {
-    id: 102,
-    vendorId: 1,
-    name: 'Heritage মসলিন পাঞ্জাবি',
-    price: 8500,
-    description: 'রাজকীয় উৎসবের জন্য অথেনটিক ঢাকাই মসলিন।',
-    imageUrl:
-      'https://images.unsplash.com/photo-1631640989396-b1836a04e386?q=80&w=800&auto=format&fit=crop',
-    category: 'Panjabi'
-  },
-  {
-    id: 201,
-    vendorId: 2,
-    name: 'Neon Cyberpunk Hoodie',
-    price: 2200,
-    description: 'হেভিওয়েট কটন ফ্লিস এবং পাফ প্রিন্ট ডিজাইন।',
-    imageUrl:
-      'https://images.unsplash.com/photo-1556821840-3a63f95609a7?q=80&w=800&auto=format&fit=crop',
-    externalUrl: 'https://example.com/urban-dhaka/p/neon-hoodie',
-    category: 'Hoodie'
-  },
-  {
-    id: 103,
+    id: 1,
     vendorId: 4,
-    name: 'Rajshahi Pure Silk Saree — Maroon',
-    price: 12500,
-    description: 'হালকা ওজনের বিশুদ্ধ রাজশাহী সিল্ক, কনট্রাস্ট আঁচল ও সূক্ষ্ম জড়ি পাড়।',
-    imageUrl: 'https://images.unsplash.com/photo-1610189012906-4783fda36799?q=80&w=800&auto=format&fit=crop',
+    name: 'Nakshi Jamdani Silk Saree — Midnight Navy',
+    price: 6900,
+    description: 'হালকা সিল্ক-কটন জমিনে হাতে বোনা নকশি জামদানি মোটিফ, কনট্রাস্ট জড়ি পাড় ও রিচ আঁচল। উৎসব ও দাওয়াতের জন্য পারফেক্ট।',
+    imageUrl: '/products/saree-1.jpg',
     category: 'Saree'
   },
   {
-    id: 104,
+    id: 2,
     vendorId: 5,
-    name: 'Tangail Tant Saree — Off White',
-    price: 4200,
-    description: 'খাঁটি সুতি টাঙ্গাইল তাঁত, দৈনন্দিন ও উৎসব দুই-ই উপযোগী।',
-    imageUrl: 'https://images.unsplash.com/photo-1610189012906-4783fda36799?q=80&w=800&auto=format&fit=crop',
+    name: 'Handloom Tant Saree — Heritage Weave',
+    price: 4800,
+    description: 'খাঁটি সুতি টাঙ্গাইল তাঁত, ঐতিহ্যবাহী নকশা ও আরামদায়ক ড্রেপ। দৈনন্দিন ও উৎসব দুই-ই উপযোগী।',
+    imageUrl: '/products/saree-2.jpg',
     category: 'Saree'
   },
   {
-    id: 105,
-    vendorId: 4,
-    name: 'Katan Silk Saree — Royal Blue',
-    price: 9800,
-    description: 'রিচ কাতান টেক্সচার, বিয়ে ও দাওয়াতের জন্য পারফেক্ট।',
-    imageUrl: 'https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?q=80&w=800&auto=format&fit=crop',
+    id: 3,
+    vendorId: 1,
+    name: 'Pure Silk Jamdani Saree — Festive',
+    price: 8200,
+    description: 'রাজকীয় জামদানি কারুকাজ ও সূক্ষ্ম জড়ি, প্রিমিয়াম সিল্কে বোনা। Aura Neural Verified authentic weave.',
+    imageUrl: '/products/saree-3.jpg',
     category: 'Saree'
   },
   {
-    id: 202,
-    vendorId: 6,
-    name: 'Handloom Khadi Panjabi — Charcoal',
-    price: 2650,
-    description: 'হাতে বোনা খাদি কটন, ব্রিদেবল ও আরামদায়ক রেগুলার ফিট।',
-    imageUrl: 'https://images.unsplash.com/photo-1631640989396-b1836a04e386?q=80&w=800&auto=format&fit=crop',
-    category: 'Panjabi'
-  },
-  {
-    id: 203,
-    vendorId: 6,
-    name: 'Eid Embroidered Panjabi — Ivory',
-    price: 3950,
-    description: 'নেক ও কাফে সূক্ষ্ম হ্যান্ড এমব্রয়ডারি, প্রিমিয়াম কটন।',
-    imageUrl: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?q=80&w=800&auto=format&fit=crop',
-    category: 'Panjabi'
-  },
-  {
-    id: 301,
+    id: 4,
     vendorId: 7,
-    name: 'Designer Three-Piece — Teal Fusion',
-    price: 3500,
-    description: 'মণিপুরী মোটিফ ও কন্ট্রাস্ট ওড়না সহ আনস্টিচড থ্রি-পিস।',
-    imageUrl: 'https://images.unsplash.com/photo-1610189012906-4783fda36799?q=80&w=800&auto=format&fit=crop',
+    name: 'Embroidered Three-Piece — Wine Purple',
+    price: 3850,
+    description: 'ওয়াইন পার্পল কামিজে সূক্ষ্ম এমব্রয়ডারি, ম্যাচিং সালোয়ার ও প্রিন্টেড ওড়না সহ রেডি থ্রি-পিস।',
+    imageUrl: '/products/threepiece-1.jpg',
     category: 'Three-Piece'
   },
   {
-    id: 302,
+    id: 5,
     vendorId: 7,
-    name: 'Block-Print Three-Piece — Terracotta',
-    price: 2800,
-    description: 'হ্যান্ড ব্লক-প্রিন্ট সুতি, গরমে আরামদায়ক ডেইলি ওয়্যার।',
-    imageUrl: 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=800&auto=format&fit=crop',
+    name: 'Designer Printed Three-Piece — Autumn',
+    price: 3200,
+    description: 'প্রিমিয়াম কটনে ডিজাইনার প্রিন্ট, আরামদায়ক ও এলিগ্যান্ট। ঈদ ও দাওয়াতের জন্য।',
+    imageUrl: '/products/threepiece-2.jpg',
     category: 'Three-Piece'
   },
   {
-    id: 401,
-    vendorId: 2,
-    name: 'Oversized Graphic Tee — Dhaka Map',
-    price: 850,
-    description: 'হেভিওয়েট ২৪০ জিএসএম কটন, ঢাকা-থিমড পাফ প্রিন্ট।',
-    imageUrl: 'https://images.unsplash.com/photo-1556821840-3a63f95609a7?q=80&w=800&auto=format&fit=crop',
-    category: 'T-Shirt'
-  },
-  {
-    id: 402,
-    vendorId: 2,
-    name: 'Minimalist Cotton Tee — Sand',
-    price: 650,
-    description: 'সফট কম্বড কটন, রিল্যাক্সড ফিট বেসিক এসেনশিয়াল।',
-    imageUrl: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?q=80&w=800&auto=format&fit=crop',
-    category: 'T-Shirt'
-  },
-  {
-    id: 501,
-    vendorId: 2,
-    name: 'Slim-Fit Chino Pant — Olive',
-    price: 1450,
-    description: 'স্ট্রেচেবল টুইল চিনো, অফিস থেকে আউটিং সব জায়গায়।',
-    imageUrl: 'https://images.unsplash.com/photo-1473966968600-fa801b869a1a?q=80&w=800&auto=format&fit=crop',
-    category: 'Pant'
-  },
-  {
-    id: 601,
+    id: 6,
     vendorId: 8,
-    name: 'Organic Cotton Romper — Sky',
+    name: 'Premium Kids Cotton Tee — Classic Croc',
     price: 750,
-    description: 'নবজাতকের জন্য সুপার সফট অর্গানিক কটন রম্পার সেট।',
-    imageUrl: 'https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?q=80&w=800&auto=format&fit=crop',
-    category: 'Baby'
+    description: 'নরম কম্বড কটন, বাচ্চাদের জন্য প্রিমিয়াম প্রিন্টেড টি-শার্ট। 4Y–16Y সাইজ।',
+    imageUrl: '/products/kids-tee-1.jpg',
+    category: 'T-Shirt'
   },
   {
-    id: 602,
+    id: 7,
     vendorId: 8,
-    name: 'Newborn Nima-Set (5 pcs) — Pastel',
-    price: 980,
-    description: 'হাইপোঅ্যালার্জেনিক কটন, ৫ পিসের নিমা-সেট।',
-    imageUrl: 'https://images.unsplash.com/photo-1556821840-3a63f95609a7?q=80&w=800&auto=format&fit=crop',
-    category: 'Baby'
+    name: 'Premium Kids Cotton Tee — Pastel Set',
+    price: 780,
+    description: 'প্যাস্টেল কালারের নরম কটন টি-শার্ট, ব্রিদেবল ও আরামদায়ক। বাচ্চাদের ডেইলি ওয়্যার।',
+    imageUrl: '/products/kids-tee-2.jpg',
+    category: 'T-Shirt'
+  },
+  {
+    id: 8,
+    vendorId: 8,
+    name: 'Premium Kids Cotton Tee — Bold Colors',
+    price: 780,
+    description: 'উজ্জ্বল রঙের প্রিমিয়াম কটন টি-শার্ট, রঙ ফিকে হয় না। 4Y–16Y।',
+    imageUrl: '/products/kids-tee-3.jpg',
+    category: 'T-Shirt'
+  },
+  {
+    id: 9,
+    vendorId: 8,
+    name: 'Premium Kids Cotton Tee — Everyday Pack',
+    price: 720,
+    description: 'প্রতিদিনের জন্য আরামদায়ক নরম কটন টি-শার্ট, টেকসই সেলাই।',
+    imageUrl: '/products/kids-tee-4.jpg',
+    category: 'T-Shirt'
+  },
+  {
+    id: 10,
+    vendorId: 8,
+    name: 'Premium Kids Cotton Tee — Summer Brights',
+    price: 700,
+    description: 'গরমের জন্য হালকা ও ব্রিদেবল কটন, উজ্জ্বল সামার কালার।',
+    imageUrl: '/products/kids-tee-5.jpg',
+    category: 'T-Shirt'
+  },
+  {
+    id: 11,
+    vendorId: 8,
+    name: 'Premium Kids Cotton Tee — Olive & Earth',
+    price: 720,
+    description: 'আর্থ-টোন কালারের প্রিমিয়াম কটন টি-শার্ট, স্টাইলিশ ও আরামদায়ক।',
+    imageUrl: '/products/kids-tee-6.jpg',
+    category: 'T-Shirt'
+  },
+  {
+    id: 12,
+    vendorId: 8,
+    name: 'Premium Kids Cotton Tee — Coral & Teal',
+    price: 740,
+    description: 'কোরাল ও টিল কালারের নরম কটন টি-শার্ট, বাচ্চাদের প্রিয় রঙ।',
+    imageUrl: '/products/kids-tee-7.jpg',
+    category: 'T-Shirt'
+  },
+  {
+    id: 13,
+    vendorId: 8,
+    name: 'Premium Kids Cotton Tee — Heather Grey',
+    price: 690,
+    description: 'ক্লাসিক হেদার গ্রে, যেকোনো কিছুর সাথে মানানসই বেসিক এসেনশিয়াল।',
+    imageUrl: '/products/kids-tee-8.jpg',
+    category: 'T-Shirt'
+  },
+  {
+    id: 14,
+    vendorId: 8,
+    name: 'Premium Kids Cotton Tee — Signature',
+    price: 760,
+    description: 'সিগনেচার প্রিন্ট ও প্রিমিয়াম কটন, বাচ্চাদের জন্য স্পেশাল কালেকশন।',
+    imageUrl: '/products/kids-tee-9.jpg',
+    category: 'T-Shirt'
   }
 ];
 

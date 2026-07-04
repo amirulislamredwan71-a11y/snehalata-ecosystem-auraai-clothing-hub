@@ -3,6 +3,7 @@
   import { Eye, X, Plus, Minus, CheckCircle2, ShoppingBag, Shirt, Sparkles, ShieldCheck, Palette, Loader2, Share2, Zap } from '@lucide/svelte';
   import { editAuraImage } from '$lib/geminiService';
   import { track } from '$lib/analytics';
+  import { productImg, imgFallback } from '$lib/imageUpload';
   import { fade, scale, fly } from 'svelte/transition';
   import type { Product, Vendor } from '$lib/types';
 
@@ -97,7 +98,7 @@
   <div onclick={openModal}
     class="relative aspect-[3/4] rounded-[2.5rem] overflow-hidden bg-white/5 border border-white/5 group-hover:border-aura-gold/40 transition-all duration-500 shadow-xl cursor-pointer">
     
-    <img src={currentImageUrl} alt={product.name} loading="lazy" decoding="async"
+    <img src={productImg(currentImageUrl)} onerror={imgFallback} alt={product.name} loading="lazy" decoding="async"
       class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
 
     {#if isRefining}
@@ -202,7 +203,7 @@
           <div class="space-y-10">
             <header class="flex items-center gap-8">
               <div class="w-28 h-28 rounded-3xl overflow-hidden border border-white/10 shrink-0 shadow-2xl">
-                <img src={currentImageUrl} class="w-full h-full object-cover" alt={product.name} />
+                <img src={productImg(currentImageUrl)} onerror={imgFallback} class="w-full h-full object-cover" alt={product.name} />
               </div>
               <div>
                 <h2 class="text-3xl font-serif font-bold text-white mb-2">{product.name}</h2>

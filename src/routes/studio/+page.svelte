@@ -8,7 +8,7 @@
   } from '@lucide/svelte';
   import { generateTryOnTransformation, generateStyleTransfer } from '$lib/geminiService';
   import { getProducts, getVendors } from '$lib/mockData';
-  import { fileToCompressedDataURL } from '$lib/imageUpload';
+  import { fileToCompressedDataURL, productImg, imgFallback } from '$lib/imageUpload';
   import { BD_LOCATIONS } from '$lib/locationData';
   import type { Product } from '$lib/types';
 
@@ -282,7 +282,7 @@
                     onclick={() => selectedProduct = p}
                     class="flex-shrink-0 w-32 h-40 rounded-2xl overflow-hidden border-2 transition-all group relative {selectedProduct?.id === p.id ? 'border-aura-purple scale-95 ring-4 ring-aura-purple/20' : 'border-white/10 hover:border-white/30'}"
                   >
-                    <img src={p.imageUrl} alt={p.name} class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                    <img src={productImg(p.imageUrl, 300)} onerror={imgFallback} loading="lazy" decoding="async" alt={p.name} class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
                     <div class="absolute inset-x-0 bottom-0 p-2 bg-gradient-to-t from-black to-transparent">
                       <div class="text-[8px] font-black uppercase text-white truncate">{p.name}</div>
                       <div class="text-[8px] font-bold text-aura-gold">৳{p.price.toLocaleString()}</div>

@@ -1,68 +1,59 @@
 <script lang="ts">
-  let mouseX = $state(0);
-  let mouseY = $state(0);
-  let particles = $state<{ x: number; y: number; size: number; speed: number; opacity: number }[]>([]);
-  
-  const COLORS = ['#7c3aed', '#a78bfa', '#c4b5fd', '#6d28d9'];
-  
-  function initParticles() {
-    particles = Array.from({ length: 50 }, () => ({
-      x: Math.random() * 100,
-      y: Math.random() * 100,
-      size: Math.random() * 3 + 1,
-      speed: Math.random() * 0.3 + 0.1,
-      opacity: Math.random() * 0.5 + 0.1,
-    }));
-  }
-  
-  function handleMouseMove(e: MouseEvent) {
-    mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
-    mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
-  }
-  
-  $effect(() => {
-    initParticles();
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
-  });
+  // Lightweight, CSS-only ambient background. Deliberately NO mousemove listener
+  // and NO per-frame reactivity — the previous version updated $state on every
+  // mouse move and re-rendered 50+ particles each time, jamming the main thread
+  // (that was the site-wide jank / "menus dead until refresh" / high-INP cause).
+  const PARTICLES = Array.from({ length: 12 }, (_, i) => ({
+    left: (i * 8.3 + 4) % 100,
+    top: (i * 137.5) % 100, // golden-angle scatter, deterministic (SSR-safe)
+    size: 2 + (i % 3),
+    dur: 9 + (i % 6),
+    delay: (i * 0.7) % 5,
+    color: ['#7c3aed', '#a78bfa', '#c4b5fd', '#6d28d9'][i % 4]
+  }));
 </script>
 
-<div class="fixed inset-0 -z-10 overflow-hidden bg-black">
-  <div class="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(124,58,237,0.08),transparent_70%)]"
-       style="transform: translate({mouseX * 20}px, {mouseY * 20}px); transition: transform 0.3s ease;">
-  </div>
-  
-  <div class="absolute inset-0 opacity-30">
-    {#each particles as p, i}
-      <div class="absolute rounded-full"
-           style="left: {p.x}%; top: {p.y}%; width: {p.size}px; height: {p.size}px;
-                  background: {COLORS[i % COLORS.length]};
-                  opacity: {p.opacity};
-                  animation: float {10 / p.speed}s ease-in-out infinite;
-                  animation-delay: {i * 0.3}s;
-                  transform: translate({mouseX * 15 * p.speed}px, {mouseY * 15 * p.speed}px);">
-      </div>
+<div class="fixed inset-0 -z-10 overflow-hidden bg-[#060507]" aria-hidden="true">
+  <div class="absolute inset-0 bg-[radial-gradient(circle_at_50%_-10%,rgba(124,58,237,0.10),transparent_60%)]"></div>
+  <div class="absolute inset-0 opacity-40">
+    {#each PARTICLES as p}
+      <span
+        class="nb-particle absolute rounded-full"
+        style="left:{p.left}%; top:{p.top}%; width:{p.size}px; height:{p.size}px; background:{p.color}; animation-duration:{p.dur}s; animation-delay:{p.delay}s;"
+      ></span>
     {/each}
   </div>
-  
-  <div class="absolute top-1/2 left-1/2 w-[60vmin] h-[60vmin] -translate-x-1/2 -translate-y-1/2"
-       style="border: 1px solid rgba(124,58,237,0.08); border-radius: 50%;
-              animation: blobPulse 6s ease-in-out infinite;">
-  </div>
-  
-  <div class="absolute top-1/2 left-1/2 w-[40vmin] h-[40vmin] -translate-x-1/2 -translate-y-1/2"
-       style="border: 1px solid rgba(124,58,237,0.05); border-radius: 50%;
-              animation: blobPulse 8s ease-in-out infinite reverse;">
-  </div>
+  <div class="nb-ring absolute top-1/2 left-1/2 w-[60vmin] h-[60vmin]"></div>
+  <div class="nb-ring nb-ring-2 absolute top-1/2 left-1/2 w-[40vmin] h-[40vmin]"></div>
 </div>
 
 <style>
-  @keyframes float {
-    0%, 100% { transform: translateY(0px); }
-    50% { transform: translateY(-20px); }
+  .nb-particle {
+    will-change: transform, opacity;
+    animation-name: nb-float;
+    animation-timing-function: ease-in-out;
+    animation-iteration-count: infinite;
   }
-  @keyframes blobPulse {
+  @keyframes nb-float {
+    0%, 100% { transform: translateY(0); opacity: 0.25; }
+    50% { transform: translateY(-22px); opacity: 0.6; }
+  }
+  .nb-ring {
+    transform: translate(-50%, -50%);
+    border: 1px solid rgba(124, 58, 237, 0.08);
+    border-radius: 50%;
+    animation: nb-pulse 7s ease-in-out infinite;
+  }
+  .nb-ring-2 {
+    border-color: rgba(124, 58, 237, 0.05);
+    animation-duration: 9s;
+    animation-direction: reverse;
+  }
+  @keyframes nb-pulse {
     0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.5; }
-    50% { transform: translate(-50%, -50%) scale(1.1); opacity: 0.8; }
+    50% { transform: translate(-50%, -50%) scale(1.08); opacity: 0.8; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .nb-particle, .nb-ring { animation: none; }
   }
 </style>
