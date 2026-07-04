@@ -1,6 +1,5 @@
 import { browser } from '$app/environment';
 import type { Product, Vendor, Order, EcosystemStats, Category } from '$lib/types';
-import { supabase, fetchVendorsFromSupabase, fetchProductsFromSupabase, fetchCategoriesFromSupabase } from '$lib/supabaseClient';
 import { SEED_VENDORS, SEED_PRODUCTS, SEED_CATEGORIES, SEED_STATS, mapVendorRow, mapProductRow } from '$lib/seedCatalog';
 
 const loadFromDB = <T>(key: string): T[] => {
