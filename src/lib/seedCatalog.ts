@@ -95,6 +95,19 @@ export const SEED_VENDORS: Vendor[] = [
     category_id: 2,
     district: 'Dhaka',
     area: 'Bashundhara'
+  },
+  {
+    id: 13,
+    store_name: "Glamour's Touch (গ্ল্যামারস টাচ)",
+    owner_name: "Glamour's Touch",
+    slug: 'glamours-touch',
+    website_url: 'https://glamourstouch.com',
+    status: 'APPROVED',
+    description: 'অথেন্টিক কোরিয়ান স্কিনকেয়ার ও বিউটি প্রোডাক্ট — Medicube, APLB, DABO সহ জনপ্রিয় ব্র্যান্ড।',
+    tradeLicense: 'TRD-2025-1313',
+    category_id: 3,
+    district: 'Dhaka',
+    area: 'Bashundhara'
   }
 ];
 
@@ -225,6 +238,97 @@ export const SEED_PRODUCTS: Product[] = [
     description: 'সিগনেচার প্রিন্ট ও প্রিমিয়াম কটন, বাচ্চাদের জন্য স্পেশাল কালেকশন।',
     imageUrl: '/products/kids-tee-9.jpg',
     category: 'T-Shirt'
+  },
+  // --- Glamour's Touch (vendor 13): authentic Korean skincare & beauty ---
+  {
+    id: 15,
+    vendorId: 13,
+    name: 'Medicube Collagen Jelly Cream',
+    price: 2150,
+    description: 'সব ধরনের ত্বকের জন্য কোলাজেন জেলি ক্রিম — গভীর ময়েশ্চার ও স্কিন বাউন্স। অথেন্টিক কোরিয়ান ফর্মুলা।',
+    imageUrl: '/products/cosmetic-1.webp',
+    category: 'Cosmetics'
+  },
+  {
+    id: 16,
+    vendorId: 13,
+    name: 'Celimax Retinal Shot Tightening Booster',
+    price: 1650,
+    description: 'Retinal 0.1% + Matrixyl 3000 — টাইট ও ফার্ম স্কিনের জন্য অ্যান্টি-এজিং বুস্টার সিরাম (১৫ml)।',
+    imageUrl: '/products/cosmetic-2.jpg',
+    category: 'Cosmetics'
+  },
+  {
+    id: 17,
+    vendorId: 13,
+    name: 'Medicube Kojic Acid Turmeric Night Wrapping Mask',
+    price: 2450,
+    description: 'কোজিক অ্যাসিড, ভিটামিন-C ও রেটিনল সমৃদ্ধ নাইট মাস্ক — রাতভর ব্রাইটেনিং ও ডালনেস কেয়ার (৭৫ml)।',
+    imageUrl: '/products/cosmetic-3.jpg',
+    category: 'Cosmetics'
+  },
+  {
+    id: 18,
+    vendorId: 13,
+    name: 'Medicube TXA Niacinamide Capsule Cream 5%',
+    price: 2900,
+    description: 'TXA + নায়াসিনামাইড ৫% ক্যাপসুল ক্রিম — দাগ-ছোপ ও ইভেন টোনের জন্য প্রিমিয়াম কেয়ার (৫৫g)।',
+    imageUrl: '/products/cosmetic-4.jpg',
+    category: 'Cosmetics'
+  },
+  {
+    id: 19,
+    vendorId: 13,
+    name: 'APLB Glutathione Niacinamide Body Lotion',
+    price: 1850,
+    description: 'গ্লুটাথায়ন ও নায়াসিনামাইড ১২.৫% বডি লোশন — ব্রাইটেনিং, ময়েশ্চার ও স্মুথ ত্বক (৩০০ml)।',
+    imageUrl: '/products/cosmetic-5.jpg',
+    category: 'Cosmetics'
+  },
+  {
+    id: 20,
+    vendorId: 13,
+    name: 'DABO Black Snail All-in-One Repair Cream',
+    price: 1250,
+    description: 'ব্ল্যাক স্নেইল ১,০০০mg — ময়েশ্চারাইজিং, অ্যান্টি-রিঙ্কেল ও হোয়াইটেনিং অল-ইন-ওয়ান রিপেয়ার ক্রিম।',
+    imageUrl: '/products/cosmetic-6.jpg',
+    category: 'Cosmetics'
+  },
+  {
+    id: 21,
+    vendorId: 13,
+    name: 'DABO UV Protection Collagen Sun Cream SPF50+',
+    price: 950,
+    description: 'SPF50+ PA+++ মেরিন কোলাজেন সান ক্রিম — লিফটিং ইফেক্ট সহ ডেইলি UV প্রোটেকশন।',
+    imageUrl: '/products/cosmetic-7.jpg',
+    category: 'Cosmetics'
+  },
+  {
+    id: 22,
+    vendorId: 13,
+    name: 'Medicube Glutathione Glow Serum',
+    price: 2650,
+    description: 'গ্লুটাথায়ন লাইপোজোম ৫% + নায়াসিনামাইড ৫% গ্লো সিরাম — ঝলমলে উজ্জ্বল ত্বকের জন্য (৩০g)।',
+    imageUrl: '/products/cosmetic-8.jpg',
+    category: 'Cosmetics'
+  },
+  {
+    id: 23,
+    vendorId: 13,
+    name: 'APLB Glutathione Niacinamide Facial Cream',
+    price: 1950,
+    description: 'গ্লুটাথায়ন-নায়াসিনামাইড ২৪.৮% ফেসিয়াল ক্রিম — মাইল্ড উপাদানে ব্রাইটেনিং ও সুদিং কেয়ার (৫৫ml)।',
+    imageUrl: '/products/cosmetic-9.jpg',
+    category: 'Cosmetics'
+  },
+  {
+    id: 24,
+    vendorId: 13,
+    name: 'The Face Shop Rice Water Bright Foaming Cleanser',
+    price: 850,
+    description: 'রাইস ওয়াটার ব্রাইট ফোমিং ক্লিনজার — কোমল ভাবে মেকআপ ও ময়লা দূর করে উজ্জ্বল ত্বক (১৫০ml)।',
+    imageUrl: '/products/cosmetic-10.jpg',
+    category: 'Cosmetics'
   }
 ];
 
