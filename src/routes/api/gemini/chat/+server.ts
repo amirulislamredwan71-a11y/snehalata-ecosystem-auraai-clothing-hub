@@ -1,5 +1,6 @@
 import { json } from '@sveltejs/kit';
 import * as gemini from '$lib/server/gemini.server';
+import { groqChat } from '$lib/server/groq.server';
 import { adminClient } from '$lib/server/vendorSync';
 
 export const config = { maxDuration: 60 };
@@ -62,14 +63,23 @@ export const POST = async ({ request }) => {
     console.error('AURA CHAT tool-calling failed, falling back:', toolErr?.message || toolErr);
   }
 
-  // Fallback 1: plain no-tools reply on the stable model (still catalog-aware).
+  // Fallback 1: plain no-tools reply on the stable Gemini model (still catalog-aware).
   try {
     const text = await gemini.generateAuraFallback(message, inventory, vendors);
     return json({ text });
   } catch (fallbackErr: any) {
-    console.error('AURA CHAT fallback failed:', fallbackErr?.message || fallbackErr);
+    console.error('AURA CHAT gemini fallback failed:', fallbackErr?.message || fallbackErr);
   }
 
-  // Fallback 2: never 500 — a friendly message so the UI never shows "unstable".
+  // Fallback 2: cross-provider — Groq (free, fast, separate infra) so a Gemini
+  // outage doesn't take Aura offline. No-op if GROQ_API_KEY isn't set.
+  try {
+    const text = await groqChat(message, inventory, vendors);
+    return json({ text, via: 'groq' });
+  } catch (groqErr: any) {
+    console.error('AURA CHAT groq fallback failed:', groqErr?.message || groqErr);
+  }
+
+  // Fallback 3: never 500 — a friendly message so the UI never shows "unstable".
   return json({ text: 'Aura is very busy right now — please try again in a few seconds. 🙏' });
 };
