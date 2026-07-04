@@ -91,6 +91,19 @@
     semanticCaption = '';
     searchQuery = '';
   }
+
+  // Pick a category: clear any active photo/semantic search and scroll the results
+  // into view so mobile users immediately see the filtered grid (it sits below the
+  // hero + heritage strip, so without this a tap looks like "nothing happened").
+  function selectCategory(id: string) {
+    selectedCategory = id;
+    semanticActive = false;
+    searchQuery = '';
+    isSidebarOpen = false;
+    if (browser) {
+      setTimeout(() => document.getElementById('collection')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60);
+    }
+  }
   // Seeded from the server load so the grid renders during SSR / first paint.
   let products = $state<any[]>(data?.products ?? []);
   let vendors = $state<any[]>(data?.vendors ?? []);
@@ -368,7 +381,7 @@
     <div class="max-w-7xl mx-auto px-4 py-3">
       <div class="flex gap-2 overflow-x-auto no-scrollbar">
         {#each ECO_CATEGORIES as cat}
-          <button type="button" onclick={() => { selectedCategory = cat.id; semanticActive = false; }}
+          <button type="button" onclick={() => selectCategory(cat.id)}
             class="flex-shrink-0 px-4 py-2 rounded-xl text-[11px] font-bold border transition-all touch-manipulation {selectedCategory === cat.id ? 'bg-aura-purple border-aura-purple text-white' : 'bg-white/5 border-white/10 text-gray-400'}">
             {cat.name}
           </button>
@@ -383,7 +396,7 @@
       <h3 class="text-[10px] font-black uppercase tracking-[0.3em] text-gray-500 mb-8 px-4">Neural Grid Categories</h3>
       <nav class="space-y-2">
         {#each ECO_CATEGORIES as cat}
-          <button onclick={() => selectedCategory = cat.id}
+          <button onclick={() => selectCategory(cat.id)}
             class="w-full flex items-center justify-between px-6 py-4 rounded-2xl transition-all group cursor-pointer {selectedCategory === cat.id ? 'bg-[#7c3aed] text-white shadow-xl shadow-[#7c3aed]/20 translate-x-2' : 'text-gray-400 hover:bg-white/5 hover:text-white'}">
             <div class="flex items-center gap-4">
               <span class={selectedCategory === cat.id ? 'text-white' : 'text-gray-600 group-hover:text-[#7c3aed] transition-colors'}>
@@ -539,7 +552,7 @@
                     </div>
                     <h3 class="text-3xl font-serif font-black italic">{cat.name}</h3>
                   </div>
-                  <button onclick={() => selectedCategory = cat.id}
+                  <button onclick={() => selectCategory(cat.id)}
                     class="text-[10px] font-black uppercase tracking-widest text-gray-500 hover:text-white transition-colors flex items-center gap-2 cursor-pointer">
                     Explore All <ChevronRight size={14} />
                   </button>
@@ -602,7 +615,7 @@
       </div>
       <div class="space-y-4">
         {#each ECO_CATEGORIES as cat}
-          <button onclick={() => { selectedCategory = cat.id; isSidebarOpen = false; }}
+          <button type="button" onclick={() => selectCategory(cat.id)}
             class="w-full flex items-center gap-6 p-5 rounded-3xl border transition-all cursor-pointer {selectedCategory === cat.id ? 'bg-[#7c3aed] border-[#7c3aed] text-white shadow-2xl' : 'bg-white/5 border-white/10 text-gray-400'}">
             <svelte:component this={cat.icon} size={16} />
             <span class="font-bold tracking-wide">{cat.name}</span>
