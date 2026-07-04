@@ -111,35 +111,46 @@
   // Neural Grid A7 — real trending products (server, ranked by trend_score).
   const trending = $derived<any[]>(data?.trending ?? []);
   // Neural Grid A2 — "For You": products this visitor recently opened (client, localStorage).
-  let recentlyViewed = $state<any[]>([]);
+  // Recently-viewed IDs live in localStorage; the product objects are DERIVED from
+  // `products`. Critical: we must NEVER write `products`-dependent state inside the
+  // sync effect below — reading `products` while also assigning it made the effect
+  // depend on its own output → effect_update_depth_exceeded, which tore down the
+  // page's reactivity (chat/add/category stopped responding until a refresh).
+  let recentIds = $state<number[]>([]);
 
-  function loadRecentlyViewed() {
+  function loadRecentIds() {
     if (!browser) return;
     try {
-      const ids: number[] = JSON.parse(localStorage.getItem('aura_recently_viewed') || '[]');
-      const map = new Map(products.map((p) => [Number(p.id), p]));
-      recentlyViewed = ids.map((id) => map.get(Number(id))).filter(Boolean).slice(0, 4);
+      recentIds = (JSON.parse(localStorage.getItem('aura_recently_viewed') || '[]') as any[]).map(Number);
     } catch {
-      recentlyViewed = [];
+      recentIds = [];
     }
   }
 
+  const recentlyViewed = $derived.by(() => {
+    if (!recentIds.length) return [];
+    const map = new Map(products.map((p) => [Number(p.id), p]));
+    return recentIds.map((id) => map.get(Number(id))).filter(Boolean).slice(0, 4);
+  });
+
   $effect(() => {
     if (!browser) return;
+    // This effect ONLY writes state (products / vendors / recentIds) and never reads
+    // reactive state, so it runs once on mount + on events — no self-dependency loop.
     const refresh = () => {
       products = getProducts();
       vendors = getVendors();
-      loadRecentlyViewed();
     };
     refresh();
+    loadRecentIds();
     // syncWithNeuralGrid() dispatches these once Supabase data arrives client-side.
     window.addEventListener('productUpdated', refresh);
     window.addEventListener('vendorUpdated', refresh);
-    window.addEventListener('recentlyViewedUpdated', loadRecentlyViewed);
+    window.addEventListener('recentlyViewedUpdated', loadRecentIds);
     return () => {
       window.removeEventListener('productUpdated', refresh);
       window.removeEventListener('vendorUpdated', refresh);
-      window.removeEventListener('recentlyViewedUpdated', loadRecentlyViewed);
+      window.removeEventListener('recentlyViewedUpdated', loadRecentIds);
     };
   });
 
