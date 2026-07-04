@@ -45,6 +45,7 @@
   let isLoggingIn = $state(false);
   let isAddingProduct = $state(false);
   let newProduct = $state({ name: '', price: '', category: 'General', description: '', imageUrl: '' });
+  let isSaving = $state(false);
   // A4 — AI merchandising (photo → listing) state.
   let merchLoading = $state(false);
   let merchQuality = $state<number | null>(null);
@@ -233,7 +234,9 @@
   }
 
   async function handleAddManualProduct() {
-    if (!vendor) return;
+    if (!vendor || isSaving) return;
+    if (!newProduct.name.trim() || newProduct.price === '') { alert('Please add a name and price.'); return; }
+    isSaving = true;
     try {
       await vendorPost({
         name: newProduct.name,
@@ -249,6 +252,8 @@
       merchQuality = null; merchNote = '';
     } catch (err: any) {
       alert('Add failed: ' + (err?.message || 'unknown error'));
+    } finally {
+      isSaving = false;
     }
   }
 
@@ -454,9 +459,13 @@
             </div>
             <textarea placeholder="Neural Description" bind:value={newProduct.description}
               class="w-full h-32 bg-white/5 border border-white/10 rounded-2xl p-4 text-sm focus:border-aura-purple outline-none transition-all resize-none" />
-            <button onclick={handleAddManualProduct}
-              class="w-full py-5 bg-white text-black rounded-2xl font-black uppercase tracking-widest text-[11px] hover:bg-aura-purple hover:text-white transition-all shadow-xl">
-              Deploy to Catalog
+            <button onclick={handleAddManualProduct} disabled={isSaving}
+              class="w-full py-5 bg-white text-black rounded-2xl font-black uppercase tracking-widest text-[11px] hover:bg-aura-purple hover:text-white transition-all shadow-xl disabled:opacity-60 flex items-center justify-center gap-3">
+              {#if isSaving}
+                <Loader2 size={16} class="animate-spin" /> Deploying…
+              {:else}
+                Deploy to Catalog
+              {/if}
             </button>
           </div>
         </div>

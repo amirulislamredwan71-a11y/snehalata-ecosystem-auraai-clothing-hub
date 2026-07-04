@@ -6,6 +6,9 @@ import { moderateListing, embedText } from '$lib/server/gemini.server';
 import { withTimeout } from '$lib/seedCatalog';
 import type { RequestHandler } from './$types';
 
+// Background enrichment (moderation + embedding) needs room after the response.
+export const config = { maxDuration: 30 };
+
 // Vendor-scoped product CRUD. The vendor's Supabase session token (from
 // /api/vendor/login) identifies them; writes are forced to their own vendor_id
 // and deletes are allowed only on their own products. service_role stays server-side.
@@ -43,7 +46,7 @@ export const GET: RequestHandler = async ({ request }) => {
   return json({ ok: true, products: data });
 };
 
-export const POST: RequestHandler = async ({ request }) => {
+export const POST: RequestHandler = async ({ request, platform }) => {
   const { admin, vend } = await vendorFromToken(request);
   const b = await request.json();
   if (!b?.name || b?.price === undefined) throw error(400, 'name and price are required');
@@ -59,34 +62,32 @@ export const POST: RequestHandler = async ({ request }) => {
   const { data, error: e } = await admin.from('products').insert(row).select().single();
   if (e) throw error(500, e.message);
 
-  // A6 governance — moderate the listing (best-effort). Flagged items are held
-  // out of the storefront (is_active=false) for admin review. Degrades silently
-  // if Gemini is slow or the moderation columns aren't migrated yet.
-  let moderation: any = null;
-  try {
-    const m = await withTimeout(moderateListing(row.name, row.description, row.price, row.category), 12000);
-    if (m) {
-      moderation = m;
-      const patch: any = { moderation_score: Math.round(Number(m.trust_score) || 0), moderation_note: m.note || null };
-      if (m.verdict === 'REVIEW') patch.is_active = false;
-      await admin.from('products').update(patch).eq('id', data.id);
-    }
-  } catch {
-    /* moderation columns not migrated yet, or Gemini offline — ignore */
-  }
+  // AI enrichment (A6 moderation + A3 embedding) is SLOW (Gemini, seconds). Run it
+  // in the BACKGROUND so the vendor's "Deploy to Catalog" button responds instantly.
+  // On Vercel, waitUntil keeps the function alive until this resolves after the
+  // response is sent; elsewhere it's fire-and-forget. Anything cut short is
+  // recoverable via /api/admin/embeddings/backfill (re-embeds where embedding IS NULL).
+  const enrich = async () => {
+    try {
+      const m = await withTimeout(moderateListing(row.name, row.description, row.price, row.category), 12000);
+      if (m) {
+        const patch: any = { moderation_score: Math.round(Number(m.trust_score) || 0), moderation_note: m.note || null };
+        if (m.verdict === 'REVIEW') patch.is_active = false;
+        await admin.from('products').update(patch).eq('id', data.id);
+      }
+    } catch { /* moderation columns not migrated / Gemini offline — ignore */ }
 
-  // A3 — embed the new listing so it's searchable immediately (best-effort).
-  try {
-    const emb = await withTimeout(
-      embedText([row.name, row.category, row.description].filter(Boolean).join('. ')),
-      10000
-    );
-    if (emb) await admin.from('products').update({ embedding: `[${emb.join(',')}]` }).eq('id', data.id);
-  } catch {
-    /* embedding column not migrated yet — the backfill endpoint will catch it */
-  }
+    try {
+      const emb = await withTimeout(embedText([row.name, row.category, row.description].filter(Boolean).join('. ')), 10000);
+      if (emb) await admin.from('products').update({ embedding: `[${emb.join(',')}]` }).eq('id', data.id);
+    } catch { /* embedding column not migrated — backfill endpoint will catch it */ }
+  };
 
-  return json({ ok: true, product: data, moderation });
+  const waitUntil = (platform as any)?.context?.waitUntil;
+  if (typeof waitUntil === 'function') waitUntil(enrich());
+  else enrich().catch(() => {});
+
+  return json({ ok: true, product: data });
 };
 
 export const DELETE: RequestHandler = async ({ request, url }) => {
