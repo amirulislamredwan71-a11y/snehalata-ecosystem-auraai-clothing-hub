@@ -1,7 +1,7 @@
 <script lang="ts">
   import { page } from '$app/stores';
   import { fade } from 'svelte/transition';
-  import { ShoppingBag, Search, Menu, X, Sparkles, History, PackageSearch, Store, LayoutGrid } from '@lucide/svelte';
+  import { ShoppingBag, Menu, X, Sparkles, History, PackageSearch, Store, LayoutGrid } from '@lucide/svelte';
   import Logo from './Logo.svelte';
   
   let isMobileOpen = $state(false);
@@ -52,9 +52,6 @@
         <Store size={12} /> Sell on Snehalata
       </a>
 
-      <a href="/" aria-label="Search Snehalata" class="text-gray-500 hover:text-white transition-colors cursor-pointer">
-        <Search size={20} />
-      </a>
       <a href="/cart" class="text-gray-500 hover:text-white relative group">
         <ShoppingBag size={20} class="group-hover:scale-110 transition-transform" />
         {#if cartCount > 0}

@@ -247,12 +247,20 @@
     { bn: 'তাঁত ও সিল্ক', en: 'Tangail & Rajshahi Silk', story: 'Lustrous silk traditions woven across generations.', icon: Flower2 }
   ];
 
-  // Why Snehalata — the value/trust band (what makes it uniquely useful).
+  // The 4 superpowers — the unfamiliar magic, explained as a guide ("BD-তে এই প্রথম").
+  const SUPERPOWERS = [
+    { emoji: '📸', title: 'ছবি দিয়ে খুঁজুন', sub: 'পছন্দের রঙ বা কাপড়ের একটা ছবি দিন — Aura সেকেন্ডে সেই ধরনের পণ্য খুঁজে এনে দেবে।', how: 'সার্চ বারে ক্যামেরা আইকনে চাপুন' },
+    { emoji: '👗', title: 'গায়ে পরে দেখুন', sub: 'নিজের ছবি দিন — পোশাকটা আপনার গায়ে কেমন লাগবে, কেনার আগেই দেখে নিন।', how: 'যেকোনো পণ্যে "TRY-ON" বাটন' },
+    { emoji: '✨', title: 'Aura ইভেন্ট স্টাইলিং', sub: 'বিয়ে, হলুদ, ঈদ বা বেড়ানো — ইভেন্টের নাম বলুন, Aura পুরো সাজ সাজেস্ট করবে।', how: 'Aura চ্যাটে ইভেন্টের নাম লিখুন' },
+    { emoji: '💬', title: 'বাংলায় কেনাকাটা', sub: 'বাংলায় কথা বলে পণ্য খুঁজুন, অর্ডার করুন, COD দিন — Aura সব সামলাবে।', how: 'নিচের ডান কোণে চ্যাট বাটন' }
+  ];
+
+  // Why Snehalata — bold trust claims (name carries the softness; copy carries the ambition).
   const WHY_SNEHALATA = [
-    { icon: Store, title: 'সব এক জায়গায়', sub: 'দেশের সব ব্র্যান্ড, শোরুম ও দোকান এক প্ল্যাটফর্মে।' },
-    { icon: Sparkles, title: 'AI Virtual Try-On', sub: 'কেনার আগে গায়ে পরে দেখুন — Aura Neural Engine।' },
-    { icon: ShieldCheck, title: 'Verified Sellers', sub: 'যাচাই করা বিক্রেতা ও Neural-verified পণ্য।' },
-    { icon: TrendingUp, title: 'COD + Live Tracking', sub: 'ক্যাশ অন ডেলিভারি ও রিয়েল-টাইম অর্ডার ট্র্যাকিং।' }
+    { icon: ShieldCheck, title: 'AI-Verified', sub: 'যাচাই করা বিক্রেতা — নকল ধরা পড়বেই।' },
+    { icon: Store, title: 'সব ব্র্যান্ড এক জায়গায়', sub: 'ছোট দোকান থেকে বড় ব্র্যান্ড, সবার সাধ্যে।' },
+    { icon: Sparkles, title: 'নিজের storefront', sub: 'প্রতিটি দোকানের নিজস্ব brand.snehalata.com।' },
+    { icon: TrendingUp, title: 'COD + Live Tracking', sub: 'ক্যাশ অন ডেলিভারি ও রিয়েল-টাইম ট্র্যাকিং।' }
   ];
 </script>
 
@@ -286,19 +294,19 @@
 </svelte:head>
 
 <div class="min-h-screen bg-[#060507] text-white selection:bg-[#7c3aed]/30 font-sans">
-  <!-- Hero -->
+  <!-- Hero — bold, first-AI-marketplace voice; the 3-verb hook -->
   <section class="relative overflow-hidden border-b border-white/5">
-    <div class="absolute inset-0 bg-gradient-to-b from-[#7c3aed]/15 via-transparent to-transparent pointer-events-none"></div>
-    <div class="max-w-7xl mx-auto px-6 py-14 sm:py-20 lg:py-28 relative">
-      <div class="inline-flex items-center gap-2 px-4 py-2 mb-8 bg-white/5 border border-white/10 rounded-full">
-        <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-        <span class="text-[10px] font-black uppercase tracking-[0.3em] text-gray-300">Aura Neural Engine v3.1 · Live</span>
+    <div class="absolute inset-0 bg-gradient-to-b from-[#7c3aed]/20 via-transparent to-transparent pointer-events-none"></div>
+    <div class="max-w-7xl mx-auto px-6 py-16 sm:py-24 lg:py-28 relative">
+      <div class="inline-flex items-center gap-2 px-4 py-2 mb-8 bg-[#7c3aed]/15 border border-[#7c3aed]/30 rounded-full">
+        <span class="w-2 h-2 rounded-full bg-[#7c3aed] animate-pulse"></span>
+        <span class="text-[10px] font-black uppercase tracking-[0.3em] text-[#c4b5fd]">বাংলাদেশের প্রথম AI মার্কেটপ্লেস</span>
       </div>
-      <h1 class="text-4xl md:text-6xl lg:text-7xl font-serif font-black italic leading-[1.05] max-w-4xl">
-        আপনার <span class="text-aura-gold">সাধ্যেই</span> আসল পণ্য।
+      <h1 class="text-4xl md:text-6xl lg:text-7xl font-serif font-black italic leading-[1.03] max-w-4xl">
+        ছবি দিন। <span class="text-aura-gold">গায়ে পরে দেখুন।</span><br class="hidden sm:block" /> তারপর কিনুন।
       </h1>
       <p class="mt-6 text-gray-300 text-base md:text-lg max-w-2xl leading-relaxed">
-        ছোট দোকান থেকে বড় ব্র্যান্ড — সবাই এক <span class="text-white font-semibold">বিশ্বাসের বাজারে</span>; যাচাই করা আসল পণ্য, ন্যায্য দামে, নিজের বাজেট অনুযায়ী।
+        কেনার আগে <span class="text-white font-semibold">দেখা যায়</span> — দেশে এই প্রথম। রঙ বা কাপড়ের ছবি দিন, Aura সেকেন্ডে খুঁজে দেবে; গায়ে পরে দেখুন, তারপর নিশ্চিন্তে কিনুন।
       </p>
       <div class="mt-10 flex flex-wrap items-center gap-4">
         <a href="#collection"
@@ -310,25 +318,40 @@
           Sell on Snehalata
         </a>
       </div>
-      <!-- সাধ্যের স্কেল — budget-inclusive spectrum (small shop → big brand, everyone welcome) -->
-      <div class="mt-12 sm:mt-16 max-w-xl">
-        <div class="flex items-center justify-between text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 mb-3">
-          <span>ছোট দোকান</span>
-          <span class="text-aura-gold">সবার সাধ্যে</span>
-          <span>বড় ব্র্যান্ড</span>
-        </div>
-        <div class="relative h-1.5 rounded-full bg-gradient-to-r from-white/10 via-aura-gold/60 to-white/10">
-          <span class="absolute left-[15%] top-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-aura-gold/80"></span>
-          <span class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-aura-gold ring-4 ring-aura-gold/20"></span>
-          <span class="absolute left-[85%] top-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-aura-gold/80"></span>
-        </div>
-        <div class="mt-6 flex flex-wrap gap-2.5">
-          {#each ['যাচাই করা', 'ন্যায্য দাম', 'ক্যাশ অন ডেলিভারি', 'সহজ ও দ্রুত'] as chip}
-            <span class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white/5 border border-white/10 text-[11px] font-bold text-gray-300">
-              <span class="text-aura-gold">✓</span> {chip}
-            </span>
-          {/each}
-        </div>
+    </div>
+  </section>
+
+  <!-- Superpowers — the unfamiliar magic, GUIDED (BD-তে এই প্রথম) -->
+  <section class="border-b border-white/5 bg-gradient-to-b from-[#0c0a14] to-[#060507]">
+    <div class="max-w-7xl mx-auto px-6 py-16 sm:py-20">
+      <div class="flex items-center gap-4 mb-3">
+        <span class="h-px w-10 bg-[#7c3aed]/70"></span>
+        <span class="text-[10px] font-black uppercase tracking-[0.4em] text-[#c4b5fd]">যা বাংলাদেশে আর কোথাও নেই</span>
+      </div>
+      <h2 class="text-3xl sm:text-4xl font-serif font-black italic mb-3 max-w-3xl leading-tight">
+        Aura Intelligence — আপনার <span class="text-aura-gold">নিজের স্টাইলিস্ট</span>
+      </h2>
+      <p class="text-gray-400 text-sm sm:text-base max-w-2xl mb-12">
+        এটি একটি <span class="text-white font-semibold">AI-নিয়ন্ত্রিত মার্কেটপ্লেস</span> — সাধারণ e-commerce যা পারে না, Aura তা পারে।
+      </p>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {#each SUPERPOWERS as sp}
+          <div class="p-6 rounded-3xl bg-white/[0.03] border border-white/8 hover:border-[#7c3aed]/40 transition-colors">
+            <div class="flex items-start gap-4">
+              <div class="text-3xl leading-none shrink-0">{sp.emoji}</div>
+              <div class="min-w-0">
+                <div class="flex items-center gap-2 flex-wrap mb-1.5">
+                  <h3 class="text-lg font-black">{sp.title}</h3>
+                  <span class="text-[8px] font-black uppercase tracking-[0.18em] text-[#c4b5fd] bg-[#7c3aed]/15 border border-[#7c3aed]/30 px-2 py-0.5 rounded-full">দেশে এই প্রথম</span>
+                </div>
+                <p class="text-sm text-gray-400 leading-relaxed">{sp.sub}</p>
+                <p class="text-[11px] text-aura-gold/90 mt-2.5 font-bold flex items-center gap-1.5">
+                  <ArrowRight size={12} /> {sp.how}
+                </p>
+              </div>
+            </div>
+          </div>
+        {/each}
       </div>
     </div>
   </section>
@@ -409,9 +432,6 @@
           <ShieldCheck size={14} class="text-green-500" />
           <span class="text-[10px] font-black uppercase tracking-widest text-green-500">Neural Verified</span>
         </div>
-        <a href="/cart" aria-label="View cart" class="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center border border-white/10 hover:border-[#7c3aed] transition-colors">
-          <ShoppingBag size={20} />
-        </a>
       </div>
     </div>
   </div>
