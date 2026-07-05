@@ -249,10 +249,10 @@
 
   // The 4 superpowers — the unfamiliar magic, explained as a guide ("BD-তে এই প্রথম").
   const SUPERPOWERS = [
-    { emoji: '📸', title: 'ছবি দিয়ে খুঁজুন', sub: 'পছন্দের রঙ বা কাপড়ের একটা ছবি দিন — Aura সেকেন্ডে সেই ধরনের পণ্য খুঁজে এনে দেবে।', how: 'সার্চ বারে ক্যামেরা আইকনে চাপুন' },
-    { emoji: '👗', title: 'গায়ে পরে দেখুন', sub: 'নিজের ছবি দিন — পোশাকটা আপনার গায়ে কেমন লাগবে, কেনার আগেই দেখে নিন।', how: 'যেকোনো পণ্যে "TRY-ON" বাটন' },
-    { emoji: '✨', title: 'Aura ইভেন্ট স্টাইলিং', sub: 'বিয়ে, হলুদ, ঈদ বা বেড়ানো — ইভেন্টের নাম বলুন, Aura পুরো সাজ সাজেস্ট করবে।', how: 'Aura চ্যাটে ইভেন্টের নাম লিখুন' },
-    { emoji: '💬', title: 'বাংলায় কেনাকাটা', sub: 'বাংলায় কথা বলে পণ্য খুঁজুন, অর্ডার করুন, COD দিন — Aura সব সামলাবে।', how: 'নিচের ডান কোণে চ্যাট বাটন' }
+    { emoji: '📸', title: 'Neural Search', bn: 'ছবি দিয়ে খুঁজুন', sub: 'পছন্দের রঙ বা কাপড়ের একটা ছবি দিন — Aura সেকেন্ডে সেই ধরনের পণ্য খুঁজে এনে দেবে।', how: 'সার্চ বারে ক্যামেরা আইকনে চাপুন' },
+    { emoji: '👗', title: 'AR Try-On', bn: 'গায়ে পরে দেখুন', sub: 'নিজের ছবি দিন — পোশাকটা আপনার গায়ে কেমন লাগবে, কেনার আগেই দেখে নিন।', how: 'যেকোনো পণ্যে "TRY-ON" বাটন' },
+    { emoji: '✨', title: 'Aura Event Styling', bn: 'ইভেন্টের পুরো সাজ', sub: 'বিয়ে, হলুদ, ঈদ বা বেড়ানো — ইভেন্টের নাম বলুন, Aura পুরো সাজ সাজেস্ট করবে।', how: 'Aura চ্যাটে ইভেন্টের নাম লিখুন' },
+    { emoji: '💬', title: 'Aura Chat', bn: 'বাংলায় কেনাকাটা', sub: 'বাংলায় কথা বলে পণ্য খুঁজুন, অর্ডার করুন, COD দিন — Aura সব সামলাবে।', how: 'নিচের ডান কোণে চ্যাট বাটন' }
   ];
 
   // Why Snehalata — bold trust claims (name carries the softness; copy carries the ambition).
@@ -298,11 +298,16 @@
   <section class="relative overflow-hidden border-b border-white/5">
     <div class="absolute inset-0 bg-gradient-to-b from-[#7c3aed]/20 via-transparent to-transparent pointer-events-none"></div>
     <div class="max-w-7xl mx-auto px-6 py-16 sm:py-24 lg:py-28 relative">
-      <div class="inline-flex items-center gap-2 px-4 py-2 mb-8 bg-[#7c3aed]/15 border border-[#7c3aed]/30 rounded-full">
+      <div class="inline-flex items-center gap-2 px-4 py-2 mb-6 bg-[#7c3aed]/15 border border-[#7c3aed]/30 rounded-full">
         <span class="w-2 h-2 rounded-full bg-[#7c3aed] animate-pulse"></span>
-        <span class="text-[10px] font-black uppercase tracking-[0.3em] text-[#c4b5fd]">বাংলাদেশের প্রথম AI মার্কেটপ্লেস</span>
+        <span class="text-[10px] font-black uppercase tracking-[0.26em] text-[#c4b5fd]">Bangladesh's First AI-Controlled Marketplace</span>
       </div>
-      <h1 class="text-4xl md:text-6xl lg:text-7xl font-serif font-black italic leading-[1.03] max-w-4xl">
+      <!-- English-first: the novel tech = instant "new + trusted" signal; Bengali carries the benefit -->
+      <p class="text-2xl sm:text-4xl lg:text-5xl font-black tracking-tight leading-none">
+        <span class="text-aura-gold">AR Try-On</span> <span class="text-gray-600">·</span> <span class="text-[#c4b5fd]">Aura Neural Grid</span>
+      </p>
+      <p class="mt-3 mb-8 text-[10px] sm:text-[11px] font-black uppercase tracking-[0.3em] text-gray-500">First in Bangladesh's e-commerce · সম্পূর্ণ AI-নিয়ন্ত্রিত</p>
+      <h1 class="text-3xl md:text-5xl lg:text-6xl font-serif font-black italic leading-[1.05] max-w-4xl">
         ছবি দিন। <span class="text-aura-gold">গায়ে পরে দেখুন।</span><br class="hidden sm:block" /> তারপর কিনুন।
       </h1>
       <p class="mt-6 text-gray-300 text-base md:text-lg max-w-2xl leading-relaxed">
@@ -341,7 +346,8 @@
               <div class="text-3xl leading-none shrink-0">{sp.emoji}</div>
               <div class="min-w-0">
                 <div class="flex items-center gap-2 flex-wrap mb-1.5">
-                  <h3 class="text-lg font-black">{sp.title}</h3>
+                  <h3 class="text-lg font-black tracking-tight">{sp.title}</h3>
+                  <span class="text-[13px] font-semibold text-gray-400">{sp.bn}</span>
                   <span class="text-[8px] font-black uppercase tracking-[0.18em] text-[#c4b5fd] bg-[#7c3aed]/15 border border-[#7c3aed]/30 px-2 py-0.5 rounded-full">দেশে এই প্রথম</span>
                 </div>
                 <p class="text-sm text-gray-400 leading-relaxed">{sp.sub}</p>
