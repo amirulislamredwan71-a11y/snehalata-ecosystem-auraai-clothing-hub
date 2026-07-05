@@ -55,14 +55,15 @@ export const generateAuraSpeech = async (text: string) => {
 
 export type ImageResult = { image: string | null; error: string | null; code: string | null };
 
-export const generateTryOnTransformation = async (userImg: string, productImg: string): Promise<ImageResult> => {
+export const generateTryOnTransformation = async (userImg: string, productImg: string, category?: string): Promise<ImageResult> => {
   try {
     const response = await fetch("/api/gemini/try-on", {
       method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userImg, productImg }),
+      body: JSON.stringify({ userImg, productImg, category }),
     });
     const data = await response.json();
-    if (data.image) return { image: `data:image/png;base64,${data.image}`, error: null, code: null };
+    // Server returns a ready-to-use image (ModelsLab URL or Gemini data-URL) — use as-is.
+    if (data.image) return { image: data.image, error: null, code: null };
     return { image: null, error: data.message || 'Aura Vision is busy — please try again.', code: data.error || 'busy' };
   } catch (e) {
     console.error("Aura Try-On Error", e);
@@ -105,7 +106,7 @@ export const generateStyleTransfer = async (image: string, style: string): Promi
       body: JSON.stringify({ image, style }),
     });
     const data = await response.json();
-    if (data.image) return { image: `data:image/png;base64,${data.image}`, error: null, code: null };
+    if (data.image) return { image: data.image, error: null, code: null };
     return { image: null, error: data.message || 'Aura Vision is busy — please try again.', code: data.error || 'busy' };
   } catch (e) {
     console.error("Aura Style Transfer Error", e);

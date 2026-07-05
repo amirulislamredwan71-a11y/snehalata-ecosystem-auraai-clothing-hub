@@ -295,33 +295,39 @@
         <span class="text-[10px] font-black uppercase tracking-[0.3em] text-gray-300">Aura Neural Engine v3.1 · Live</span>
       </div>
       <h1 class="text-4xl md:text-6xl lg:text-7xl font-serif font-black italic leading-[1.05] max-w-4xl">
-        বাংলাদেশের সব ব্র্যান্ড ও দোকান এক <span class="text-aura-gold">AI Neural</span> প্ল্যাটফর্মে
+        আপনার <span class="text-aura-gold">সাধ্যেই</span> আসল পণ্য।
       </h1>
-      <p class="mt-6 text-gray-400 text-base md:text-lg max-w-2xl leading-relaxed">
-        দেশের সেরা ব্র্যান্ড, শোরুম আর হাজারো দোকানের সব পণ্য এক জায়গায় — জামদানি থেকে আধুনিক ফ্যাশন, গ্যাজেট থেকে প্রতিদিনের প্রয়োজন। Aura Neural Grid প্রতিটি ক্রেতার কেনাকাটা করে আরও সহজ, দ্রুত ও নিরাপদ।
+      <p class="mt-6 text-gray-300 text-base md:text-lg max-w-2xl leading-relaxed">
+        ছোট দোকান থেকে বড় ব্র্যান্ড — সবাই এক <span class="text-white font-semibold">বিশ্বাসের বাজারে</span>; যাচাই করা আসল পণ্য, ন্যায্য দামে, নিজের বাজেট অনুযায়ী।
       </p>
       <div class="mt-10 flex flex-wrap items-center gap-4">
         <a href="#collection"
-          class="px-8 py-4 bg-[#7c3aed] hover:bg-white hover:text-black rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] transition-all inline-flex items-center gap-3 cursor-pointer">
-          Explore Collection <ArrowRight size={16} />
+          class="px-8 py-4 bg-aura-gold text-black hover:bg-white rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] transition-all inline-flex items-center gap-3 cursor-pointer">
+          কেনাকাটা শুরু করুন <ArrowRight size={16} />
         </a>
-        <a href="/onboarding"
-          class="px-8 py-4 bg-white/5 border border-white/10 hover:border-[#7c3aed] rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] transition-all">
-          Become a Vendor
+        <a href="/sell"
+          class="px-8 py-4 bg-white/5 border border-white/10 hover:border-aura-gold rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] transition-all">
+          Sell on Snehalata
         </a>
       </div>
-      <div class="mt-12 sm:mt-16 grid grid-cols-3 gap-3 sm:gap-6 max-w-2xl">
-        <div>
-          <div class="text-xl sm:text-3xl md:text-4xl font-black text-aura-gold tabular-nums">{fmt(stats.totalVendors)}</div>
-          <div class="text-[10px] font-black uppercase tracking-widest text-gray-500 mt-1">Verified Sellers</div>
+      <!-- সাধ্যের স্কেল — budget-inclusive spectrum (small shop → big brand, everyone welcome) -->
+      <div class="mt-12 sm:mt-16 max-w-xl">
+        <div class="flex items-center justify-between text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 mb-3">
+          <span>ছোট দোকান</span>
+          <span class="text-aura-gold">সবার সাধ্যে</span>
+          <span>বড় ব্র্যান্ড</span>
         </div>
-        <div>
-          <div class="text-xl sm:text-3xl md:text-4xl font-black text-white tabular-nums">{fmt(stats.activeProducts)}</div>
-          <div class="text-[10px] font-black uppercase tracking-widest text-gray-500 mt-1">Neural Products</div>
+        <div class="relative h-1.5 rounded-full bg-gradient-to-r from-white/10 via-aura-gold/60 to-white/10">
+          <span class="absolute left-[15%] top-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-aura-gold/80"></span>
+          <span class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-aura-gold ring-4 ring-aura-gold/20"></span>
+          <span class="absolute left-[85%] top-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-aura-gold/80"></span>
         </div>
-        <div>
-          <div class="text-xl sm:text-3xl md:text-4xl font-black text-white tabular-nums">{fmt(stats.aiInteractions)}</div>
-          <div class="text-[10px] font-black uppercase tracking-widest text-gray-500 mt-1">AI Interactions</div>
+        <div class="mt-6 flex flex-wrap gap-2.5">
+          {#each ['যাচাই করা', 'ন্যায্য দাম', 'ক্যাশ অন ডেলিভারি', 'সহজ ও দ্রুত'] as chip}
+            <span class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white/5 border border-white/10 text-[11px] font-bold text-gray-300">
+              <span class="text-aura-gold">✓</span> {chip}
+            </span>
+          {/each}
         </div>
       </div>
     </div>

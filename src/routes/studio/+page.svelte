@@ -116,7 +116,7 @@
       }
       if (activeTool === 'TRYON') {
         if (selectedProduct && capturedImage) {
-          const transformed = await generateTryOnTransformation(capturedImage, selectedProduct.imageUrl!);
+          const transformed = await generateTryOnTransformation(capturedImage, selectedProduct.imageUrl!, selectedProduct.category);
           if (transformed.image) result = { type: 'TRYON', url: transformed.image, product: selectedProduct };
           else studioError = transformed.error || busyMsg;
         }

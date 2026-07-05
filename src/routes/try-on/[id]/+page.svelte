@@ -98,7 +98,7 @@
         }
       }
 
-      const result = await generateTryOnTransformation(userImage, productBase64);
+      const result = await generateTryOnTransformation(userImage, productBase64, product?.category);
 
       if (result.image) {
         generatedImage = result.image;

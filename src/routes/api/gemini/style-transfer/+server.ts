@@ -9,7 +9,7 @@ export const POST = async ({ request }) => {
     const { image, style } = await request.json();
     const data = await gemini.generateStyleTransfer(image, style);
     if (!data) return json({ error: 'busy', message: 'Aura could not process that image — please try a clearer photo.' });
-    return json({ image: data });
+    return json({ image: `data:image/png;base64,${data}` });
   } catch (error: any) {
     const m = String(error?.message || '');
     if (/RESOURCE_EXHAUSTED|429|quota|limit:\s*0|billing/i.test(m)) {
