@@ -159,7 +159,7 @@
 
         <div class="lg:col-span-7 space-y-6">
           {#if checkoutStep === 'CART'}
-            <div transition:fly={{ x: -20, duration: 300 }} class="bg-white rounded-[2rem] p-8 shadow-sm border border-gray-100">
+            <div transition:fly={{ x: -20, duration: 300 }} class="bg-white rounded-[2rem] p-5 sm:p-8 shadow-sm border border-gray-100">
               <h2 class="text-lg font-bold mb-8 flex items-center gap-2">
                 <ShoppingBag size={20} class="text-aura-purple" /> Your Items
               </h2>
@@ -171,18 +171,18 @@
               {:else}
                 <div class="space-y-6">
                   {#each cartItems as item (item.id)}
-                    <div class="flex gap-6 items-center">
-                      <img src={item.imageUrl} alt={item.name} class="w-20 h-20 rounded-xl object-cover border border-gray-100" />
-                      <div class="flex-1">
-                        <h4 class="font-bold text-sm">{item.name}</h4>
+                    <div class="flex gap-3 sm:gap-6 items-center">
+                      <img src={item.imageUrl} alt={item.name} class="w-16 h-16 sm:w-20 sm:h-20 rounded-xl object-cover border border-gray-100 shrink-0" />
+                      <div class="flex-1 min-w-0">
+                        <h4 class="font-bold text-sm truncate">{item.name}</h4>
                         <p class="text-[10px] text-gray-500 uppercase font-black tracking-widest mt-1">৳{item.price}</p>
                       </div>
-                      <div class="flex items-center gap-4 bg-gray-50 rounded-full px-4 py-1">
+                      <div class="flex items-center gap-2 sm:gap-4 bg-gray-50 rounded-full px-3 sm:px-4 py-1 shrink-0">
                         <button onclick={() => updateQuantity(item.id, -1)} class="p-1 hover:text-aura-purple transition-colors"><Minus size={14} /></button>
                         <span class="font-black tabular-nums text-xs">{item.quantity}</span>
                         <button onclick={() => updateQuantity(item.id, 1)} class="p-1 hover:text-aura-purple transition-colors"><Plus size={14} /></button>
                       </div>
-                      <button onclick={() => removeItem(item.id)} class="text-gray-300 hover:text-red-500 transition-colors"><Trash2 size={18} /></button>
+                      <button onclick={() => removeItem(item.id)} class="text-gray-300 hover:text-red-500 transition-colors shrink-0"><Trash2 size={18} /></button>
                     </div>
                   {/each}
                   <button onclick={() => checkoutStep = 'DETAILS'} class="w-full py-5 bg-aura-purple text-white rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-xl hover:bg-gray-900 transition-all mt-6">
@@ -257,8 +257,8 @@
                 <div class="grid grid-cols-3 gap-3">
                   {#each [['COD', 'Cash on Delivery'], ['BKASH', 'bKash'], ['NAGAD', 'Nagad']] as opt}
                     <button type="button" onclick={() => payMethod = opt[0]}
-                      class="p-4 rounded-2xl border text-center transition-all {payMethod === opt[0] ? 'border-aura-purple bg-[#f5f0e6] ring-2 ring-aura-purple/15' : 'border-gray-100 bg-white hover:border-gray-300'}">
-                      <span class="text-[11px] font-black text-gray-900">{opt[1]}</span>
+                      class="p-3 sm:p-4 rounded-2xl border text-center transition-all {payMethod === opt[0] ? 'border-aura-purple bg-[#f5f0e6] ring-2 ring-aura-purple/15' : 'border-gray-100 bg-white hover:border-gray-300'}">
+                      <span class="text-[10px] sm:text-[11px] font-black text-gray-900 leading-tight block">{opt[1]}</span>
                     </button>
                   {/each}
                 </div>
@@ -291,7 +291,7 @@
         </div>
 
         <div class="lg:col-span-5">
-          <div class="bg-aura-ink text-white rounded-[2.5rem] p-8 sticky top-32 shadow-2xl overflow-hidden group">
+          <div class="bg-aura-ink text-white rounded-[2rem] sm:rounded-[2.5rem] p-6 sm:p-8 sticky top-32 shadow-2xl overflow-hidden group">
             <div class="absolute top-0 right-0 p-32 bg-aura-gold/10 blur-[80px] rounded-full pointer-events-none" />
             <h3 class="text-xl font-bold flex items-center gap-3 mb-10 pb-6 border-b border-white/5">
               <ShoppingCart size={22} class="text-aura-gold" /> Order Summary

@@ -5,7 +5,7 @@
     { icon: Camera, title: 'AI Catalog — ছবি দিলেই লিস্টিং', sub: 'শুধু পণ্যের ছবি দিন — Aura AI নাম, দাম, বিবরণ ও ক্যাটাগরি বানিয়ে ক্যাটালগে তুলে দেয়। ওয়েবসাইট থাকলে সেখান থেকেও ইমপোর্ট।', en: 'Photos → AI listings' },
     { icon: Sparkles, title: 'Virtual Try-On', sub: 'গ্রাহক কেনার আগে আপনার পোশাক নিজের ছবিতে পরে দেখে — বিক্রি বাড়ে, রিটার্ন কমে।', en: 'Customers try before they buy' },
     { icon: Truck, title: 'COD + কুরিয়ার + ট্র্যাকিং', sub: 'ক্যাশ অন ডেলিভারি, অর্ডার ম্যানেজমেন্ট ও রিয়েল-টাইম ট্র্যাকিং — সবই বিল্ট-ইন।', en: 'COD, delivery & live tracking' },
-    { icon: Wallet, title: 'Dashboard + দ্রুত Payout', sub: 'অর্ডার, বিক্রি, কমিশন ও পেআউট এক ড্যাশবোর্ডে। স্বচ্ছ হিসাব, দ্রুত টাকা।', en: 'One dashboard, fast payouts' }
+    { icon: Wallet, title: 'Dashboard + দ্রুত Payout', sub: 'অর্ডার, বিক্রি ও পেআউট এক ড্যাশবোর্ডে। স্বচ্ছ হিসাব, দ্রুত টাকা।', en: 'One dashboard, fast payouts' }
   ];
 
   const STEPS = [
@@ -87,9 +87,9 @@
         <div class="space-y-3">
           <h3 class="text-2xl font-serif font-black italic">স্বচ্ছ ও ন্যায্য</h3>
           <ul class="space-y-2 text-sm text-gray-300">
-            <li class="flex items-center gap-2"><Check size={14} class="text-aura-gold shrink-0" /> মাত্র <span class="text-white font-bold">১০% কমিশন</span> — কোনো লুকানো খরচ নেই।</li>
+            <li class="flex items-center gap-2"><Check size={14} class="text-aura-gold shrink-0" /> <span class="text-white font-bold">স্বচ্ছ হিসাব</span> — কোনো লুকানো খরচ নেই।</li>
             <li class="flex items-center gap-2"><Check size={14} class="text-aura-gold shrink-0" /> <span class="text-white font-bold">Neural Verified</span> ব্যাজে গ্রাহকের আস্থা বাড়ে।</li>
-            <li class="flex items-center gap-2"><Check size={14} class="text-aura-gold shrink-0" /> অর্ডার, কমিশন ও পেআউট — সব ড্যাশবোর্ডে স্বচ্ছ।</li>
+            <li class="flex items-center gap-2"><Check size={14} class="text-aura-gold shrink-0" /> অর্ডার, বিক্রি ও পেআউট — সব ড্যাশবোর্ডে স্বচ্ছ।</li>
             <li class="flex items-center gap-2"><Check size={14} class="text-aura-gold shrink-0" /> ছোট দোকান থেকে বড় ব্র্যান্ড — সবাই স্বাগত।</li>
           </ul>
         </div>
