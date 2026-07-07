@@ -126,12 +126,15 @@
         </button>
       {:else}
         <button onclick={handleToggle} transition:scale
-          class="group flex items-center gap-2.5 pl-3 pr-4 py-2.5 rounded-full bg-gradient-to-br from-aura-green-deep to-aura-green-bright text-black shadow-[0_10px_30px_rgba(16,185,129,0.4)] hover:scale-105 active:scale-95 transition-all cursor-pointer">
-          <span class="relative flex items-center justify-center w-7 h-7 rounded-full bg-black/10">
-            <span class="absolute inset-0 rounded-full bg-black/10 animate-ping"></span>
-            <MessageSquare size={16} />
+          class="group flex items-center gap-2.5 pl-2.5 pr-4 py-2 rounded-full bg-gradient-to-br from-[#7c6cf0] to-[#a78bfa] text-white shadow-[0_12px_32px_rgba(124,108,240,0.5)] ring-1 ring-white/15 hover:scale-105 active:scale-95 transition-all cursor-pointer">
+          <span class="relative flex items-center justify-center w-8 h-8 rounded-full bg-white/15 shrink-0">
+            <span class="absolute inset-0 rounded-full bg-white/20 animate-ping"></span>
+            <Sparkles size={16} />
           </span>
-          <span class="text-[12px] font-black tracking-tight whitespace-nowrap leading-none">Aura AI Shopping<br />Assistant</span>
+          <span class="text-left leading-none">
+            <span class="block text-[12px] font-black tracking-tight">Aura AI</span>
+            <span class="block text-[9px] font-semibold text-white/85 mt-0.5">Shopping Assistant</span>
+          </span>
         </button>
       {/if}
     </div>
