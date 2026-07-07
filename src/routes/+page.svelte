@@ -89,6 +89,19 @@
     }
   });
 
+  // Category deep-links: /?cat=<id> (from the footer, bottom-nav, anywhere) → filter the
+  // grid to that category + scroll to it. `lastCat` is a plain var so no reactive loop.
+  let lastCat = '';
+  $effect(() => {
+    const cp = $page.url.searchParams.get('cat') || '';
+    if (cp && cp !== lastCat) {
+      lastCat = cp;
+      selectCategory(cp);
+    } else if (!cp) {
+      lastCat = '';
+    }
+  });
+
   // The header's camera hands a compressed photo via sessionStorage → consume + run it.
   function consumePendingVisual() {
     if (!browser) return;
@@ -671,20 +684,20 @@
   <!-- Mobile Sidebar drawer -->
   {#if isSidebarOpen}
     <div class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 lg:hidden" transition:fade onclick={() => isSidebarOpen = false} />
-    <div class="fixed top-0 left-0 bottom-0 w-80 bg-[#0a0f0d] z-[60] p-10 lg:hidden border-r border-white/10" transition:fly={{ x: -300, duration: 300 }}>
-      <div class="flex items-center justify-between mb-12">
+    <div class="fixed top-0 left-0 bottom-0 w-[86%] max-w-xs bg-[#0a0f0d] z-[60] p-6 lg:hidden border-r border-white/10 overflow-y-auto no-scrollbar" transition:fly={{ x: -300, duration: 300 }}>
+      <div class="flex items-center justify-between mb-6 sticky top-0 bg-[#0a0f0d] pb-2 -mt-1">
         <h2 class="text-2xl font-display font-bold">Categories</h2>
-        <button onclick={() => isSidebarOpen = false} class="p-3 hover:bg-white/5 rounded-2xl transition-colors cursor-pointer">
-          <X size={24} />
+        <button onclick={() => isSidebarOpen = false} class="p-2.5 hover:bg-white/5 rounded-2xl transition-colors cursor-pointer">
+          <X size={22} />
         </button>
       </div>
-      <div class="space-y-4">
+      <div class="space-y-2 pb-6">
         {#each ECO_CATEGORIES as cat}
           {@const Icon = cat.icon}
           <button type="button" onclick={() => selectCategory(cat.id)}
-            class="w-full flex items-center gap-6 p-5 rounded-3xl border transition-all cursor-pointer {selectedCategory === cat.id ? 'bg-aura-green border-aura-green text-black shadow-2xl' : 'bg-white/5 border-white/10 text-gray-400'}">
-            <Icon size={16} />
-            <span class="font-bold tracking-wide">{cat.name}</span>
+            class="w-full flex items-center gap-4 p-3.5 rounded-2xl border transition-all cursor-pointer touch-manipulation {selectedCategory === cat.id ? 'bg-aura-green border-aura-green text-black shadow-xl' : 'bg-white/5 border-white/10 text-gray-400'}">
+            <Icon size={16} class="shrink-0" />
+            <span class="font-bold tracking-wide text-sm text-left">{cat.name}</span>
           </button>
         {/each}
       </div>

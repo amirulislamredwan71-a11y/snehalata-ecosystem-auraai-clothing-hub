@@ -4,8 +4,8 @@
 </script>
 
 <footer class="bg-[#080b09] border-t border-aura-gold/15 py-12 px-6 mt-auto">
-  <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8">
-    <div class="col-span-1 md:col-span-1">
+  <div class="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-5 gap-8">
+    <div class="col-span-2 md:col-span-1">
       <div class="mb-4">
         <Logo />
       </div>
@@ -20,6 +20,18 @@
           <Mail size={14} class="text-aura-gold" /> info@snehalata.com <span class="text-[10px] text-gray-600">· অফিসিয়াল</span>
         </a>
       </div>
+    </div>
+
+    <div>
+      <h4 class="text-white font-bold uppercase tracking-widest text-xs mb-4">Categories</h4>
+      <ul class="space-y-2 text-sm text-gray-400">
+        <li><a href="/?cat=saree" data-sveltekit-noscroll class="hover:text-aura-green transition-colors">শাড়ি · Saree</a></li>
+        <li><a href="/?cat=panjabi" data-sveltekit-noscroll class="hover:text-aura-green transition-colors">পাঞ্জাবি · Panjabi</a></li>
+        <li><a href="/?cat=three-piece" data-sveltekit-noscroll class="hover:text-aura-green transition-colors">থ্রি-পিস · 3-Piece</a></li>
+        <li><a href="/?cat=t-shirt" data-sveltekit-noscroll class="hover:text-aura-green transition-colors">টি-শার্ট · T-Shirt</a></li>
+        <li><a href="/?cat=cosmetics" data-sveltekit-noscroll class="hover:text-aura-green transition-colors">কসমেটিকস · Cosmetics</a></li>
+        <li><a href="/?cat=baby" data-sveltekit-noscroll class="hover:text-aura-green transition-colors">বেবি আইটেম · Baby</a></li>
+      </ul>
     </div>
 
     <div>
