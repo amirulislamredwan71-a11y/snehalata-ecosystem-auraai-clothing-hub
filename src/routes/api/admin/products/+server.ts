@@ -22,7 +22,7 @@ function assertAdmin(request: Request) {
   }
 }
 
-const PRODUCT_FIELDS = ['name', 'price', 'category', 'image_url', 'description', 'stock_quantity'] as const;
+const PRODUCT_FIELDS = ['name', 'price', 'category', 'image_url', 'description', 'stock_quantity', 'vendor_id'] as const;
 
 function cleanProduct(body: any) {
   const row: Record<string, unknown> = {};
@@ -30,7 +30,7 @@ function cleanProduct(body: any) {
     let v = body[f];
     if (f === 'image_url' && v === undefined) v = body.imageUrl;
     if (v === undefined) continue;
-    if (f === 'price' || f === 'stock_quantity') v = Number(v);
+    if (f === 'price' || f === 'stock_quantity' || f === 'vendor_id') v = Number(v);
     row[f] = v;
   }
   if (body.is_active !== undefined) row.is_active = Boolean(body.is_active);
