@@ -116,7 +116,7 @@
 
 </script>
 
-<div class={embedded ? `relative w-full max-w-2xl mx-auto z-20 font-sans my-10 ${className}` : `fixed bottom-6 left-6 z-[150] font-sans`}>
+<div class={embedded ? `relative w-full max-w-2xl mx-auto z-20 font-sans my-10 ${className}` : `fixed bottom-24 left-4 lg:bottom-6 lg:left-6 z-[150] font-sans`}>
   {#if !embedded}
     <div class="flex flex-col items-center gap-2">
       {#if !isOpen}
