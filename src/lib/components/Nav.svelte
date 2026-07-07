@@ -2,11 +2,11 @@
   import { page } from '$app/stores';
   import { goto } from '$app/navigation';
   import { fade } from 'svelte/transition';
-  import { Menu, X, Sparkles, History, PackageSearch, Store, LayoutGrid, Search, Camera, Loader2, Mic } from '@lucide/svelte';
+  import { Menu, X, Sparkles, History, PackageSearch, Store, LayoutGrid, Search, Camera, Loader2, Mic, Mail } from '@lucide/svelte';
   import Logo from './Logo.svelte';
   import { fileToCompressedDataURL } from '$lib/imageUpload';
+  import { navMenuOpen, categorySheetOpen } from '$lib/ui';
 
-  let isMobileOpen = $state(false);
   let q = $state('');
   let searchLoading = $state(false);
   let listening = $state(false);
@@ -135,8 +135,8 @@
         <Store size={12} /> Sell on Snehalata
       </a>
 
-      <button type="button" aria-label="Open menu" onclick={() => isMobileOpen = !isMobileOpen} class="lg:hidden text-white cursor-pointer p-2 -m-2 touch-manipulation">
-        {#if isMobileOpen}
+      <button type="button" aria-label="Open menu" onclick={() => navMenuOpen.update((v) => !v)} class="lg:hidden text-white cursor-pointer p-2 -m-2 touch-manipulation">
+        {#if $navMenuOpen}
           <X size={24} />
         {:else}
           <Menu size={24} />
@@ -145,26 +145,32 @@
     </div>
   </div>
 
-  {#if isMobileOpen}
+  {#if $navMenuOpen}
     <div class="lg:hidden bg-[#0a0f0d]/97 border-b border-aura-green/12 py-6 px-6" transition:fade={{ duration: 200 }}>
-      <div class="flex flex-col gap-6">
-        <a href="/" onclick={() => isMobileOpen = false} class="flex items-center gap-2 text-sm font-black uppercase tracking-wider"
+      <div class="flex flex-col gap-5">
+        <a href="/" onclick={() => navMenuOpen.set(false)} class="flex items-center gap-2.5 text-sm font-black uppercase tracking-wider"
            class:text-aura-green={$page.url.pathname === '/'} class:text-gray-400={$page.url.pathname !== '/'}>
           <LayoutGrid size={16} /> Hub
         </a>
-        <a href="/studio" onclick={() => isMobileOpen = false} class="flex items-center gap-2 text-sm font-black uppercase tracking-wider"
+        <button type="button" onclick={() => { navMenuOpen.set(false); categorySheetOpen.set(true); }} class="flex items-center gap-2.5 text-sm font-black uppercase tracking-wider text-gray-400 hover:text-white">
+          <LayoutGrid size={16} /> Categories
+        </button>
+        <a href="/studio" onclick={() => navMenuOpen.set(false)} class="flex items-center gap-2.5 text-sm font-black uppercase tracking-wider"
            class:text-aura-green={$page.url.pathname === '/studio'} class:text-gray-400={$page.url.pathname !== '/studio'}>
           <Sparkles size={16} /> Aura Studio
         </a>
-        <a href="/orders" onclick={() => isMobileOpen = false} class="flex items-center gap-2 text-sm font-black uppercase tracking-wider"
-           class:text-aura-green={$page.url.pathname.startsWith('/orders')} class:text-gray-400={!$page.url.pathname.startsWith('/orders')}>
-          <History size={16} /> History
-        </a>
-        <a href="/tracking" onclick={() => isMobileOpen = false} class="flex items-center gap-2 text-sm font-black uppercase tracking-wider text-gray-400 hover:text-white">
+        <a href="/tracking" onclick={() => navMenuOpen.set(false)} class="flex items-center gap-2.5 text-sm font-black uppercase tracking-wider text-gray-400 hover:text-white">
           <PackageSearch size={16} /> Track Order
         </a>
-        <div class="h-px bg-white/10 my-2" />
-        <a href="/sell" onclick={() => isMobileOpen = false} class="flex items-center justify-center gap-2 text-sm font-black uppercase tracking-wider text-aura-gold bg-aura-gold/10 border border-aura-gold/25 rounded-xl py-3">
+        <a href="/orders" onclick={() => navMenuOpen.set(false)} class="flex items-center gap-2.5 text-sm font-black uppercase tracking-wider"
+           class:text-aura-green={$page.url.pathname.startsWith('/orders')} class:text-gray-400={!$page.url.pathname.startsWith('/orders')}>
+          <History size={16} /> My Orders
+        </a>
+        <a href="mailto:support@snehalata.com" class="flex items-center gap-2.5 text-sm font-black uppercase tracking-wider text-gray-400 hover:text-white">
+          <Mail size={16} /> Help &amp; Support
+        </a>
+        <div class="h-px bg-white/10 my-1" />
+        <a href="/sell" onclick={() => navMenuOpen.set(false)} class="flex items-center justify-center gap-2 text-sm font-black uppercase tracking-wider text-aura-gold bg-aura-gold/10 border border-aura-gold/25 rounded-xl py-3">
           <Store size={16} /> Sell on Snehalata
         </a>
         <p class="text-[10px] text-gray-600 text-center -mt-1">দোকান/ব্র্যান্ড থাকলে — বিক্রেতা হন</p>

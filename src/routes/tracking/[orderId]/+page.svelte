@@ -18,6 +18,12 @@
     SHIPPED: 'শিপিং চলছে',
     DELIVERED: 'ডেলিভারড'
   };
+  const STATUS_DESC: Record<string, string> = {
+    PLACED: 'অর্ডার গ্রহণ করা হয়েছে — ভেন্ডর যাচাই করছে',
+    CONFIRMED: 'ভেন্ডর কনফার্ম করেছে — প্যাকিং চলছে',
+    SHIPPED: 'কুরিয়ারে হ্যান্ডওভার — পথে আছে',
+    DELIVERED: 'সফলভাবে আপনার ঠিকানায় পৌঁছে গেছে ✓'
+  };
 
   async function fetchOrder(id: string, silent = false) {
     if (!silent) loading = true;
@@ -40,7 +46,8 @@
           label: STATUS_LABEL[s],
           timestamp: !cancelled && i <= curIdx ? '✓' : '—',
           completed: !cancelled && i <= curIdx,
-          description: s === 'DELIVERED' ? 'আপনার ঠিকানায় পৌঁছে যাবে' : 'Aura Neural Logistics'
+          current: !cancelled && s === o.status,
+          description: STATUS_DESC[s]
         }))
       };
     } catch {
@@ -137,7 +144,7 @@
         <div class="lg:col-span-4 space-y-8">
           <div class="bg-aura-glass border border-aura-glassBorder rounded-[2.5rem] p-8 shadow-2xl relative overflow-hidden">
             <div class="flex items-center justify-between mb-10">
-              <h2 class="text-xl font-serif font-bold text-white">Track Progression</h2>
+              <h2 class="text-xl font-serif font-bold text-white">অর্ডার অগ্রগতি <span class="text-aura-green">· Progress</span></h2>
               <button onclick={playStatusBriefing} disabled={isSpeaking}
                 class="p-3 rounded-xl transition-all cursor-pointer {isSpeaking ? 'bg-aura-green text-white animate-pulse' : 'bg-white/5 text-aura-green border border-aura-green/20 hover:bg-aura-green hover:text-white'}">
                 <Volume2 size={20} />

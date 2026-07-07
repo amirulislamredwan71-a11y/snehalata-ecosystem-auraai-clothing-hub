@@ -118,20 +118,22 @@
 
 <div class={embedded ? `relative w-full max-w-2xl mx-auto z-20 font-sans my-10 ${className}` : `fixed bottom-24 left-4 lg:bottom-6 lg:left-6 z-[150] font-sans`}>
   {#if !embedded}
-    <div class="flex flex-col items-center gap-2">
-      {#if !isOpen}
-        <span class="bg-[#10b981] text-white text-[10px] font-black px-2 py-0.5 rounded-md uppercase tracking-widest shadow-lg" transition:fade>AURA</span>
-      {/if}
-      <button onclick={handleToggle}
-        class="w-14 h-14 rounded-full flex items-center justify-center shadow-2xl transition-all duration-500 group relative overflow-hidden cursor-pointer {isOpen ? 'bg-white text-black rotate-90 scale-90' : 'bg-[#10b981] text-white hover:scale-110 active:scale-95'}">
-        <div class="absolute inset-0 bg-gradient-to-tr from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-        {#if isOpen}
+    <div class="flex flex-col items-start gap-2">
+      {#if isOpen}
+        <button onclick={handleToggle} aria-label="Close Aura assistant"
+          class="w-14 h-14 rounded-full flex items-center justify-center shadow-2xl bg-white text-black rotate-90 scale-90 transition-all duration-500 cursor-pointer">
           <X size={24} />
-        {:else}
-          <MessageSquare size={24} />
-          <div class="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 bg-red-500 rounded-full border-2 border-black" />
-        {/if}
-      </button>
+        </button>
+      {:else}
+        <button onclick={handleToggle} transition:scale
+          class="group flex items-center gap-2.5 pl-3 pr-4 py-2.5 rounded-full bg-gradient-to-br from-aura-green-deep to-aura-green-bright text-black shadow-[0_10px_30px_rgba(16,185,129,0.4)] hover:scale-105 active:scale-95 transition-all cursor-pointer">
+          <span class="relative flex items-center justify-center w-7 h-7 rounded-full bg-black/10">
+            <span class="absolute inset-0 rounded-full bg-black/10 animate-ping"></span>
+            <MessageSquare size={16} />
+          </span>
+          <span class="text-[12px] font-black tracking-tight whitespace-nowrap leading-none">Aura AI Shopping<br />Assistant</span>
+        </button>
+      {/if}
     </div>
   {/if}
 

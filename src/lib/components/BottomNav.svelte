@@ -1,13 +1,15 @@
 <script lang="ts">
   import { page } from '$app/stores';
-  import { Home, LayoutGrid, PackageSearch, User } from '@lucide/svelte';
-  import { categorySheetOpen } from '$lib/ui';
+  import { Home, LayoutGrid, PackageSearch, User, Menu } from '@lucide/svelte';
+  import { categorySheetOpen, navMenuOpen } from '$lib/ui';
 
   // Cart intentionally omitted — the FloatingCart side toggle appears whenever the cart
-  // has items, so a dedicated cart tab would be redundant.
+  // has items, so a dedicated cart tab would be redundant. The Menu (☰) sits where the
+  // cart used to be and opens the main nav drawer.
   const TABS: { label: string; icon: any; match: (p: string) => boolean; href?: string; action?: () => void }[] = [
     { label: 'Home', href: '/', icon: Home, match: (p) => p === '/' },
     { label: 'Categories', icon: LayoutGrid, action: () => categorySheetOpen.set(true), match: () => false },
+    { label: 'Menu', icon: Menu, action: () => navMenuOpen.set(true), match: () => false },
     { label: 'Track', href: '/tracking', icon: PackageSearch, match: (p) => p.startsWith('/tracking') },
     { label: 'Account', href: '/orders', icon: User, match: (p) => p.startsWith('/orders') }
   ];

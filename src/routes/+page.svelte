@@ -4,6 +4,7 @@
   import { fade, fly } from 'svelte/transition';
   import { Search, LayoutGrid, ChevronRight, TrendingUp, Zap, ArrowRight, ShieldCheck, Menu, X, Filter, Globe, Store, History, Camera, Sparkles, Play, Truck, Lock, ChevronDown } from '@lucide/svelte';
   import ProductCard from '$lib/components/ProductCard.svelte';
+  import BDNeuralMap from '$lib/components/BDNeuralMap.svelte';
   import { getProducts, getVendors } from '$lib/mockData';
   import { BD_LOCATIONS } from '$lib/locationData';
   import { ECO_CATEGORIES } from '$lib/categories';
@@ -346,13 +347,12 @@
         </div>
       </div>
 
-      <!-- neural orb visual -->
-      <div class="relative h-56 sm:h-72 rounded-3xl overflow-hidden bg-[radial-gradient(circle_at_60%_35%,#16221D,#0B1210)] border border-aura-green/15 hidden sm:block">
-        <div class="absolute inset-0 neural-grid opacity-70"></div>
-        <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-40 h-40 rounded-full border border-aura-green/35" style="animation:floatGlow 5s ease-in-out infinite;"></div>
-        <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-28 h-28 rounded-full border border-aura-gold/30"></div>
-        <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-20 h-20 rounded-full bg-[radial-gradient(circle,rgba(16,185,129,0.28),transparent_75%)] flex items-center justify-center text-aura-green">
-          {#if heroIndex === 0}<Sparkles size={34} />{:else if heroIndex === 1}<Camera size={32} />{:else}<ShieldCheck size={32} />{/if}
+      <!-- Bangladesh Neural Grid — AI reaching every point of BD -->
+      <div class="relative h-60 sm:h-72 lg:h-80 rounded-3xl overflow-hidden bg-[radial-gradient(circle_at_55%_40%,#16221D,#0B1210)] border border-aura-green/15">
+        <div class="absolute inset-0 neural-grid opacity-40"></div>
+        <BDNeuralMap />
+        <div class="absolute bottom-3 inset-x-0 text-center px-4">
+          <span class="text-[9.5px] font-black uppercase tracking-[0.25em] text-aura-green/90">Aura Neural Grid · সারা বাংলাদেশে</span>
         </div>
       </div>
     </div>
@@ -430,9 +430,15 @@
       </div>
       <div class="flex gap-3 overflow-x-auto no-scrollbar pb-1">
         {#each railVendors as v}
+          {@const cover = products.find(p => p.vendorId === v.id)?.imageUrl}
           <a href={`/store/${v.slug}`} class="w-40 shrink-0">
-            <div class="relative w-40 h-[104px] rounded-2xl bg-[linear-gradient(160deg,#1A2C24,#0D1712)] border border-white/5 flex items-center justify-center overflow-hidden">
-              <Store size={30} class="text-white/20" />
+            <div class="relative w-40 h-[104px] rounded-2xl border border-white/5 overflow-hidden bg-[linear-gradient(160deg,#1A2C24,#0D1712)]">
+              {#if cover}
+                <img src={cover} alt={v.store_name} loading="lazy" class="absolute inset-0 w-full h-full object-cover" />
+                <div class="absolute inset-0 bg-gradient-to-t from-black/55 to-transparent"></div>
+              {:else}
+                <div class="absolute inset-0 flex items-center justify-center"><Store size={30} class="text-white/20" /></div>
+              {/if}
               <div class="absolute top-1.5 left-1.5 flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-[#0a0f0d]/80 border border-aura-green/40">
                 <ShieldCheck size={9} class="text-aura-green" />
                 <span class="text-[8px] font-bold text-aura-green">Neural Verified</span>
