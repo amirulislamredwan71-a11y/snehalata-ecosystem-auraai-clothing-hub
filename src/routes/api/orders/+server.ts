@@ -1,5 +1,6 @@
 import { json, error } from '@sveltejs/kit';
 import { adminClient } from '$lib/server/vendorSync';
+import { encodeTracking } from '$lib/trackingCode';
 import type { RequestHandler } from './$types';
 
 const DEFAULT_COMMISSION = 10; // snehalata platform commission (%) if a vendor has none set
@@ -117,5 +118,5 @@ export const POST: RequestHandler = async ({ request }) => {
     // fraud columns not migrated yet — order still succeeds.
   }
 
-  return json({ ok: true, orderId: order.id, total, itemCount: lineItems.length });
+  return json({ ok: true, orderId: order.id, tracking: encodeTracking(order.id, new Date(order.created_at || Date.now())), total, itemCount: lineItems.length });
 };

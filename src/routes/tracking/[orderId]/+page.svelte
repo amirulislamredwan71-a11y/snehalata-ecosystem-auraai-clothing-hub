@@ -30,7 +30,7 @@
       const curIdx = STATUS_FLOW.indexOf(o.status);
       const cancelled = o.status === 'CANCELLED';
       order = {
-        id: 'ORD-' + o.id,
+        id: o.tracking || ('ORD-' + o.id),
         currentStatus: o.status,
         totalAmount: Number(o.total),
         estimatedDelivery: o.district === 'Dhaka' ? '১-২ কার্যদিবস' : '২-৩ কার্যদিবস',
@@ -111,7 +111,7 @@
       <div class="w-full md:w-96">
         <form onsubmit={handleSearch} class="relative flex items-center bg-white/5 border border-white/10 rounded-2xl overflow-hidden focus-within:border-aura-purple transition-all p-1">
           <Search class="ml-4 text-gray-600 shrink-0" size={18} />
-          <input type="text" bind:value={searchInput} placeholder="TRACK ID: ORD-1" class="flex-1 min-w-0 bg-transparent border-none text-white px-4 py-3 focus:outline-none placeholder-gray-700 font-mono text-sm" />
+          <input type="text" bind:value={searchInput} placeholder="TRACK ID: SNH-250707-XXXX" class="flex-1 min-w-0 bg-transparent border-none text-white px-4 py-3 focus:outline-none placeholder-gray-700 font-mono text-sm" />
           <button type="submit" class="bg-white text-black px-6 py-3 rounded-xl font-black uppercase tracking-widest text-[10px] hover:bg-aura-purple hover:text-white transition-all shrink-0">Locate</button>
         </form>
       </div>

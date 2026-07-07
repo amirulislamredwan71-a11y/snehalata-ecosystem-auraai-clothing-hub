@@ -48,6 +48,9 @@
       <a href="https://wa.me/8801911877091" target="_blank" rel="noopener" class="inline-flex items-center gap-1.5 ml-2 px-3 py-1.5 rounded-lg bg-aura-green/12 border border-aura-green/30 text-aura-green text-xs font-bold hover:bg-aura-green/20 transition-colors">
         <MessageCircle size={13} /> WhatsApp
       </a>
+      <br class="sm:hidden" />
+      <span class="text-gray-500">অথবা মেইল করুন</span>
+      <a href="mailto:contact@snehalata.com" class="text-aura-green font-semibold hover:text-white transition-colors">contact@snehalata.com</a>
     </p>
   </section>
 

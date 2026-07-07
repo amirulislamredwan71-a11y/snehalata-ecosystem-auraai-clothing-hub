@@ -1,6 +1,6 @@
 <script lang="ts">
   import { page } from '$app/stores';
-  import { Home, LayoutGrid, Zap, ShoppingBag, User } from '@lucide/svelte';
+  import { Home, LayoutGrid, PackageSearch, ShoppingBag, User } from '@lucide/svelte';
 
   let cartCount = $state(0);
   function updateCart() {
@@ -18,7 +18,7 @@
   const TABS = [
     { label: 'Home', href: '/', icon: Home, match: (p: string) => p === '/' },
     { label: 'Categories', href: '/#collection', icon: LayoutGrid, match: () => false },
-    { label: 'Deals', href: '/#collection', icon: Zap, match: () => false },
+    { label: 'Track', href: '/tracking', icon: PackageSearch, match: (p: string) => p.startsWith('/tracking') },
     { label: 'Cart', href: '/cart', icon: ShoppingBag, match: (p: string) => p.startsWith('/cart') },
     { label: 'Account', href: '/orders', icon: User, match: (p: string) => p.startsWith('/orders') }
   ];

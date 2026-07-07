@@ -12,9 +12,14 @@
       <p class="text-gray-500 text-sm leading-relaxed mt-4">
         Bangladesh's unified AI marketplace — every brand, showroom & shop in one place, made effortless by the Aura Neural Grid.
       </p>
-      <a href="mailto:support@snehalata.com" class="inline-flex items-center gap-2 mt-4 text-sm text-gray-400 hover:text-aura-green transition-colors">
-        <Mail size={14} class="text-aura-green" /> support@snehalata.com
-      </a>
+      <div class="mt-4 space-y-1.5">
+        <a href="mailto:support@snehalata.com" class="flex items-center gap-2 text-sm text-gray-400 hover:text-aura-green transition-colors">
+          <Mail size={14} class="text-aura-green" /> support@snehalata.com <span class="text-[10px] text-gray-600">· গ্রাহক</span>
+        </a>
+        <a href="mailto:info@snehalata.com" class="flex items-center gap-2 text-sm text-gray-400 hover:text-aura-green transition-colors">
+          <Mail size={14} class="text-aura-gold" /> info@snehalata.com <span class="text-[10px] text-gray-600">· অফিসিয়াল</span>
+        </a>
+      </div>
     </div>
 
     <div>
