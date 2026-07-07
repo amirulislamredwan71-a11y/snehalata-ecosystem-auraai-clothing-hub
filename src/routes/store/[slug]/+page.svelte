@@ -17,12 +17,12 @@
 </script>
 
 {#if !vendor}
-  <div class="min-h-screen flex flex-col items-center justify-center gap-4 bg-[#060507]">
+  <div class="min-h-screen flex flex-col items-center justify-center gap-4 bg-[#080b09]">
     <h1 class="text-2xl font-serif text-gray-500">স্টোর খুঁজে পাওয়া যায়নি</h1>
     <a href="/" class="text-aura-gold hover:underline">নীড়ে ফিরে যান</a>
   </div>
 {:else}
-  <div class="min-h-screen bg-[#060507] pb-20">
+  <div class="min-h-screen bg-[#080b09] pb-20">
     <div class="h-64 bg-gradient-to-r from-[#1b1410] to-[#060507] relative overflow-hidden">
       <div class="absolute inset-0 opacity-[0.15]" style="background-image: radial-gradient(circle at 20% 30%, rgba(199,154,62,0.25), transparent 45%)"></div>
       <div class="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-[#060507] to-transparent"></div>
@@ -60,7 +60,7 @@
 
           {#if vendor.website_url}
             <div class="flex items-start">
-              <a href={vendor.website_url} target="_blank" rel="noreferrer" class="bg-aura-purple text-white px-6 py-4 rounded-xl font-black uppercase tracking-widest text-[10px] shadow-2xl hover:scale-105 transition-all flex items-center gap-2">
+              <a href={vendor.website_url} target="_blank" rel="noreferrer" class="bg-gradient-to-br from-aura-green-deep to-aura-green-bright text-black px-6 py-4 rounded-xl font-black uppercase tracking-widest text-[10px] shadow-2xl hover:brightness-110 transition-all flex items-center gap-2">
                 Visit Official Website <Globe size={16} />
               </a>
             </div>
@@ -69,10 +69,23 @@
       </div>
 
       <h2 class="text-2xl font-serif font-bold mb-8 border-l-4 border-aura-gold pl-4">এক্সক্লুসিভ কালেকশন</h2>
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {#each products as product (product.id)}
-          <ProductCard {product} {vendor} />
-        {/each}
+      {#if products.length === 0}
+        <div class="text-center py-24 border border-white/5 rounded-3xl bg-white/[0.02]">
+          <div class="text-5xl mb-5">🧵</div>
+          <h3 class="text-xl font-serif font-bold text-white mb-2">নতুন কালেকশন শীঘ্রই আসছে</h3>
+          <p class="text-gray-500 text-sm max-w-md mx-auto mb-8">এই দোকানের পণ্য যাচাই ও সাজানো হচ্ছে — খুব শিগগিরই Aura Neural Grid-এ লাইভ হবে।</p>
+          <a href="/" class="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-br from-aura-green-deep to-aura-green-bright text-black text-xs font-black uppercase tracking-widest hover:brightness-110 transition-all">অন্যান্য কালেকশন দেখুন</a>
+        </div>
+      {:else}
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {#each products as product (product.id)}
+            <ProductCard {product} {vendor} />
+          {/each}
+        </div>
+      {/if}
+
+      <div class="mt-16 text-center">
+        <a href="/dashboard" class="text-[11px] text-gray-600 hover:text-aura-green transition-colors uppercase tracking-widest font-bold">এই দোকানটি আপনার? — Manage Shop →</a>
       </div>
     </div>
   </div>
