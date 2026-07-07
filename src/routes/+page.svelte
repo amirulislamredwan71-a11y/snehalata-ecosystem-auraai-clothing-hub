@@ -68,6 +68,7 @@
       semanticCaption = d.caption || '';
       semanticActive = true;
       track('search', { meta: { mode: 'visual' } });
+      scrollToCollection();
     } catch {
       semanticActive = false;
     } finally {
@@ -81,6 +82,17 @@
     semanticResults = [];
     semanticCaption = '';
     searchQuery = '';
+  }
+
+  function scrollToCollection() {
+    if (browser) setTimeout(() => document.getElementById('collection')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60);
+  }
+
+  // Top search bar (design places search at the very top) → run neural search, then
+  // bring the product grid into view so results are visible.
+  async function runTopSearch() {
+    await runSemanticSearch();
+    scrollToCollection();
   }
 
   // Pick a category: clear any active photo/semantic search and scroll the results
@@ -286,7 +298,24 @@
   {@html `<script type="application/ld+json">${jsonLd}<\/script>`}
 </svelte:head>
 
-<div class="min-h-screen bg-[#080b09] text-aura-cream selection:bg-aura-green/30 font-sans">
+<div class="min-h-screen bg-transparent text-aura-cream selection:bg-aura-green/30 font-sans">
+
+  <!-- SEARCH — at the very top, like the design (real neural + visual search) -->
+  <div class="max-w-7xl mx-auto px-5 sm:px-6 pt-4 pb-1">
+    <div class="flex gap-2.5">
+      <div class="flex-1 relative group">
+        <Search class="absolute left-4 top-1/2 -translate-y-1/2 text-aura-dim group-focus-within:text-aura-green transition-colors" size={18} />
+        <input type="text" bind:value={searchQuery} oninput={onSearchInput}
+          onkeydown={(e) => e.key === 'Enter' && runTopSearch()}
+          placeholder="Search products, brands or stores…"
+          class="w-full bg-aura-card border border-aura-green/16 rounded-2xl h-12 pl-12 pr-4 text-sm focus:outline-none focus:border-aura-green/55 transition-all placeholder:text-aura-dim" />
+      </div>
+      <label class="w-12 h-12 shrink-0 rounded-2xl bg-aura-card border border-aura-green/18 flex items-center justify-center text-aura-green hover:border-aura-green transition-all cursor-pointer" title="Search by photo">
+        <input type="file" accept="image/*" onchange={runVisualSearch} class="hidden" disabled={searchLoading} />
+        {#if searchLoading}<Loader2 size={17} class="animate-spin" />{:else}<Camera size={18} />{/if}
+      </label>
+    </div>
+  </div>
 
   <!-- HERO — rotating carousel, neural-grid backdrop -->
   <section class="relative overflow-hidden border-b border-aura-green/10">
@@ -439,39 +468,13 @@
     </div>
   </section>
 
-  <!-- SEARCH HEADER (sticky) — real neural + visual search -->
-  <div id="collection" class="sticky top-20 z-40 bg-[#080b09]/95 backdrop-blur-lg border-y border-aura-green/10 py-5 px-5 sm:px-6 scroll-mt-24 mt-10">
-    <div class="max-w-7xl mx-auto flex items-center gap-4">
-      <button type="button" onclick={() => isSidebarOpen = !isSidebarOpen} aria-label="Open categories menu"
-        class="lg:hidden p-3 bg-white/5 rounded-2xl border border-white/10 hover:bg-white/10 transition-all cursor-pointer">
-        <Menu size={20} />
+  <!-- Mobile category rail (sticky) — quick category nav + all-categories drawer -->
+  <div class="lg:hidden sticky top-20 z-40 border-y border-aura-green/10 bg-[#0a0f0d]/85 backdrop-blur-xl mt-8">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex items-center gap-2">
+      <button type="button" onclick={() => isSidebarOpen = !isSidebarOpen} aria-label="All categories"
+        class="shrink-0 p-2.5 bg-white/5 rounded-xl border border-white/10 hover:bg-white/10 transition-all cursor-pointer">
+        <Menu size={18} />
       </button>
-      <div class="flex-1 relative group">
-        <Search class="absolute left-5 top-1/2 -translate-y-1/2 text-aura-dim group-focus-within:text-aura-green transition-colors" size={19} />
-        <input type="text" bind:value={searchQuery} oninput={onSearchInput}
-          onkeydown={(e) => e.key === 'Enter' && runSemanticSearch()}
-          placeholder="Search products, brands or stores…"
-          class="w-full bg-aura-card border border-aura-green/16 rounded-2xl py-3.5 pl-14 pr-24 text-sm focus:outline-none focus:border-aura-green/55 transition-all placeholder:text-aura-dim" />
-        <div class="absolute right-2.5 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
-          <label class="p-2.5 rounded-xl bg-white/5 border border-aura-green/18 hover:border-aura-green text-aura-green transition-all cursor-pointer" title="Search by photo">
-            <input type="file" accept="image/*" onchange={runVisualSearch} class="hidden" disabled={searchLoading} />
-            {#if searchLoading}<Loader2 size={16} class="animate-spin" />{:else}<Camera size={16} />{/if}
-          </label>
-          <button onclick={runSemanticSearch} aria-label="Neural search" class="p-2.5 rounded-xl bg-gradient-to-br from-aura-green-deep to-aura-green-bright text-black hover:brightness-110 transition-all cursor-pointer">
-            <Sparkles size={16} />
-          </button>
-        </div>
-      </div>
-      <div class="hidden md:flex items-center gap-2 px-4 py-2 bg-aura-green/10 border border-aura-green/20 rounded-full shrink-0">
-        <ShieldCheck size={14} class="text-aura-green" />
-        <span class="text-[10px] font-black uppercase tracking-widest text-aura-green">Neural Verified</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- Mobile category rail -->
-  <div class="lg:hidden border-b border-white/5 bg-[#080b09]/70 backdrop-blur-xl">
-    <div class="max-w-7xl mx-auto px-4 py-3">
       <div class="flex gap-2 overflow-x-auto no-scrollbar">
         {#each ECO_CATEGORIES as cat}
           <button type="button" onclick={() => selectCategory(cat.id)}
@@ -483,7 +486,7 @@
     </div>
   </div>
 
-  <div class="max-w-7xl mx-auto flex relative">
+  <div id="collection" class="max-w-7xl mx-auto flex relative scroll-mt-24 mt-6 lg:mt-10">
     <!-- Sidebar (desktop) -->
     <aside class="hidden lg:block w-80 h-[calc(100vh-100px)] sticky top-[100px] overflow-y-auto p-8 border-r border-white/5 no-scrollbar">
       <h3 class="text-[10px] font-black uppercase tracking-[0.3em] text-gray-500 mb-8 px-4">Neural Grid Categories</h3>

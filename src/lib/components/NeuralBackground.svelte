@@ -14,7 +14,7 @@
   }));
 </script>
 
-<div class="fixed inset-0 -z-10 overflow-hidden bg-[#080b09]" aria-hidden="true">
+<div class="fixed inset-0 -z-10 overflow-hidden bg-[#0a0f0d]" aria-hidden="true">
   <!-- faint drifting neural grid lines -->
   <div class="nb-grid absolute inset-0 neural-grid opacity-70"></div>
   <!-- emerald aurora glow (top) + gold glow (mid-left) -->
