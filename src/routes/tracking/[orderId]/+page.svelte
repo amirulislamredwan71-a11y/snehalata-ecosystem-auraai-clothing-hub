@@ -97,22 +97,22 @@
   }
 </script>
 
-<div class="min-h-screen bg-aura-black pb-32 selection:bg-aura-purple selection:text-white">
+<div class="min-h-screen bg-aura-black pb-32 selection:bg-aura-green selection:text-white">
   <div class="max-w-7xl mx-auto px-6 py-12">
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-8 mb-16">
       <div>
-        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-aura-purple/10 border border-aura-purple/20 mb-4">
-          <Navigation2 size={14} class="text-aura-purple" />
-          <span class="text-[10px] font-black uppercase tracking-widest text-aura-purple">Neural Logistics System</span>
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-aura-green/10 border border-aura-green/20 mb-4">
+          <Navigation2 size={14} class="text-aura-green" />
+          <span class="text-[10px] font-black uppercase tracking-widest text-aura-green">Neural Logistics System</span>
         </div>
-        <h1 class="text-4xl sm:text-5xl font-serif font-black text-white">Neural Hub <span class="text-aura-purple">Tracking</span></h1>
+        <h1 class="text-4xl sm:text-5xl font-serif font-black text-white">Neural Hub <span class="text-aura-green">Tracking</span></h1>
       </div>
 
       <div class="w-full md:w-96">
-        <form onsubmit={handleSearch} class="relative flex items-center bg-white/5 border border-white/10 rounded-2xl overflow-hidden focus-within:border-aura-purple transition-all p-1">
+        <form onsubmit={handleSearch} class="relative flex items-center bg-white/5 border border-white/10 rounded-2xl overflow-hidden focus-within:border-aura-green transition-all p-1">
           <Search class="ml-4 text-gray-600 shrink-0" size={18} />
           <input type="text" bind:value={searchInput} placeholder="TRACK ID: SNH-250707-XXXX" class="flex-1 min-w-0 bg-transparent border-none text-white px-4 py-3 focus:outline-none placeholder-gray-700 font-mono text-sm" />
-          <button type="submit" class="bg-white text-black px-6 py-3 rounded-xl font-black uppercase tracking-widest text-[10px] hover:bg-aura-purple hover:text-white transition-all shrink-0">Locate</button>
+          <button type="submit" class="bg-white text-black px-6 py-3 rounded-xl font-black uppercase tracking-widest text-[10px] hover:bg-aura-green hover:text-white transition-all shrink-0">Locate</button>
         </form>
       </div>
     </div>
@@ -120,7 +120,7 @@
     {#if loading}
       <div class="flex flex-col items-center justify-center py-32 space-y-6">
         <div class="relative">
-          <Loader2 size={64} class="animate-spin text-aura-purple" />
+          <Loader2 size={64} class="animate-spin text-aura-green" />
           <Sparkles size={24} class="absolute inset-0 m-auto text-white animate-pulse" />
         </div>
         <p class="text-gray-500 text-[10px] font-black uppercase tracking-[0.4em] animate-pulse">Syncing with Aura Neural Grid...</p>
@@ -130,7 +130,7 @@
         <AlertCircle class="mx-auto text-red-500 mb-6" size={48} />
         <h2 class="text-2xl font-serif font-bold text-white mb-2">Order Not Synced</h2>
         <p class="text-gray-500 text-sm mb-8">{error}</p>
-        <a href="/" class="text-aura-purple font-black uppercase tracking-widest text-xs hover:underline">Explore Hub Collections</a>
+        <a href="/" class="text-aura-green font-black uppercase tracking-widest text-xs hover:underline">Explore Hub Collections</a>
       </div>
     {:else if order}
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-10" transition:fade={{ duration: 700 }}>
@@ -139,7 +139,7 @@
             <div class="flex items-center justify-between mb-10">
               <h2 class="text-xl font-serif font-bold text-white">Track Progression</h2>
               <button onclick={playStatusBriefing} disabled={isSpeaking}
-                class="p-3 rounded-xl transition-all cursor-pointer {isSpeaking ? 'bg-aura-purple text-white animate-pulse' : 'bg-white/5 text-aura-purple border border-aura-purple/20 hover:bg-aura-purple hover:text-white'}">
+                class="p-3 rounded-xl transition-all cursor-pointer {isSpeaking ? 'bg-aura-green text-white animate-pulse' : 'bg-white/5 text-aura-green border border-aura-green/20 hover:bg-aura-green hover:text-white'}">
                 <Volume2 size={20} />
               </button>
             </div>
@@ -148,14 +148,14 @@
               <div class="absolute left-[15px] top-2 bottom-2 w-0.5 bg-white/5"></div>
               {#each order.timeline as step}
                 <div class="relative group {step.completed ? 'opacity-100' : 'opacity-20'}">
-                  <div class="absolute -left-[10px] top-0 w-5 h-5 rounded-full border-4 border-aura-black z-10 transition-all duration-500 {step.completed ? 'bg-aura-purple shadow-[0_0_15px_rgba(124,58,237,0.8)]' : 'bg-gray-800'}">
+                  <div class="absolute -left-[10px] top-0 w-5 h-5 rounded-full border-4 border-aura-black z-10 transition-all duration-500 {step.completed ? 'bg-aura-green shadow-[0_0_15px_rgba(16,185,129,0.8)]' : 'bg-gray-800'}">
                     {#if step.status === order.currentStatus}
-                      <div class="absolute inset-0 bg-aura-purple rounded-full animate-ping opacity-50"></div>
+                      <div class="absolute inset-0 bg-aura-green rounded-full animate-ping opacity-50"></div>
                     {/if}
                   </div>
                   <div>
                     <div class="flex justify-between items-start mb-1">
-                      <h4 class="text-xs font-black uppercase tracking-widest text-white group-hover:text-aura-purple transition-colors">{step.label}</h4>
+                      <h4 class="text-xs font-black uppercase tracking-widest text-white group-hover:text-aura-green transition-colors">{step.label}</h4>
                       <span class="text-[9px] font-mono text-gray-600">{step.timestamp}</span>
                     </div>
                     <p class="text-[10px] text-gray-500 leading-relaxed">{step.description}</p>
@@ -165,9 +165,9 @@
             </div>
           </div>
 
-          <div class="bg-aura-purple/5 border border-aura-purple/10 rounded-[2.5rem] p-8">
+          <div class="bg-aura-green/5 border border-aura-green/10 rounded-[2.5rem] p-8">
             <div class="flex items-center gap-3 mb-4">
-              <Zap class="text-aura-purple" size={20} />
+              <Zap class="text-aura-green" size={20} />
               <h3 class="text-[10px] font-black uppercase tracking-widest text-white">Neural Delivery Insights</h3>
             </div>
             <p class="text-xs text-gray-400 leading-relaxed italic">
@@ -181,14 +181,14 @@
             <div class="absolute inset-0 bg-[#0a0a0a]">
               <div class="absolute inset-0 opacity-10" style="background-image: radial-gradient(circle at 1px 1px, white 1px, transparent 0); background-size: 40px 40px" />
               <svg class="absolute inset-0 w-full h-full opacity-20" viewBox="0 0 800 500">
-                <path d="M100 400 Q 200 100, 400 250 T 700 100" stroke="#7c3aed" stroke-width="4" fill="none" stroke-dasharray="10,10" />
-                <circle cx="100" cy="400" r="8" fill="#7c3aed" />
+                <path d="M100 400 Q 200 100, 400 250 T 700 100" stroke="#10b981" stroke-width="4" fill="none" stroke-dasharray="10,10" />
+                <circle cx="100" cy="400" r="8" fill="#10b981" />
                 <circle cx="700" cy="100" r="8" fill="#10b981" />
               </svg>
               <div class="absolute" style="top: 25%; left: 45%">
                 <div class="relative animate-bounce">
-                  <div class="absolute inset-0 bg-aura-purple blur-xl rounded-full opacity-40 scale-150"></div>
-                  <div class="bg-aura-purple p-4 rounded-2xl border border-white/20 shadow-2xl relative z-10">
+                  <div class="absolute inset-0 bg-aura-green blur-xl rounded-full opacity-40 scale-150"></div>
+                  <div class="bg-aura-green p-4 rounded-2xl border border-white/20 shadow-2xl relative z-10">
                     <Truck class="text-white" size={32} />
                   </div>
                   <div class="absolute -bottom-2 left-1/2 -translate-x-1/2 w-8 h-1 bg-black/50 blur-sm rounded-full"></div>
@@ -202,7 +202,7 @@
             <div class="absolute top-8 left-8 p-6 bg-black/60 backdrop-blur-xl border border-white/10 rounded-3xl">
               <div class="text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2">Order</div>
               <div class="text-white font-serif text-lg font-bold flex items-center gap-2">
-                <MapPin class="text-aura-purple" size={18} /> {order.id}
+                <MapPin class="text-aura-green" size={18} /> {order.id}
               </div>
             </div>
 
@@ -222,21 +222,21 @@
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div class="bg-aura-glass border border-aura-glassBorder rounded-3xl p-6 flex items-center gap-4 hover:border-aura-purple/30 transition-all">
-              <div class="p-3 bg-white/5 rounded-2xl border border-white/10"><Box class="text-aura-purple" size={24} /></div>
+            <div class="bg-aura-glass border border-aura-glassBorder rounded-3xl p-6 flex items-center gap-4 hover:border-aura-green/30 transition-all">
+              <div class="p-3 bg-white/5 rounded-2xl border border-white/10"><Box class="text-aura-green" size={24} /></div>
               <div>
                 <div class="text-[9px] font-black uppercase tracking-widest text-gray-600 mb-1">Package</div>
                 <div class="text-xs font-bold text-white">{order.items.length} Item{order.items.length === 1 ? '' : 's'}</div>
               </div>
             </div>
-            <div class="bg-aura-glass border border-aura-glassBorder rounded-3xl p-6 flex items-center gap-4 hover:border-aura-purple/30 transition-all">
+            <div class="bg-aura-glass border border-aura-glassBorder rounded-3xl p-6 flex items-center gap-4 hover:border-aura-green/30 transition-all">
               <div class="p-3 bg-white/5 rounded-2xl border border-white/10"><ShieldCheck class="text-green-500" size={24} /></div>
               <div>
                 <div class="text-[9px] font-black uppercase tracking-widest text-gray-600 mb-1">Security</div>
                 <div class="text-xs font-bold text-white">Aura Quality Insured</div>
               </div>
             </div>
-            <div class="bg-aura-glass border border-aura-glassBorder rounded-3xl p-6 flex items-center gap-4 hover:border-aura-purple/30 transition-all">
+            <div class="bg-aura-glass border border-aura-glassBorder rounded-3xl p-6 flex items-center gap-4 hover:border-aura-green/30 transition-all">
               <div class="p-3 bg-white/5 rounded-2xl border border-white/10"><Clock class="text-amber-500" size={24} /></div>
               <div>
                 <div class="text-[9px] font-black uppercase tracking-widest text-gray-600 mb-1">ETA</div>
@@ -252,7 +252,7 @@
             </div>
             <div class="space-y-4">
               {#each order.items as item}
-                <div class="flex items-center gap-6 p-4 bg-white/[0.02] border border-white/5 rounded-2xl group hover:border-aura-purple/30 transition-all">
+                <div class="flex items-center gap-6 p-4 bg-white/[0.02] border border-white/5 rounded-2xl group hover:border-aura-green/30 transition-all">
                   {#if item.imageUrl}<img src={item.imageUrl} class="w-16 h-16 rounded-xl object-cover grayscale group-hover:grayscale-0 transition-all" alt={item.name} />{/if}
                   <div class="flex-1 min-w-0">
                     <h4 class="text-sm font-bold text-white truncate">{item.name}</h4>

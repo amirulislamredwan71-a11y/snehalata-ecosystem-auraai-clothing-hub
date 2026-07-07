@@ -31,7 +31,7 @@
   function getStatusColor(status: OrderStatus) {
     switch (status) {
       case 'DELIVERED': return 'text-green-400 border-green-400/20 bg-green-400/10';
-      case 'SHIPPED': return 'text-aura-purple border-aura-purple/20 bg-aura-purple/10';
+      case 'SHIPPED': return 'text-aura-green border-aura-green/20 bg-aura-green/10';
       case 'QUALITY_CHECK': return 'text-blue-400 border-blue-400/20 bg-blue-400/10';
       case 'PLACED': return 'text-gray-400 border-gray-400/20 bg-gray-400/10';
       default: return 'text-amber-400 border-amber-400/20 bg-amber-400/10';
@@ -52,7 +52,7 @@
   <div class="min-h-screen bg-aura-black pb-20 pt-16 px-6 flex items-center justify-center">
     <div class="text-center">
       <h1 class="text-2xl font-serif text-gray-500 mb-4">Order not found</h1>
-      <a href="/orders" class="text-aura-purple hover:underline">Back to orders</a>
+      <a href="/orders" class="text-aura-green hover:underline">Back to orders</a>
     </div>
   </div>
 {:else}
@@ -63,7 +63,7 @@
           <ChevronLeft size={16} class="group-hover:-translate-x-1 transition-transform" /> Back to Log
         </a>
         <button onclick={() => showReceipt = true}
-          class="flex items-center gap-2 bg-aura-purple/10 border border-aura-purple/20 text-aura-purple px-6 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest hover:bg-aura-purple hover:text-white transition-all cursor-pointer">
+          class="flex items-center gap-2 bg-aura-green/10 border border-aura-green/20 text-aura-green px-6 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest hover:bg-aura-green hover:text-white transition-all cursor-pointer">
           <FileText size={14} /> View Hub Receipt
         </button>
       </div>
@@ -71,14 +71,14 @@
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-12">
         <div class="lg:col-span-8 space-y-12">
           <div class="bg-aura-glass border border-aura-glassBorder rounded-[3rem] p-10 relative overflow-hidden shadow-2xl">
-            <div class="absolute top-0 right-0 w-80 h-80 bg-aura-purple/5 blur-[120px] rounded-full"></div>
+            <div class="absolute top-0 right-0 w-80 h-80 bg-aura-green/5 blur-[120px] rounded-full"></div>
             <div class="relative z-10 flex flex-col md:flex-row justify-between gap-10">
               <div class="space-y-4">
                 <div class="flex items-center gap-2 px-4 py-1.5 rounded-full border w-fit text-[10px] font-black uppercase tracking-widest {getStatusColor(selectedOrder.currentStatus)}">
                   <svelte:component this={getStatusIcon(selectedOrder.currentStatus)} size={14} />
                   {selectedOrder.currentStatus.replace('_', ' ')}
                 </div>
-                <h1 class="text-5xl font-serif font-black text-white leading-tight">Order Insight <span class="text-aura-purple">#{selectedOrder.id.split('-')[1]}</span></h1>
+                <h1 class="text-5xl font-serif font-black text-white leading-tight">Order Insight <span class="text-aura-green">#{selectedOrder.id.split('-')[1]}</span></h1>
                 <p class="text-gray-500 text-sm max-w-sm">Synchronized with Aura Neural Hub. Security verified for artisan-to-customer direct transfer.</p>
               </div>
               <div class="bg-white/5 border border-white/10 p-6 rounded-[2rem] h-fit text-center min-w-[160px]">
@@ -89,12 +89,12 @@
           </div>
 
           <div class="bg-aura-glass border border-aura-glassBorder rounded-[3rem] p-10 shadow-2xl">
-            <h3 class="text-xl font-serif font-bold text-white mb-12 flex items-center gap-3"><Navigation2 class="text-aura-purple" /> Node Propagation Timeline</h3>
+            <h3 class="text-xl font-serif font-bold text-white mb-12 flex items-center gap-3"><Navigation2 class="text-aura-green" /> Node Propagation Timeline</h3>
             <div class="relative pl-12 space-y-12">
               <div class="absolute left-[23px] top-4 bottom-4 w-0.5 bg-white/5" />
               {#each selectedOrder.timeline as step, idx}
                 <div class="relative flex gap-10 transition-all duration-700 {step.completed ? 'opacity-100' : 'opacity-20'}">
-                  <div class="w-12 h-12 rounded-2xl border flex items-center justify-center shrink-0 z-10 {step.completed ? 'bg-aura-purple border-aura-purple text-white shadow-[0_0_20px_rgba(124,58,237,0.4)]' : 'bg-black border-white/5 text-gray-700'}">
+                  <div class="w-12 h-12 rounded-2xl border flex items-center justify-center shrink-0 z-10 {step.completed ? 'bg-aura-green border-aura-green text-white shadow-[0_0_20px_rgba(16,185,129,0.4)]' : 'bg-black border-white/5 text-gray-700'}">
                     {#if step.completed}
                       <CheckCircle2 size={20} />
                     {:else}
@@ -116,10 +116,10 @@
 
         <div class="lg:col-span-4 space-y-8">
           <div class="bg-aura-glass border border-aura-glassBorder rounded-[2.5rem] p-8 shadow-2xl">
-            <h4 class="text-[10px] font-black uppercase tracking-[0.3em] text-aura-purple mb-8">Manifest Details</h4>
+            <h4 class="text-[10px] font-black uppercase tracking-[0.3em] text-aura-green mb-8">Manifest Details</h4>
             <div class="space-y-4">
               {#each selectedOrder.items as item, idx}
-                <div key={idx} class="flex items-center gap-4 p-4 bg-white/[0.02] border border-white/5 rounded-2xl group hover:border-aura-purple/30 transition-all">
+                <div key={idx} class="flex items-center gap-4 p-4 bg-white/[0.02] border border-white/5 rounded-2xl group hover:border-aura-green/30 transition-all">
                   <div class="w-16 h-16 rounded-xl overflow-hidden border border-white/10 shrink-0">
                     <img src={item.imageUrl} class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" alt={item.name} />
                   </div>
@@ -170,15 +170,15 @@
             <X size={24} />
           </button>
           <div class="bg-aura-black text-white p-8 md:p-12 rounded-[3rem] border border-aura-glassBorder relative overflow-hidden shadow-2xl w-full mx-auto" transition:scale>
-            <div class="absolute top-0 right-0 w-64 h-64 bg-aura-purple/5 blur-[100px] pointer-events-none" />
+            <div class="absolute top-0 right-0 w-64 h-64 bg-aura-green/5 blur-[100px] pointer-events-none" />
             <div class="absolute bottom-0 left-0 w-64 h-64 bg-indigo-900/5 blur-[100px] pointer-events-none" />
 
             <div class="relative z-10 space-y-10">
               <header class="flex justify-between items-start">
                 <div class="space-y-4">
                   <Logo />
-                  <div class="bg-aura-purple/10 border border-aura-purple/20 px-3 py-1 rounded-full w-fit">
-                    <span class="text-[9px] font-black uppercase tracking-[0.2em] text-aura-purple">Official Neural Receipt</span>
+                  <div class="bg-aura-green/10 border border-aura-green/20 px-3 py-1 rounded-full w-fit">
+                    <span class="text-[9px] font-black uppercase tracking-[0.2em] text-aura-green">Official Neural Receipt</span>
                   </div>
                 </div>
                 <div class="text-right">
@@ -250,7 +250,7 @@
                 </div>
                 <div class="flex justify-between items-end pt-4">
                   <div>
-                    <div class="text-[10px] text-aura-purple font-black uppercase tracking-widest mb-1">Grand Total</div>
+                    <div class="text-[10px] text-aura-green font-black uppercase tracking-widest mb-1">Grand Total</div>
                     <div class="text-4xl font-black text-white">৳{(selectedOrder.totalAmount + 120).toLocaleString()}</div>
                   </div>
                 </div>
@@ -258,7 +258,7 @@
 
               <div class="pt-10 flex items-center justify-between gap-6 border-t border-white/5">
                 <div class="flex items-center gap-3">
-                  <ShieldCheck class="text-aura-purple" size={20} />
+                  <ShieldCheck class="text-aura-green" size={20} />
                   <span class="text-[9px] font-black uppercase tracking-[0.2em] text-gray-500">Aura Authenticity Guaranteed</span>
                 </div>
               </div>

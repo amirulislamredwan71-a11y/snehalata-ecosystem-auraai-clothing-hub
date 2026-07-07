@@ -48,7 +48,7 @@
     filter: blur(8px);
     animation: nb-glowpulse 6.5s ease-in-out infinite;
   }
-  .nb-glow-green { background: radial-gradient(circle, rgba(16, 185, 129, 0.30), transparent 70%); }
+  .nb-glow-green { background: radial-gradient(circle, rgba(16,185,129, 0.30), transparent 70%); }
   .nb-glow-gold { background: radial-gradient(circle, rgba(199, 154, 62, 0.18), transparent 70%); animation-delay: 1.2s; }
   @keyframes nb-glowpulse { 0%, 100% { opacity: 0.45; } 50% { opacity: 0.85; } }
   .nb-particle {
@@ -63,7 +63,7 @@
   }
   .nb-ring {
     transform: translate(-50%, -50%);
-    border: 1px solid rgba(16, 185, 129, 0.08);
+    border: 1px solid rgba(16,185,129, 0.08);
     border-radius: 50%;
     animation: nb-pulse 7s ease-in-out infinite;
   }

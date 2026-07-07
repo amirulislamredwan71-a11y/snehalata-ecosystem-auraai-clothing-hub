@@ -111,7 +111,7 @@
     {#if isRefining}
       <div class="absolute inset-0 bg-black/60 backdrop-blur-md z-30 flex flex-col items-center justify-center gap-4">
         <div class="relative">
-          <Loader2 size={48} class="animate-spin text-[#7c3aed]" />
+          <Loader2 size={48} class="animate-spin text-[#10b981]" />
           <Sparkles size={16} class="absolute inset-0 m-auto text-white animate-pulse" />
         </div>
         <p class="text-[10px] font-black uppercase tracking-[0.3em] text-white">Aura Refinement Active</p>
@@ -123,7 +123,7 @@
   <div class="space-y-3 px-1 sm:px-2">
     <div class="flex justify-between items-start gap-2">
       <div class="flex-1 min-w-0">
-        <h3 class="text-[13px] sm:text-[15px] font-bold text-white group-hover:text-[#7c3aed] transition-colors truncate mb-0.5">{product.name}</h3>
+        <h3 class="text-[13px] sm:text-[15px] font-bold text-white group-hover:text-[#10b981] transition-colors truncate mb-0.5">{product.name}</h3>
         {#if vendor}
           <a href={`/store/${vendor.slug}`} class="text-[8px] text-gray-600 uppercase tracking-widest block hover:text-white transition-colors">{vendor.store_name}</a>
         {/if}
@@ -141,7 +141,7 @@
           {/if}
       </button>
       <button onclick={handleFastCheckout}
-        class="flex items-center justify-center gap-1.5 py-2.5 bg-[#7c3aed] text-white rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-white hover:text-black transition-all cursor-pointer">
+        class="flex items-center justify-center gap-1.5 py-2.5 bg-[#10b981] text-white rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-white hover:text-black transition-all cursor-pointer">
         <Zap size={12} class="fill-current" /> Buy
       </button>
     </div>
@@ -156,7 +156,7 @@
         </a>
       </div>
       <a href={`/try-on/${product.id}`}
-        class="flex items-center gap-1.5 px-3 py-1 bg-white/[0.03] hover:bg-[#7c3aed]/20 border border-white/5 rounded-lg text-gray-500 hover:text-[#7c3aed] transition-all group/try">
+        class="flex items-center gap-1.5 px-3 py-1 bg-white/[0.03] hover:bg-[#10b981]/20 border border-white/5 rounded-lg text-gray-500 hover:text-[#10b981] transition-all group/try">
         <Shirt size={10} /> <span class="text-[7px] font-black uppercase tracking-widest">Try-on</span>
       </a>
     </div>
@@ -170,17 +170,17 @@
       <div class="bg-black/40 backdrop-blur-3xl rounded-[2.9rem] p-10 md:p-12 relative z-10">
         <button onclick={() => isRefineModalOpen = false} class="absolute top-8 right-8 p-3 text-gray-500 hover:text-white hover:bg-white/5 rounded-2xl transition-all cursor-pointer"><X size={24} /></button>
         <div class="text-center mb-10">
-          <div class="w-16 h-16 bg-[#7c3aed]/10 border border-[#7c3aed]/20 rounded-2xl flex items-center justify-center mx-auto mb-4"><Palette size={32} class="text-[#7c3aed]" /></div>
+          <div class="w-16 h-16 bg-[#10b981]/10 border border-[#10b981]/20 rounded-2xl flex items-center justify-center mx-auto mb-4"><Palette size={32} class="text-[#10b981]" /></div>
           <h2 class="text-2xl font-serif font-black text-white mb-2">Refine Style</h2>
           <p class="text-gray-500 text-xs uppercase tracking-widest font-black">Choose an AI-Powered Aesthetic Preset</p>
         </div>
         <div class="grid grid-cols-2 gap-4">
           {#each STYLE_PRESETS as preset}
             <button onclick={() => handleApplyStyle(preset.prompt)}
-              class="group relative flex flex-col items-center justify-center p-6 bg-white/5 border border-white/10 rounded-3xl hover:border-[#7c3aed] hover:bg-[#7c3aed]/5 transition-all active:scale-95 cursor-pointer">
+              class="group relative flex flex-col items-center justify-center p-6 bg-white/5 border border-white/10 rounded-3xl hover:border-[#10b981] hover:bg-[#10b981]/5 transition-all active:scale-95 cursor-pointer">
               <span class="text-3xl mb-3 group-hover:scale-125 transition-transform">{preset.icon}</span>
               <span class="text-[10px] font-black uppercase tracking-widest text-white">{preset.name}</span>
-              <div class="absolute inset-0 bg-[#7c3aed]/5 opacity-0 group-hover:opacity-100 transition-opacity rounded-3xl" />
+              <div class="absolute inset-0 bg-[#10b981]/5 opacity-0 group-hover:opacity-100 transition-opacity rounded-3xl" />
             </button>
           {/each}
         </div>
@@ -193,7 +193,7 @@
 <!-- Add to Cart Modal -->
 {#if isModalOpen}
   <div class="fixed inset-0 z-[200] flex items-center justify-center p-6 bg-black/90 backdrop-blur-2xl" transition:fade={{ duration: 300 }}>
-    <div class="relative w-full max-w-lg bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.08)] rounded-[3.5rem] p-1 shadow-[0_0_100px_rgba(124,58,237,0.15)] overflow-hidden" transition:scale={{ duration: 300 }}>
+    <div class="relative w-full max-w-lg bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.08)] rounded-[3.5rem] p-1 shadow-[0_0_100px_rgba(16,185,129,0.15)] overflow-hidden" transition:scale={{ duration: 300 }}>
       <div class="bg-black/40 backdrop-blur-3xl rounded-[3.4rem] p-10 md:p-12 relative z-10">
         <button onclick={closeModal} class="absolute top-8 right-8 p-3 text-gray-500 hover:text-white hover:bg-white/5 rounded-2xl transition-all cursor-pointer"><X size={24} /></button>
 
@@ -233,13 +233,13 @@
               <button onclick={closeModal}
                 class="py-6 rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] text-gray-500 hover:text-white transition-all border border-transparent hover:border-white/10 cursor-pointer">Cancel</button>
               <button onclick={handleModalAdd}
-                class="bg-white text-black py-6 rounded-2xl text-[11px] font-black uppercase tracking-[0.3em] flex items-center justify-center gap-3 hover:bg-[#7c3aed] hover:text-white transition-all shadow-2xl active:scale-95 cursor-pointer">
+                class="bg-white text-black py-6 rounded-2xl text-[11px] font-black uppercase tracking-[0.3em] flex items-center justify-center gap-3 hover:bg-[#10b981] hover:text-white transition-all shadow-2xl active:scale-95 cursor-pointer">
                 <ShoppingBag size={18} /> Confirm Order
               </button>
             </div>
 
             <p class="text-[10px] text-center text-gray-600 uppercase tracking-[0.3em] font-black flex items-center justify-center gap-3">
-              <ShieldCheck size={14} class="text-[#7c3aed]" /> Secure Neural Transaction
+              <ShieldCheck size={14} class="text-[#10b981]" /> Secure Neural Transaction
             </p>
           </div>
         {/if}

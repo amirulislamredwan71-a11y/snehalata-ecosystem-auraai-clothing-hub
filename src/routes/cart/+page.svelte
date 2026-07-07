@@ -105,7 +105,7 @@
 
 {#snippet stepNode(number: number, label: string, active: boolean, completed: boolean)}
   <div class="flex flex-col items-center gap-3 z-10 relative">
-    <div class="w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-black transition-all duration-500 {completed ? 'bg-green-500 text-white' : active ? 'bg-aura-purple text-white ring-8 ring-aura-purple/10' : 'bg-gray-200 text-gray-400'}">
+    <div class="w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-black transition-all duration-500 {completed ? 'bg-green-500 text-white' : active ? 'bg-aura-green text-white ring-8 ring-aura-green/10' : 'bg-gray-200 text-gray-400'}">
       {#if completed}
         <CheckCircle2 size={16} />
       {:else}
@@ -125,13 +125,13 @@
     <p class="text-gray-500 mb-5 text-sm max-w-xs">Save your Tracking ID to follow your order in real-time.</p>
     <div class="mb-8 px-8 py-4 bg-gray-50 border border-gray-200 rounded-2xl">
       <p class="text-[9px] font-black uppercase tracking-[0.3em] text-gray-400 mb-1">Your Tracking ID</p>
-      <p class="text-2xl sm:text-3xl font-black text-aura-purple tracking-tight break-all">{completedTracking}</p>
+      <p class="text-2xl sm:text-3xl font-black text-aura-green tracking-tight break-all">{completedTracking}</p>
     </div>
     <div class="flex flex-col sm:flex-row gap-3 w-full max-w-sm">
-      <a href={`/tracking/${completedTracking}`} class="flex-1 px-6 py-4 bg-aura-purple text-white rounded-xl text-xs font-black uppercase tracking-widest hover:bg-gray-900 transition-all">
+      <a href={`/tracking/${completedTracking}`} class="flex-1 px-6 py-4 bg-aura-green text-white rounded-xl text-xs font-black uppercase tracking-widest hover:bg-gray-900 transition-all">
         Track My Order
       </a>
-      <a href="/" class="flex-1 px-6 py-4 bg-gray-900 text-white rounded-xl text-xs font-black uppercase tracking-widest hover:bg-aura-purple transition-all">
+      <a href="/" class="flex-1 px-6 py-4 bg-gray-900 text-white rounded-xl text-xs font-black uppercase tracking-widest hover:bg-aura-green transition-all">
         Continue Shopping
       </a>
     </div>
@@ -163,12 +163,12 @@
           {#if checkoutStep === 'CART'}
             <div transition:fly={{ x: -20, duration: 300 }} class="bg-white rounded-[2rem] p-5 sm:p-8 shadow-sm border border-gray-100">
               <h2 class="text-lg font-bold mb-8 flex items-center gap-2">
-                <ShoppingBag size={20} class="text-aura-purple" /> Your Items
+                <ShoppingBag size={20} class="text-aura-green" /> Your Items
               </h2>
               {#if cartItems.length === 0}
                 <div class="text-center py-20">
                   <p class="text-gray-400 font-bold uppercase tracking-widest text-[10px]">Your bag is empty</p>
-                  <a href="/" class="text-aura-purple font-bold text-sm mt-4 inline-block underline">Shop Now</a>
+                  <a href="/" class="text-aura-green font-bold text-sm mt-4 inline-block underline">Shop Now</a>
                 </div>
               {:else}
                 <div class="space-y-6">
@@ -180,14 +180,14 @@
                         <p class="text-[10px] text-gray-500 uppercase font-black tracking-widest mt-1">৳{item.price}</p>
                       </div>
                       <div class="flex items-center gap-2 sm:gap-4 bg-gray-50 rounded-full px-3 sm:px-4 py-1 shrink-0">
-                        <button onclick={() => updateQuantity(item.id, -1)} class="p-1 hover:text-aura-purple transition-colors"><Minus size={14} /></button>
+                        <button onclick={() => updateQuantity(item.id, -1)} class="p-1 hover:text-aura-green transition-colors"><Minus size={14} /></button>
                         <span class="font-black tabular-nums text-xs">{item.quantity}</span>
-                        <button onclick={() => updateQuantity(item.id, 1)} class="p-1 hover:text-aura-purple transition-colors"><Plus size={14} /></button>
+                        <button onclick={() => updateQuantity(item.id, 1)} class="p-1 hover:text-aura-green transition-colors"><Plus size={14} /></button>
                       </div>
                       <button onclick={() => removeItem(item.id)} class="text-gray-300 hover:text-red-500 transition-colors shrink-0"><Trash2 size={18} /></button>
                     </div>
                   {/each}
-                  <button onclick={() => checkoutStep = 'DETAILS'} class="w-full py-5 bg-aura-purple text-white rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-xl hover:bg-gray-900 transition-all mt-6">
+                  <button onclick={() => checkoutStep = 'DETAILS'} class="w-full py-5 bg-aura-green text-white rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-xl hover:bg-gray-900 transition-all mt-6">
                     Proceed to Details
                   </button>
                 </div>
@@ -198,22 +198,22 @@
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div class="space-y-2">
                   <label class="text-[9px] font-black uppercase tracking-widest text-gray-400 ml-4">Full Name</label>
-                  <input type="text" placeholder="Your Name" bind:value={formData.name} class="w-full bg-white border border-gray-100 rounded-2xl px-6 py-5 text-sm focus:border-aura-purple outline-none transition-all shadow-sm" />
+                  <input type="text" placeholder="Your Name" bind:value={formData.name} class="w-full bg-white border border-gray-100 rounded-2xl px-6 py-5 text-sm focus:border-aura-green outline-none transition-all shadow-sm" />
                 </div>
                 <div class="space-y-2">
                   <label class="text-[9px] font-black uppercase tracking-widest text-gray-400 ml-4">Phone Number</label>
-                  <input type="tel" placeholder="Mobile Number" bind:value={formData.phone} class="w-full bg-white border border-gray-100 rounded-2xl px-6 py-5 text-sm focus:border-aura-purple outline-none transition-all shadow-sm" />
+                  <input type="tel" placeholder="Mobile Number" bind:value={formData.phone} class="w-full bg-white border border-gray-100 rounded-2xl px-6 py-5 text-sm focus:border-aura-green outline-none transition-all shadow-sm" />
                 </div>
               </div>
 
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <select bind:value={formData.district} onchange={() => formData.area = ''} class="w-full bg-white border border-gray-100 rounded-2xl px-6 py-5 text-sm appearance-none outline-none focus:border-aura-purple shadow-sm transition-all focus:bg-[#f5f0e6]">
+                <select bind:value={formData.district} onchange={() => formData.area = ''} class="w-full bg-white border border-gray-100 rounded-2xl px-6 py-5 text-sm appearance-none outline-none focus:border-aura-green shadow-sm transition-all focus:bg-[#f5f0e6]">
                   <option value="">Select District</option>
                   {#each Object.keys(BD_LOCATIONS).sort() as d}
                     <option value={d}>{d}</option>
                   {/each}
                 </select>
-                <select bind:value={formData.area} disabled={!formData.district} class="w-full bg-white border border-gray-100 rounded-2xl px-6 py-5 text-sm appearance-none outline-none focus:border-aura-purple shadow-sm transition-all focus:bg-[#f5f0e6] disabled:bg-gray-50 disabled:text-gray-400">
+                <select bind:value={formData.area} disabled={!formData.district} class="w-full bg-white border border-gray-100 rounded-2xl px-6 py-5 text-sm appearance-none outline-none focus:border-aura-green shadow-sm transition-all focus:bg-[#f5f0e6] disabled:bg-gray-50 disabled:text-gray-400">
                   <option value="">{formData.district ? 'Select Area/Upazila' : 'Select District First'}</option>
                   {#if formData.district}
                     {#each BD_LOCATIONS[formData.district] as a}
@@ -223,20 +223,20 @@
                 </select>
               </div>
 
-              <textarea placeholder="Full Address" bind:value={formData.address} class="w-full bg-white border border-gray-100 rounded-2xl px-6 py-5 text-sm h-32 resize-none outline-none focus:border-aura-purple shadow-sm" />
+              <textarea placeholder="Full Address" bind:value={formData.address} class="w-full bg-white border border-gray-100 rounded-2xl px-6 py-5 text-sm h-32 resize-none outline-none focus:border-aura-green shadow-sm" />
 
-              <input type="email" placeholder="Email (optional)" bind:value={formData.email} class="w-full bg-white border border-gray-100 rounded-2xl px-6 py-5 text-sm outline-none focus:border-aura-purple shadow-sm" />
+              <input type="email" placeholder="Email (optional)" bind:value={formData.email} class="w-full bg-white border border-gray-100 rounded-2xl px-6 py-5 text-sm outline-none focus:border-aura-green shadow-sm" />
 
-              <input type="text" placeholder="Order Note (optional)" bind:value={formData.note} class="w-full bg-white border border-gray-100 rounded-2xl px-6 py-8 text-sm outline-none focus:border-aura-purple shadow-sm" />
+              <input type="text" placeholder="Order Note (optional)" bind:value={formData.note} class="w-full bg-white border border-gray-100 rounded-2xl px-6 py-8 text-sm outline-none focus:border-aura-green shadow-sm" />
 
               <label class="flex items-center gap-3 cursor-pointer group mt-4">
-                <input type="checkbox" bind:checked={saveAddress} class="w-5 h-5 rounded-lg border-gray-200 accent-aura-purple" />
+                <input type="checkbox" bind:checked={saveAddress} class="w-5 h-5 rounded-lg border-gray-200 accent-aura-green" />
                 <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest group-hover:text-gray-900 transition-colors">Save delivery address for next time</span>
               </label>
 
               <div class="pt-10">
                 <h3 class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-6 flex items-center gap-2">
-                  <Truck size={14} class="text-aura-purple" /> Shipping Region
+                  <Truck size={14} class="text-aura-green" /> Shipping Region
                 </h3>
                 <div class="p-6 bg-white border border-[#e2d9c9] rounded-2xl flex items-center justify-between shadow-sm">
                   <div>
@@ -246,7 +246,7 @@
                     </p>
                   </div>
                   <div class="text-right">
-                    <p class="text-xs font-black text-aura-purple">৳{shipping}</p>
+                    <p class="text-xs font-black text-aura-green">৳{shipping}</p>
                     <p class="text-[8px] text-gray-400 uppercase tracking-widest mt-1">Delivery Charge</p>
                   </div>
                 </div>
@@ -254,12 +254,12 @@
 
               <div class="mt-10">
                 <h3 class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-4 flex items-center gap-2">
-                  <Wallet size={14} class="text-aura-purple" /> Payment Method
+                  <Wallet size={14} class="text-aura-green" /> Payment Method
                 </h3>
                 <div class="grid grid-cols-3 gap-3">
                   {#each [['COD', 'Cash on Delivery'], ['BKASH', 'bKash'], ['NAGAD', 'Nagad']] as opt}
                     <button type="button" onclick={() => payMethod = opt[0]}
-                      class="p-3 sm:p-4 rounded-2xl border text-center transition-all {payMethod === opt[0] ? 'border-aura-purple bg-[#f5f0e6] ring-2 ring-aura-purple/15' : 'border-gray-100 bg-white hover:border-gray-300'}">
+                      class="p-3 sm:p-4 rounded-2xl border text-center transition-all {payMethod === opt[0] ? 'border-aura-green bg-[#f5f0e6] ring-2 ring-aura-green/15' : 'border-gray-100 bg-white hover:border-gray-300'}">
                       <span class="text-[10px] sm:text-[11px] font-black text-gray-900 leading-tight block">{opt[1]}</span>
                     </button>
                   {/each}
@@ -271,10 +271,10 @@
                 {:else}
                   <div class="mt-4 space-y-3 bg-[#f5f0e6] border border-[#e2d9c9] rounded-xl p-4">
                     <p class="text-[11px] text-gray-700 leading-relaxed">
-                      {payMethod === 'BKASH' ? 'bKash' : 'Nagad'} <b>Send Money</b> → <b class="text-aura-purple">{PAY_NUMBER}</b> (৳{total.toLocaleString()}), তারপর নিচে <b>Transaction ID</b> লিখুন:
+                      {payMethod === 'BKASH' ? 'bKash' : 'Nagad'} <b>Send Money</b> → <b class="text-aura-green">{PAY_NUMBER}</b> (৳{total.toLocaleString()}), তারপর নিচে <b>Transaction ID</b> লিখুন:
                     </p>
                     <input type="text" bind:value={payTxid} placeholder="Transaction ID (e.g. 9A7B6C5D)"
-                      class="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-aura-purple transition-all" />
+                      class="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-aura-green transition-all" />
                   </div>
                 {/if}
               </div>
@@ -285,7 +285,7 @@
                 </p>
               {/if}
 
-              <button onclick={handlePlaceOrder} disabled={placing} class="w-full py-6 bg-aura-ink text-white rounded-2xl font-black uppercase tracking-[0.2em] text-xs shadow-2xl hover:bg-aura-purple transition-all flex items-center justify-center gap-4 active:scale-95 disabled:opacity-60">
+              <button onclick={handlePlaceOrder} disabled={placing} class="w-full py-6 bg-aura-ink text-white rounded-2xl font-black uppercase tracking-[0.2em] text-xs shadow-2xl hover:bg-aura-green transition-all flex items-center justify-center gap-4 active:scale-95 disabled:opacity-60">
                 <CheckCircle2 size={18} /> {placing ? 'PLACING ORDER…' : 'CONFIRM & PLACE ORDER'}
               </button>
             </div>
@@ -325,7 +325,7 @@
                 <span class="text-2xl font-serif font-black italic">Total</span>
                 <span class="text-2xl font-black text-aura-gold tracking-tighter">৳{total.toLocaleString()}</span>
               </div>
-              <div class="bg-aura-purple text-white p-5 rounded-2xl flex items-center justify-between shadow-xl">
+              <div class="bg-aura-green text-white p-5 rounded-2xl flex items-center justify-between shadow-xl">
                 <span class="text-[10px] font-black uppercase tracking-widest">{cartItems.length} ITEMS</span>
                 <span class="text-lg font-black tabular-nums">৳{total.toLocaleString()}</span>
               </div>

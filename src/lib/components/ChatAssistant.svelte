@@ -120,10 +120,10 @@
   {#if !embedded}
     <div class="flex flex-col items-center gap-2">
       {#if !isOpen}
-        <span class="bg-[#7c3aed] text-white text-[10px] font-black px-2 py-0.5 rounded-md uppercase tracking-widest shadow-lg" transition:fade>AURA</span>
+        <span class="bg-[#10b981] text-white text-[10px] font-black px-2 py-0.5 rounded-md uppercase tracking-widest shadow-lg" transition:fade>AURA</span>
       {/if}
       <button onclick={handleToggle}
-        class="w-14 h-14 rounded-full flex items-center justify-center shadow-2xl transition-all duration-500 group relative overflow-hidden cursor-pointer {isOpen ? 'bg-white text-black rotate-90 scale-90' : 'bg-[#7c3aed] text-white hover:scale-110 active:scale-95'}">
+        class="w-14 h-14 rounded-full flex items-center justify-center shadow-2xl transition-all duration-500 group relative overflow-hidden cursor-pointer {isOpen ? 'bg-white text-black rotate-90 scale-90' : 'bg-[#10b981] text-white hover:scale-110 active:scale-95'}">
         <div class="absolute inset-0 bg-gradient-to-tr from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
         {#if isOpen}
           <X size={24} />
@@ -137,23 +137,23 @@
 
   {#if isOpen || embedded}
     <div class={embedded
-      ? "w-full h-[380px] bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.08)] rounded-[2.5rem] shadow-[0_0_80px_rgba(124,58,237,0.15)] backdrop-blur-3xl flex flex-col overflow-hidden"
+      ? "w-full h-[380px] bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.08)] rounded-[2.5rem] shadow-[0_0_80px_rgba(16,185,129,0.15)] backdrop-blur-3xl flex flex-col overflow-hidden"
       : "absolute bottom-20 left-0 w-[400px] max-w-[calc(100vw-2rem)] h-[480px] max-h-[calc(100vh-10rem)] bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.08)] rounded-[2.5rem] shadow-2xl backdrop-blur-3xl flex flex-col overflow-hidden"}
       transition:fly={{ y: 20, duration: 300, opacity: 1 }}>
       
       <header class="p-5 bg-white/5 border-b border-white/5 flex items-center justify-between relative overflow-hidden shrink-0">
-        <div class="absolute top-0 left-0 w-full h-full bg-[#7c3aed]/5 blur-[40px] pointer-events-none" />
+        <div class="absolute top-0 left-0 w-full h-full bg-[#10b981]/5 blur-[40px] pointer-events-none" />
         <div class="flex items-center gap-3 relative z-10">
-          <div class="w-9 h-9 bg-[#7c3aed]/20 rounded-xl flex items-center justify-center border border-[#7c3aed]/30">
-            <Cpu size={18} class="text-[#7c3aed]" />
+          <div class="w-9 h-9 bg-[#10b981]/20 rounded-xl flex items-center justify-center border border-[#10b981]/30">
+            <Cpu size={18} class="text-[#10b981]" />
           </div>
           <div>
             <h3 class="text-white font-bold text-xs tracking-widest flex items-center gap-2">
-              AURA INTELLIGENCE <Sparkles size={10} class="text-[#7c3aed]" />
+              AURA INTELLIGENCE <Sparkles size={10} class="text-[#10b981]" />
             </h3>
             <p class="text-[8px] uppercase tracking-[0.2em] font-black flex items-center gap-2 mt-0.5">
               {#if isTyping}
-                <span class="text-[#7c3aed] animate-pulse">Thinking...</span>
+                <span class="text-[#10b981] animate-pulse">Thinking...</span>
               {:else}
                 <span class="text-green-400 flex items-center gap-1"><span class="w-1 h-1 rounded-full bg-green-400"></span> Online</span>
               {/if}
@@ -172,11 +172,11 @@
         {#each messages as msg, i (msg.id)}
           <div class="flex {msg.sender === 'user' ? 'justify-end' : 'justify-start'}" transition:fade={{ duration: 200 }}>
             <div class="flex gap-2.5 max-w-[85%] {msg.sender === 'user' ? 'flex-row-reverse' : ''}">
-              <div class="w-7 h-7 rounded-lg shrink-0 flex items-center justify-center border {msg.sender === 'user' ? 'bg-white/10 border-white/10' : 'bg-[#7c3aed]/20 border-[#7c3aed]/30'}">
+              <div class="w-7 h-7 rounded-lg shrink-0 flex items-center justify-center border {msg.sender === 'user' ? 'bg-white/10 border-white/10' : 'bg-[#10b981]/20 border-[#10b981]/30'}">
                 {#if msg.sender === 'user'}
                   <User size={12} class="text-gray-400" />
                 {:else}
-                  <Bot size={12} class="text-[#7c3aed]" />
+                  <Bot size={12} class="text-[#10b981]" />
                 {/if}
               </div>
               <div class="space-y-1">
@@ -188,7 +188,7 @@
                     <img src={msg.image} class="w-full h-auto object-cover" alt="AI Generated" />
                     <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
                       <a href={msg.image} download="aura-ai-art.png"
-                        class="p-2.5 bg-white text-black rounded-xl hover:bg-[#7c3aed] hover:text-white transition-all shadow-2xl">
+                        class="p-2.5 bg-white text-black rounded-xl hover:bg-[#10b981] hover:text-white transition-all shadow-2xl">
                         <Download size={14} />
                       </a>
                     </div>
@@ -202,18 +202,18 @@
         {#if isTyping || isGeneratingImage}
           <div class="flex justify-start" transition:fade>
             <div class="flex gap-2.5 max-w-[90%]">
-              <div class="w-7 h-7 rounded-lg shrink-0 flex items-center justify-center border bg-[#7c3aed]/20 border-[#7c3aed]/30">
-                <Bot size={12} class="text-[#7c3aed]" />
+              <div class="w-7 h-7 rounded-lg shrink-0 flex items-center justify-center border bg-[#10b981]/20 border-[#10b981]/30">
+                <Bot size={12} class="text-[#10b981]" />
               </div>
               <div class="bg-white/5 border border-white/5 px-4 py-3 rounded-2xl rounded-tl-none flex items-center gap-3">
                 {#if isGeneratingImage}
-                  <ImageIcon size={12} class="text-[#7c3aed]" />
+                  <ImageIcon size={12} class="text-[#10b981]" />
                   <span class="text-[9px] text-gray-400 font-bold uppercase tracking-widest animate-pulse">Rendering...</span>
                 {:else}
                   <div class="flex gap-1 h-2 items-center">
-                    <div class="w-1 h-1 bg-[#7c3aed] rounded-full animate-bounce" style="animation-delay:-0.3s"></div>
-                    <div class="w-1 h-1 bg-[#7c3aed] rounded-full animate-bounce" style="animation-delay:-0.15s"></div>
-                    <div class="w-1 h-1 bg-[#7c3aed] rounded-full animate-bounce"></div>
+                    <div class="w-1 h-1 bg-[#10b981] rounded-full animate-bounce" style="animation-delay:-0.3s"></div>
+                    <div class="w-1 h-1 bg-[#10b981] rounded-full animate-bounce" style="animation-delay:-0.15s"></div>
+                    <div class="w-1 h-1 bg-[#10b981] rounded-full animate-bounce"></div>
                   </div>
                 {/if}
               </div>
@@ -227,20 +227,20 @@
         {#if attachedImage}
           <div class="mb-2 flex items-center gap-2" transition:fade={{ duration: 150 }}>
             <img src={attachedImage} class="w-11 h-11 rounded-lg object-cover border border-white/10" alt="attached" />
-            <span class="text-[9px] text-[#7c3aed] uppercase tracking-widest font-black">Photo attached — send to edit ✨</span>
+            <span class="text-[9px] text-[#10b981] uppercase tracking-widest font-black">Photo attached — send to edit ✨</span>
             <button type="button" onclick={() => attachedImage = null} class="ml-auto text-gray-500 hover:text-red-400 cursor-pointer"><X size={14} /></button>
           </div>
         {/if}
         <div class="relative flex items-center">
-          <label class="absolute left-2 w-8 h-8 rounded-xl flex items-center justify-center cursor-pointer text-gray-500 hover:text-[#7c3aed] transition-colors" title="Attach a photo to edit">
+          <label class="absolute left-2 w-8 h-8 rounded-xl flex items-center justify-center cursor-pointer text-gray-500 hover:text-[#10b981] transition-colors" title="Attach a photo to edit">
             <input type="file" accept="image/*" onchange={handleImageAttach} class="hidden" />
             <Paperclip size={16} />
           </label>
           <input type="text" bind:value={input}
             placeholder="Ask Aura, or attach a photo to edit..."
-            class="w-full bg-black/40 border border-white/10 rounded-2xl pl-11 pr-12 py-3.5 text-[11px] text-white focus:outline-none focus:border-[#7c3aed]/50 transition-all placeholder:text-gray-600 font-medium tracking-wide shadow-inner" />
+            class="w-full bg-black/40 border border-white/10 rounded-2xl pl-11 pr-12 py-3.5 text-[11px] text-white focus:outline-none focus:border-[#10b981]/50 transition-all placeholder:text-gray-600 font-medium tracking-wide shadow-inner" />
           <button type="submit" disabled={(!input.trim() && !attachedImage) || isTyping || isGeneratingImage}
-            class="absolute right-2 w-8 h-8 rounded-xl transition-all duration-300 flex items-center justify-center cursor-pointer disabled:cursor-not-allowed {((input.trim() || attachedImage) && !isTyping && !isGeneratingImage) ? 'bg-[#7c3aed] text-white' : 'text-gray-600 bg-transparent'}">
+            class="absolute right-2 w-8 h-8 rounded-xl transition-all duration-300 flex items-center justify-center cursor-pointer disabled:cursor-not-allowed {((input.trim() || attachedImage) && !isTyping && !isGeneratingImage) ? 'bg-[#10b981] text-white' : 'text-gray-600 bg-transparent'}">
             {#if isTyping || isGeneratingImage}
               <Loader2 size={14} class="animate-spin" />
             {:else}

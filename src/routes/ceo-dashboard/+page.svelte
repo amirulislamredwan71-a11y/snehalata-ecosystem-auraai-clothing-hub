@@ -163,7 +163,7 @@
   });
 
   const tabBtnBase = "flex items-center gap-2.5 px-6 py-4 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-300 cursor-pointer relative z-10 whitespace-nowrap active:scale-95 group border";
-  const tabBtnActive = "bg-aura-purple text-white shadow-[0_15px_40px_rgba(124,58,237,0.4)] border-white/20";
+  const tabBtnActive = "bg-aura-green text-white shadow-[0_15px_40px_rgba(16,185,129,0.4)] border-white/20";
   const tabBtnInactive = "bg-white/5 text-gray-400 border-white/5 hover:text-white hover:bg-white/10";
   function tabBtnClass(tab: string) {
     return tabBtnBase + " " + (activeTab === tab ? tabBtnActive : tabBtnInactive);
@@ -330,7 +330,7 @@
 </script>
 
 {#if !isAuthenticated || !stats}
-  <div class="min-h-screen bg-black flex items-center justify-center text-aura-purple animate-pulse font-mono tracking-widest uppercase">Initializing Command Center...</div>
+  <div class="min-h-screen bg-black flex items-center justify-center text-aura-green animate-pulse font-mono tracking-widest uppercase">Initializing Command Center...</div>
 {:else}
   <div class="min-h-screen bg-black text-white pb-20">
     <header class="bg-[#050505] border-b border-white/10 sticky top-20 z-40">
@@ -339,7 +339,7 @@
           <div>
             <div class="flex items-center gap-3 mb-1">
               <h1 class="text-3xl font-serif font-black text-white tracking-tight">CEO COMMAND CENTER</h1>
-              <div class="px-2 py-0.5 bg-aura-purple/20 border border-aura-purple/30 rounded text-[8px] font-black uppercase tracking-widest text-aura-purple">Root Access</div>
+              <div class="px-2 py-0.5 bg-aura-green/20 border border-aura-green/30 rounded text-[8px] font-black uppercase tracking-widest text-aura-green">Root Access</div>
             </div>
             <p class="text-[10px] uppercase tracking-[0.4em] text-gray-500 font-bold">Snehalata Ecosystem Infrastructure</p>
           </div>
@@ -368,41 +368,41 @@
         </div>
         <div class="flex items-center gap-2 md:gap-4 mt-8 overflow-x-auto no-scrollbar pb-4 -mx-1 px-1">
           <button onclick={() => activeTab = 'OVERVIEW'}
-            class="flex items-center gap-2.5 px-6 py-4 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-300 cursor-pointer relative z-10 whitespace-nowrap active:scale-95 group border {activeTab === 'OVERVIEW' ? 'bg-aura-purple text-white shadow-[0_15px_40px_rgba(124,58,237,0.4)] border-white/20' : 'bg-white/5 text-gray-400 border-white/5 hover:text-white hover:bg-white/10'}"
+            class="flex items-center gap-2.5 px-6 py-4 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-300 cursor-pointer relative z-10 whitespace-nowrap active:scale-95 group border {activeTab === 'OVERVIEW' ? 'bg-aura-green text-white shadow-[0_15px_40px_rgba(16,185,129,0.4)] border-white/20' : 'bg-white/5 text-gray-400 border-white/5 hover:text-white hover:bg-white/10'}"
           >
-            <span class="{activeTab === 'OVERVIEW' ? 'text-white' : 'text-gray-600'} group-hover:text-aura-purple transition-colors"><BarChart3 size={14} /></span>
+            <span class="{activeTab === 'OVERVIEW' ? 'text-white' : 'text-gray-600'} group-hover:text-aura-green transition-colors"><BarChart3 size={14} /></span>
             <span>Overview</span>
           </button>
           <button onclick={() => activeTab = 'VENDORS'}
-            class="flex items-center gap-2.5 px-6 py-4 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-300 cursor-pointer relative z-10 whitespace-nowrap active:scale-95 group border {activeTab === 'VENDORS' ? 'bg-aura-purple text-white shadow-[0_15px_40px_rgba(124,58,237,0.4)] border-white/20' : 'bg-white/5 text-gray-400 border-white/5 hover:text-white hover:bg-white/10'}"
+            class="flex items-center gap-2.5 px-6 py-4 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-300 cursor-pointer relative z-10 whitespace-nowrap active:scale-95 group border {activeTab === 'VENDORS' ? 'bg-aura-green text-white shadow-[0_15px_40px_rgba(16,185,129,0.4)] border-white/20' : 'bg-white/5 text-gray-400 border-white/5 hover:text-white hover:bg-white/10'}"
           >
-            <span class="{activeTab === 'VENDORS' ? 'text-white' : 'text-gray-600'} group-hover:text-aura-purple transition-colors"><Building2 size={14} /></span>
+            <span class="{activeTab === 'VENDORS' ? 'text-white' : 'text-gray-600'} group-hover:text-aura-green transition-colors"><Building2 size={14} /></span>
             <span>Vendors</span>
             {#if pendingCount > 0}
               <span class="ml-1 px-2 py-0.5 bg-amber-500 text-black rounded-full text-[9px] font-black animate-pulse" title="{pendingCount} pending approval">{pendingCount}</span>
             {/if}
           </button>
           <button onclick={() => activeTab = 'PRODUCTS'} class={tabBtnClass('PRODUCTS')}>
-            <span class="{activeTab === 'PRODUCTS' ? 'text-white' : 'text-gray-600'} group-hover:text-aura-purple transition-colors"><Package size={14} /></span>
+            <span class="{activeTab === 'PRODUCTS' ? 'text-white' : 'text-gray-600'} group-hover:text-aura-green transition-colors"><Package size={14} /></span>
             <span>Inventory</span>
           </button>
           <button onclick={() => activeTab = 'REVIEW'} class={tabBtnClass('REVIEW')}>
-            <span class="{activeTab === 'REVIEW' ? 'text-white' : 'text-gray-600'} group-hover:text-aura-purple transition-colors"><ShieldCheck size={14} /></span>
+            <span class="{activeTab === 'REVIEW' ? 'text-white' : 'text-gray-600'} group-hover:text-aura-green transition-colors"><ShieldCheck size={14} /></span>
             <span>Review</span>
             {#if pendingProducts.length > 0}
               <span class="ml-1 px-2 py-0.5 bg-amber-500 text-black rounded-full text-[9px] font-black animate-pulse">{pendingProducts.length}</span>
             {/if}
           </button>
           <button onclick={() => activeTab = 'ORDERS'} class={tabBtnClass('ORDERS')}>
-            <span class="{activeTab === 'ORDERS' ? 'text-white' : 'text-gray-600'} group-hover:text-aura-purple transition-colors"><CreditCard size={14} /></span>
+            <span class="{activeTab === 'ORDERS' ? 'text-white' : 'text-gray-600'} group-hover:text-aura-green transition-colors"><CreditCard size={14} /></span>
             <span>Orders</span>
           </button>
           <button onclick={() => activeTab = 'CATEGORIES'} class={tabBtnClass('CATEGORIES')}>
-            <span class="{activeTab === 'CATEGORIES' ? 'text-white' : 'text-gray-600'} group-hover:text-aura-purple transition-colors"><Tag size={14} /></span>
+            <span class="{activeTab === 'CATEGORIES' ? 'text-white' : 'text-gray-600'} group-hover:text-aura-green transition-colors"><Tag size={14} /></span>
             <span>Categories</span>
           </button>
           <button onclick={() => activeTab = 'TRACKING'} class={tabBtnClass('TRACKING')}>
-            <span class="{activeTab === 'TRACKING' ? 'text-white' : 'text-gray-600'} group-hover:text-aura-purple transition-colors"><Activity size={14} /></span>
+            <span class="{activeTab === 'TRACKING' ? 'text-white' : 'text-gray-600'} group-hover:text-aura-green transition-colors"><Activity size={14} /></span>
             <span>Product Tracking</span>
           </button>
         </div>
@@ -470,9 +470,9 @@
 
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <div class="lg:col-span-2 bg-white/5 border border-white/10 rounded-2xl p-6 relative overflow-hidden group">
-                <div class="absolute top-0 right-0 w-64 h-64 bg-aura-purple/5 blur-[100px] rounded-full group-hover:bg-aura-purple/10 transition-all"></div>
+                <div class="absolute top-0 right-0 w-64 h-64 bg-aura-green/5 blur-[100px] rounded-full group-hover:bg-aura-green/10 transition-all"></div>
                 <div class="flex items-center gap-3 mb-6">
-                  <TrendingUp class="text-aura-purple" size={20} />
+                  <TrendingUp class="text-aura-green" size={20} />
                   <h2 class="text-lg font-bold font-serif text-white uppercase tracking-wider">Predictive Trend Analysis</h2>
                 </div>
                 <div class="space-y-6">
@@ -484,14 +484,14 @@
                             <span class="text-[9px] font-mono text-gray-500 uppercase tracking-widest">{item.year} Projection</span>
                             <span class="w-1 h-1 bg-green-500 rounded-full animate-ping"></span>
                           </div>
-                          <h3 class="text-base font-bold text-white transition-colors group-hover/item:text-aura-purple">{item.trend}</h3>
+                          <h3 class="text-base font-bold text-white transition-colors group-hover/item:text-aura-green">{item.trend}</h3>
                         </div>
                         <div class="text-right">
                           <span class="text-xl font-black text-green-400 font-mono tracking-tighter">+{item.growth.toFixed(1)}%</span>
                         </div>
                       </div>
                       <div class="w-full h-1 bg-white/5 rounded-full overflow-hidden border border-white/5">
-                        <div class="h-full bg-gradient-to-r from-aura-purple to-pink-500 rounded-full shadow-[0_0_10px_rgba(124,58,237,0.5)] transition-all duration-300" style="width: {Math.min(item.growth / 2, 100)}%"></div>
+                        <div class="h-full bg-gradient-to-r from-aura-green to-pink-500 rounded-full shadow-[0_0_10px_rgba(16,185,129,0.5)] transition-all duration-300" style="width: {Math.min(item.growth / 2, 100)}%"></div>
                       </div>
                       <div class="absolute -inset-x-3 -inset-y-1.5 bg-white/[0.02] rounded-lg opacity-0 group-hover/item:opacity-100 transition-opacity pointer-events-none"></div>
                     </div>
@@ -499,11 +499,11 @@
                 </div>
               </div>
               <div class="flex flex-col gap-6">
-                <div class="bg-gradient-to-br from-aura-purple/20 to-indigo-900/20 border border-aura-purple/30 rounded-2xl p-6 flex flex-col items-center justify-center text-center relative overflow-hidden group h-full">
-                  <Globe size={40} class="text-aura-purple/50 mb-3 group-hover:scale-110 group-hover:text-aura-purple transition-all duration-700" />
+                <div class="bg-gradient-to-br from-aura-green/20 to-indigo-900/20 border border-aura-green/30 rounded-2xl p-6 flex flex-col items-center justify-center text-center relative overflow-hidden group h-full">
+                  <Globe size={40} class="text-aura-green/50 mb-3 group-hover:scale-110 group-hover:text-aura-green transition-all duration-700" />
                   <h3 class="text-base font-bold text-white mb-1">Network Expansion</h3>
                   <p class="text-gray-400 text-[10px] mb-4 leading-relaxed line-clamp-2">System ready for cross-border logistics mapping. Regional hub synchronization required.</p>
-                  <button class="w-full py-3 bg-white text-black rounded-lg font-black uppercase tracking-widest text-[8px] hover:bg-aura-purple hover:text-white transition-all shadow-xl active:scale-95">Deploy Global Modules</button>
+                  <button class="w-full py-3 bg-white text-black rounded-lg font-black uppercase tracking-widest text-[8px] hover:bg-aura-green hover:text-white transition-all shadow-xl active:scale-95">Deploy Global Modules</button>
                 </div>
               </div>
             </div>
@@ -514,7 +514,7 @@
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
               <div class="relative w-full md:w-96">
                 <Search size={18} class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" />
-                <input type="text" placeholder="Search artisans..." bind:value={searchTerm} class="w-full bg-white/5 border border-white/10 rounded-2xl pl-12 pr-4 py-3.5 text-sm focus:outline-none focus:border-aura-purple transition-all" />
+                <input type="text" placeholder="Search artisans..." bind:value={searchTerm} class="w-full bg-white/5 border border-white/10 rounded-2xl pl-12 pr-4 py-3.5 text-sm focus:outline-none focus:border-aura-green transition-all" />
               </div>
               <div class="flex items-center gap-4">
                 <button class="flex items-center gap-2 px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-xs font-bold text-gray-400 hover:text-white"><Filter size={14} /> Filter</button>
@@ -537,7 +537,7 @@
                     <tr class="group hover:bg-white/[0.02] transition-colors">
                       <td class="px-8 py-5">
                         <div class="flex items-center gap-4">
-                          <div class="w-10 h-10 bg-aura-purple/10 rounded-xl flex items-center justify-center text-aura-purple font-black">{(v.store_name || 'V')[0]}</div>
+                          <div class="w-10 h-10 bg-aura-green/10 rounded-xl flex items-center justify-center text-aura-green font-black">{(v.store_name || 'V')[0]}</div>
                           <div>
                             <div class="text-sm font-bold text-white">{v.store_name || 'Legacy Vendor'}</div>
                             <div class="text-[10px] text-gray-500 font-mono">{v.id}</div>
@@ -550,7 +550,7 @@
                       </td>
                       <td class="px-8 py-5">
                         {#if (v as any).website_url}
-                          <a href={(v as any).website_url} target="_blank" rel="noreferrer" class="text-[10px] text-aura-purple hover:underline font-mono truncate max-w-[120px] block">{(v as any).website_url.replace(/^https?:\/\//, '')}</a>
+                          <a href={(v as any).website_url} target="_blank" rel="noreferrer" class="text-[10px] text-aura-green hover:underline font-mono truncate max-w-[120px] block">{(v as any).website_url.replace(/^https?:\/\//, '')}</a>
                         {:else}
                           <span class="text-[10px] text-gray-700 italic">None</span>
                         {/if}
@@ -622,11 +622,11 @@
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
               <div class="relative w-full md:w-96">
                 <Search size={18} class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" />
-                <input type="text" placeholder="Inventory scan..." bind:value={searchTerm} class="w-full bg-white/5 border border-white/10 rounded-2xl pl-12 pr-4 py-3.5 text-sm focus:outline-none focus:border-aura-purple transition-all" />
+                <input type="text" placeholder="Inventory scan..." bind:value={searchTerm} class="w-full bg-white/5 border border-white/10 rounded-2xl pl-12 pr-4 py-3.5 text-sm focus:outline-none focus:border-aura-green transition-all" />
               </div>
               <button
                 onclick={() => isProductModalOpen = true}
-                class="flex items-center gap-3 px-6 py-3.5 bg-aura-purple text-white rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-2xl hover:scale-105 transition-all"
+                class="flex items-center gap-3 px-6 py-3.5 bg-aura-green text-white rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-2xl hover:scale-105 transition-all"
               >
                 <Plus size={16} /> Load Global Inventory
               </button>
@@ -634,7 +634,7 @@
 
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {#each filteredProducts as p (p.id)}
-                <div class="bg-white/5 border border-white/10 rounded-2xl overflow-hidden group hover:border-aura-purple/30 transition-all relative">
+                <div class="bg-white/5 border border-white/10 rounded-2xl overflow-hidden group hover:border-aura-green/30 transition-all relative">
                   <div class="aspect-[4/5] overflow-hidden relative">
                     <img src={p.imageUrl} alt={p.name} class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
                     <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-60"></div>
@@ -647,7 +647,7 @@
                       </button>
                     </div>
                     <div class="absolute bottom-4 left-4 right-4">
-                      <span class="text-[10px] font-black uppercase tracking-widest text-aura-purple bg-black/40 backdrop-blur-md px-2 py-0.5 rounded mb-2 inline-block border border-aura-purple/20">{p.category || 'Legacy'}</span>
+                      <span class="text-[10px] font-black uppercase tracking-widest text-aura-green bg-black/40 backdrop-blur-md px-2 py-0.5 rounded mb-2 inline-block border border-aura-green/20">{p.category || 'Legacy'}</span>
                       <h3 class="text-white font-bold truncate">{p.name}</h3>
                       <p class="text-green-400 font-black text-sm">৳{p.price.toLocaleString()}</p>
                     </div>
@@ -725,7 +725,7 @@
                     <div class="p-5 flex flex-col lg:flex-row lg:items-center gap-4">
                       <div class="flex-1 min-w-0">
                         <div class="flex items-center gap-2 flex-wrap">
-                          <span class="font-mono text-aura-purple text-sm font-black">ORD-{o.id}</span>
+                          <span class="font-mono text-aura-green text-sm font-black">ORD-{o.id}</span>
                           <span class="px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-widest border {o.payment_method === 'COD' ? 'bg-orange-500/10 text-orange-400 border-orange-500/20' : 'bg-pink-500/10 text-pink-400 border-pink-500/20'}">{o.payment_method}</span>
                           <span class="px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-widest border {o.payment_status === 'PAID' ? 'bg-green-500/10 text-green-400 border-green-500/20' : 'bg-amber-500/10 text-amber-400 border-amber-500/20'}">{o.payment_status}</span>
                           {#if o.fraud_score != null && o.fraud_score >= 50}
@@ -784,11 +784,11 @@
         {:else if activeTab === 'TRACKING'}
           <div transition:fade={{ duration: 500 }} class="space-y-8">
             <div class="bg-white/5 border border-white/10 rounded-[2.5rem] p-10 max-w-4xl mx-auto shadow-2xl relative overflow-hidden">
-              <div class="absolute top-0 right-0 w-64 h-64 bg-aura-purple/5 blur-[100px] rounded-full"></div>
+              <div class="absolute top-0 right-0 w-64 h-64 bg-aura-green/5 blur-[100px] rounded-full"></div>
 
               <div class="flex flex-col items-center text-center mb-10">
-                <div class="p-4 bg-aura-purple/10 border border-aura-purple/20 rounded-full mb-4">
-                  <Activity size={32} class="text-aura-purple" />
+                <div class="p-4 bg-aura-green/10 border border-aura-green/20 rounded-full mb-4">
+                  <Activity size={32} class="text-aura-green" />
                 </div>
                 <h2 class="text-3xl font-serif font-black text-white mb-2 uppercase tracking-tight">ECOSYSTEM PRODUCT TRACKING</h2>
                 <p class="text-gray-500 text-xs font-black uppercase tracking-[0.3em]">Monitor logistics and package lifecycle in the grid</p>
@@ -800,24 +800,24 @@
               >
                 <div class="flex-1 relative">
                   <Search size={18} class="absolute left-6 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" />
-                  <input type="text" placeholder="ENTER ORDER OR TRACKING ID (e.g. ORD-5001)" bind:value={trackingOrderId} class="w-full bg-white/5 border border-white/10 rounded-2xl pl-16 pr-6 py-5 text-sm focus:outline-none focus:border-aura-purple transition-all font-mono tracking-widest" required />
+                  <input type="text" placeholder="ENTER ORDER OR TRACKING ID (e.g. ORD-5001)" bind:value={trackingOrderId} class="w-full bg-white/5 border border-white/10 rounded-2xl pl-16 pr-6 py-5 text-sm focus:outline-none focus:border-aura-green transition-all font-mono tracking-widest" required />
                 </div>
-                <button type="submit" disabled={isTrackingLoading} class="px-10 bg-white text-black rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-aura-purple hover:text-white transition-all shadow-xl active:scale-95 disabled:opacity-50">
+                <button type="submit" disabled={isTrackingLoading} class="px-10 bg-white text-black rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-aura-green hover:text-white transition-all shadow-xl active:scale-95 disabled:opacity-50">
                   {isTrackingLoading ? 'LOCATING...' : 'LOCATE'}
                 </button>
               </form>
 
               {#if trackedOrder}
                 <div transition:fade={{ duration: 700 }} class="bg-white/[0.02] border border-white/5 rounded-3xl p-8 relative overflow-hidden group">
-                  <div class="absolute top-0 right-0 p-20 bg-aura-purple/5 blur-[100px] rounded-full pointer-events-none"></div>
+                  <div class="absolute top-0 right-0 p-20 bg-aura-green/5 blur-[100px] rounded-full pointer-events-none"></div>
 
                   <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-10 pb-10 border-b border-white/5 relative z-10">
                     <div>
                       <div class="text-[10px] font-black uppercase tracking-widest text-gray-500 mb-1">Status Report</div>
                       <div class="text-3xl font-serif font-black text-white flex items-center gap-4">
                         {trackedOrder.id}
-                        <span class="w-2 h-2 bg-aura-purple rounded-full animate-ping"></span>
-                        <span class="text-aura-purple">{trackedOrder.currentStatus}</span>
+                        <span class="w-2 h-2 bg-aura-green rounded-full animate-ping"></span>
+                        <span class="text-aura-green">{trackedOrder.currentStatus}</span>
                       </div>
                       <div class="mt-2 flex items-center gap-4">
                         <div class="flex items-center gap-2 px-3 py-1 bg-white/5 rounded-full border border-white/10">
@@ -839,13 +839,13 @@
                   <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 relative z-10">
                     <div class="space-y-8">
                       <h3 class="text-xs font-black uppercase tracking-[0.2em] text-white flex items-center gap-2">
-                        <Package size={14} class="text-aura-purple" />
+                        <Package size={14} class="text-aura-green" />
                         Logistics Lifecycle
                       </h3>
                       <div class="space-y-8 relative before:absolute before:left-[7px] before:top-2 before:bottom-2 before:w-px before:bg-white/5">
                         {#each trackedOrder.timeline as step, i}
                           <div class="flex gap-6 items-start relative transition-all duration-500 {step.completed ? 'opacity-100' : 'opacity-20'}">
-                            <div class="w-4 h-4 rounded-full border-2 border-black z-10 mt-1 {step.completed ? 'bg-aura-purple shadow-[0_0_15px_rgba(124,58,237,0.8)]' : 'bg-gray-800'}"></div>
+                            <div class="w-4 h-4 rounded-full border-2 border-black z-10 mt-1 {step.completed ? 'bg-aura-green shadow-[0_0_15px_rgba(16,185,129,0.8)]' : 'bg-gray-800'}"></div>
                             <div class="flex-1">
                               <div class="flex justify-between items-start">
                                 <h4 class="text-[11px] font-black uppercase tracking-widest {step.completed ? 'text-white' : 'text-gray-500'}">{step.label}</h4>
@@ -860,7 +860,7 @@
 
                     <div class="bg-black/40 rounded-3xl p-8 border border-white/5 h-fit">
                       <h3 class="text-xs font-black uppercase tracking-[0.2em] text-white mb-6 flex items-center gap-2">
-                        <RefreshCw size={14} class="text-aura-purple" />
+                        <RefreshCw size={14} class="text-aura-green" />
                         Override Controls
                       </h3>
                       <div class="space-y-4">
@@ -870,7 +870,7 @@
                             <button
                               disabled={trackedOrder.currentStatus === phase}
                               onclick={() => handleOverridePhase(phase)}
-                              class="w-full py-4 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border {trackedOrder.currentStatus === phase ? 'bg-aura-purple/20 border-aura-purple text-aura-purple cursor-default' : 'bg-white/5 border-white/10 text-gray-400 hover:bg-white/10 hover:text-white'}"
+                              class="w-full py-4 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border {trackedOrder.currentStatus === phase ? 'bg-aura-green/20 border-aura-green text-aura-green cursor-default' : 'bg-white/5 border-white/10 text-gray-400 hover:bg-white/10 hover:text-white'}"
                             >
                               {phase}
                             </button>
@@ -897,17 +897,17 @@
               </div>
               <button
                 onclick={() => isCategoryModalOpen = true}
-                class="px-6 py-3 bg-aura-purple text-white rounded-xl font-black uppercase tracking-widest text-[10px] shadow-2xl hover:scale-105 transition-all"
+                class="px-6 py-3 bg-aura-green text-white rounded-xl font-black uppercase tracking-widest text-[10px] shadow-2xl hover:scale-105 transition-all"
               >
                 <Plus size={16} class="inline mr-2" /> Add Category
               </button>
             </div>
 
             <div class="bg-white/5 border border-white/10 rounded-2xl p-8 text-center max-w-3xl mx-auto shadow-2xl relative overflow-hidden">
-              <div class="absolute top-0 right-0 w-24 h-24 bg-aura-purple/10 blur-[40px] rounded-full"></div>
+              <div class="absolute top-0 right-0 w-24 h-24 bg-aura-green/10 blur-[40px] rounded-full"></div>
               <div class="flex flex-col items-center mb-6">
                 <div class="p-4 bg-white/5 border border-white/10 rounded-2xl mb-4">
-                  <Tag size={32} class="text-aura-purple" />
+                  <Tag size={32} class="text-aura-green" />
                 </div>
                 <h2 class="text-2xl font-serif font-black text-white mb-1">Ecosystem Taxonomy</h2>
                 <p class="text-gray-500 text-[9px] uppercase tracking-[0.4em] font-black">Neural Classification Node</p>
@@ -916,9 +916,9 @@
               <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {#if categories.length > 0}
                   {#each categories as cat (cat.id)}
-                    <div class="group p-6 bg-white/[0.03] border border-white/10 rounded-2xl text-left hover:border-aura-purple hover:bg-aura-purple/[0.05] transition-all duration-500 relative">
+                    <div class="group p-6 bg-white/[0.03] border border-white/10 rounded-2xl text-left hover:border-aura-green hover:bg-aura-green/[0.05] transition-all duration-500 relative">
                       <div class="flex justify-between items-start mb-4">
-                        <div class="p-2.5 bg-black rounded-xl border border-white/5 group-hover:bg-aura-purple group-hover:text-white transition-all">
+                        <div class="p-2.5 bg-black rounded-xl border border-white/5 group-hover:bg-aura-green group-hover:text-white transition-all">
                           <Tag size={14} />
                         </div>
                         <button
@@ -943,8 +943,8 @@
                 {/if}
               </div>
 
-              <div class="mt-12 p-6 bg-aura-purple/5 border border-aura-purple/20 rounded-2xl">
-                <p class="text-gray-400 text-xs leading-relaxed">Global category mapping is automated via Aura Neural Labeling. <span class="text-white font-bold underline decoration-aura-purple">Status: Optimized for {products.length} catalog points.</span></p>
+              <div class="mt-12 p-6 bg-aura-green/5 border border-aura-green/20 rounded-2xl">
+                <p class="text-gray-400 text-xs leading-relaxed">Global category mapping is automated via Aura Neural Labeling. <span class="text-white font-bold underline decoration-aura-green">Status: Optimized for {products.length} catalog points.</span></p>
               </div>
             </div>
           </div>
@@ -976,7 +976,7 @@
               <p class="text-lg text-white font-mono font-black select-all">{vendorCred.password}</p>
             </div>
           </div>
-          <button onclick={() => vendorCred = null} class="w-full py-4 bg-white text-black rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-aura-purple hover:text-white transition-all cursor-pointer">Done</button>
+          <button onclick={() => vendorCred = null} class="w-full py-4 bg-white text-black rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-aura-green hover:text-white transition-all cursor-pointer">Done</button>
         </div>
       </div>
     {/if}
@@ -994,13 +994,13 @@
             <form onsubmit={handleAddCategory} class="space-y-6">
               <div class="space-y-1.5">
                 <label class="text-[9px] text-gray-500 font-black uppercase tracking-widest px-1">Category Name</label>
-                <input type="text" placeholder="e.g. Wedding Heritage" required bind:value={newCategory.name} class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-xs text-white focus:outline-none focus:border-aura-purple transition-all placeholder:text-gray-800" />
+                <input type="text" placeholder="e.g. Wedding Heritage" required bind:value={newCategory.name} class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-xs text-white focus:outline-none focus:border-aura-green transition-all placeholder:text-gray-800" />
               </div>
               <div class="space-y-1.5">
                 <label class="text-[9px] text-gray-500 font-black uppercase tracking-widest px-1">Description</label>
-                <textarea bind:value={newCategory.description} class="w-full h-24 bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-xs text-white focus:outline-none focus:border-aura-purple transition-all resize-none" placeholder="Brief purpose of this category..."></textarea>
+                <textarea bind:value={newCategory.description} class="w-full h-24 bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-xs text-white focus:outline-none focus:border-aura-green transition-all resize-none" placeholder="Brief purpose of this category..."></textarea>
               </div>
-              <button type="submit" disabled={isLoading} class="w-full py-4 bg-aura-purple text-white rounded-2xl font-black uppercase tracking-widest text-[10px] hover:shadow-2xl transition-all disabled:opacity-50">
+              <button type="submit" disabled={isLoading} class="w-full py-4 bg-aura-green text-white rounded-2xl font-black uppercase tracking-widest text-[10px] hover:shadow-2xl transition-all disabled:opacity-50">
                 {#if isLoading}
                   <span class="flex items-center justify-center"><Loader2 size={16} class="animate-spin" /></span>
                 {:else}
@@ -1015,7 +1015,7 @@
 
     {#if isProductModalOpen}
       <div class="fixed inset-0 z-[100] flex items-center justify-center p-4 backdrop-blur-3xl bg-black/60" transition:fade={{ duration: 200 }}>
-        <div class="w-full max-w-md bg-aura-glass border border-aura-glassBorder rounded-[2rem] p-0.5 shadow-[0_0_60px_rgba(124,58,237,0.15)]" transition:scale={{ duration: 300 }}>
+        <div class="w-full max-w-md bg-aura-glass border border-aura-glassBorder rounded-[2rem] p-0.5 shadow-[0_0_60px_rgba(16,185,129,0.15)]" transition:scale={{ duration: 300 }}>
           <div class="bg-aura-black/90 rounded-[1.95rem] p-6">
             <div class="flex justify-between items-center mb-6">
               <div>
@@ -1032,17 +1032,17 @@
                 <div class="grid grid-cols-1 gap-4">
                   <div class="space-y-1.5">
                     <label class="text-[9px] text-gray-500 font-black uppercase tracking-widest px-1">Item Label</label>
-                    <input type="text" placeholder="Heritage Muslin..." required bind:value={newProduct.name} class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-xs text-white focus:outline-none focus:border-aura-purple transition-all placeholder:text-gray-800" />
+                    <input type="text" placeholder="Heritage Muslin..." required bind:value={newProduct.name} class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-xs text-white focus:outline-none focus:border-aura-green transition-all placeholder:text-gray-800" />
                   </div>
 
                   <div class="grid grid-cols-2 gap-3">
                     <div class="space-y-1.5">
                       <label class="text-[9px] text-gray-500 font-black uppercase tracking-widest px-1">Net Price (৳)</label>
-                      <input type="number" placeholder="1500" required bind:value={newProduct.price} class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-xs text-white focus:outline-none focus:border-aura-purple transition-all placeholder:text-gray-800" />
+                      <input type="number" placeholder="1500" required bind:value={newProduct.price} class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-xs text-white focus:outline-none focus:border-aura-green transition-all placeholder:text-gray-800" />
                     </div>
                     <div class="space-y-1">
                       <label class="text-[8px] text-gray-500 font-black uppercase tracking-widest px-1">Taxonomy</label>
-                      <select required bind:value={newProduct.category} class="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-[11px] text-white focus:outline-none focus:border-aura-purple transition-all appearance-none cursor-pointer">
+                      <select required bind:value={newProduct.category} class="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-[11px] text-white focus:outline-none focus:border-aura-green transition-all appearance-none cursor-pointer">
                         <option value="" class="bg-black text-white">Select Type</option>
                         {#each ['Saree', 'Panjabi', 'Three-Piece', 'T-Shirt', 'Pant', 'Baby', 'Hoodie', 'Others'] as c}
                           <option value={c} class="bg-black text-white">{c}</option>
@@ -1053,26 +1053,26 @@
 
                   <div class="space-y-1">
                     <label class="text-[8px] text-gray-500 font-black uppercase tracking-widest px-1">Description Protocol</label>
-                    <textarea required bind:value={newProduct.description} class="w-full h-20 bg-white/5 border border-white/10 rounded-xl p-3 text-[11px] text-white focus:outline-none focus:border-aura-purple resize-none transition-all placeholder:text-gray-800 font-medium" placeholder="Enter neural metadata for this artifact..."></textarea>
+                    <textarea required bind:value={newProduct.description} class="w-full h-20 bg-white/5 border border-white/10 rounded-xl p-3 text-[11px] text-white focus:outline-none focus:border-aura-green resize-none transition-all placeholder:text-gray-800 font-medium" placeholder="Enter neural metadata for this artifact..."></textarea>
                   </div>
                 </div>
 
                 <div class="space-y-2">
                   <label class="text-[8px] text-gray-500 font-black uppercase tracking-widest px-1">Artifact Media [Neural Inject]</label>
                   <div class="grid grid-cols-1 gap-3">
-                    <div class="w-full aspect-video bg-white/5 border-2 border-dashed rounded-xl flex flex-col items-center justify-center overflow-hidden transition-all relative group/upload {!!newProduct.imageUrl ? 'border-aura-purple/50' : 'border-white/10'}"
+                    <div class="w-full aspect-video bg-white/5 border-2 border-dashed rounded-xl flex flex-col items-center justify-center overflow-hidden transition-all relative group/upload {!!newProduct.imageUrl ? 'border-aura-green/50' : 'border-white/10'}"
                     >
                       {#if newProduct.imageUrl}
                         <img src={newProduct.imageUrl} alt="Artifact Preview" class="w-full h-full object-cover" />
                         <div class="absolute inset-0 bg-black/60 opacity-0 group-hover/upload:opacity-100 flex items-center justify-center transition-opacity backdrop-blur-sm">
-                          <label class="p-3 bg-white/10 backdrop-blur-xl rounded-full cursor-pointer hover:bg-aura-purple hover:scale-110 transition-all text-white border border-white/10">
+                          <label class="p-3 bg-white/10 backdrop-blur-xl rounded-full cursor-pointer hover:bg-aura-green hover:scale-110 transition-all text-white border border-white/10">
                             <Upload size={18} />
                             <input type="file" accept="image/*" class="hidden" onchange={(e) => { const file = (e.target as HTMLInputElement).files?.[0]; if (file) handleImageUpload(file); }} />
                           </label>
                         </div>
                       {:else}
                         <label class="flex flex-col items-center gap-2 cursor-pointer w-full h-full justify-center p-4">
-                          <div class="p-4 bg-white/5 rounded-xl group-hover/upload:bg-aura-purple group-hover/upload:text-white transition-all duration-500 text-gray-500 border border-white/5">
+                          <div class="p-4 bg-white/5 rounded-xl group-hover/upload:bg-aura-green group-hover/upload:text-white transition-all duration-500 text-gray-500 border border-white/5">
                             {#if isUploadingImage}<Loader2 size={20} class="animate-spin" />{:else}<Upload size={20} />{/if}
                           </div>
                           <div class="text-center space-y-0.5">
@@ -1088,7 +1088,7 @@
                       <div class="absolute inset-y-0 left-3 flex items-center pointer-events-none">
                         <ImageIcon size={10} class="text-gray-700" />
                       </div>
-                      <input type="text" placeholder="Manual URL Override..." bind:value={newProduct.imageUrl} class="w-full bg-white/5 border border-white/10 rounded-lg pl-7 pr-2 py-2 text-[8px] text-gray-500 font-mono focus:outline-none focus:border-aura-purple/30 transition-all placeholder:text-gray-800" />
+                      <input type="text" placeholder="Manual URL Override..." bind:value={newProduct.imageUrl} class="w-full bg-white/5 border border-white/10 rounded-lg pl-7 pr-2 py-2 text-[8px] text-gray-500 font-mono focus:outline-none focus:border-aura-green/30 transition-all placeholder:text-gray-800" />
                     </div>
                   </div>
                 </div>
@@ -1098,7 +1098,7 @@
                 <button type="button" onclick={() => isProductModalOpen = false} class="flex-1 py-3 border border-white/5 bg-white/5 rounded-lg text-[8px] font-black uppercase tracking-widest text-gray-500 hover:bg-white/10 hover:text-white transition-all active:scale-95">
                   Abort
                 </button>
-                <button type="submit" disabled={isLoading || isUploadingImage} class="flex-[2] py-3 bg-gradient-to-r from-aura-purple via-indigo-600 to-aura-purple bg-[length:200%_100%] animate-gradient text-white rounded-lg font-black uppercase tracking-widest text-[8px] hover:shadow-[0_0_30px_rgba(124,58,237,0.3)] transition-all active:scale-95 disabled:opacity-50 flex items-center justify-center gap-1.5">
+                <button type="submit" disabled={isLoading || isUploadingImage} class="flex-[2] py-3 bg-gradient-to-r from-aura-green via-indigo-600 to-aura-green bg-[length:200%_100%] animate-gradient text-white rounded-lg font-black uppercase tracking-widest text-[8px] hover:shadow-[0_0_30px_rgba(16,185,129,0.3)] transition-all active:scale-95 disabled:opacity-50 flex items-center justify-center gap-1.5">
                     {#if isLoading}
                       Uploading Hub <Loader2 size={12} class="animate-spin inline" />
                     {:else}

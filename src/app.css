@@ -69,7 +69,7 @@ body {
   position: absolute;
   width: 50vw;
   height: 50vw;
-  background: radial-gradient(circle, rgba(16, 185, 129, 0.07) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(16,185,129, 0.07) 0%, transparent 70%);
   filter: blur(80px);
   pointer-events: none;
 }
@@ -112,8 +112,8 @@ body {
 /* Faint animated neural grid — pure CSS, used behind hero/brand moments */
 .neural-grid {
   background-image:
-    linear-gradient(rgba(16, 185, 129, 0.07) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(16, 185, 129, 0.07) 1px, transparent 1px);
+    linear-gradient(rgba(16,185,129, 0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(16,185,129, 0.07) 1px, transparent 1px);
   background-size: 26px 26px;
 }
 

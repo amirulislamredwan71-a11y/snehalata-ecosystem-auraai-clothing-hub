@@ -14,7 +14,7 @@
     <div class="space-y-12">
       <section class="bg-aura-glass border border-aura-glassBorder p-8 rounded-3xl">
         <div class="flex items-center gap-3 mb-6">
-          <Lock class="text-aura-purple" />
+          <Lock class="text-aura-green" />
           <h2 class="text-2xl font-bold text-white">Privacy Policy</h2>
         </div>
         <div class="space-y-4 text-gray-300 leading-relaxed font-light">
@@ -32,7 +32,7 @@
 
       <section class="bg-aura-glass border border-aura-glassBorder p-8 rounded-3xl">
         <div class="flex items-center gap-3 mb-6">
-          <FileText class="text-aura-purple" />
+          <FileText class="text-aura-green" />
           <h2 class="text-2xl font-bold text-white">Terms & Conditions</h2>
         </div>
         <div class="space-y-4 text-gray-300 leading-relaxed font-light">

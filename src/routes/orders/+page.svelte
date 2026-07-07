@@ -24,7 +24,7 @@
   function getStatusColor(status: OrderStatus) {
     switch (status) {
       case 'DELIVERED': return 'text-green-400 border-green-400/20 bg-green-400/10';
-      case 'SHIPPED': return 'text-aura-purple border-aura-purple/20 bg-aura-purple/10';
+      case 'SHIPPED': return 'text-aura-green border-aura-green/20 bg-aura-green/10';
       case 'QUALITY_CHECK': return 'text-blue-400 border-blue-400/20 bg-blue-400/10';
       case 'PLACED': return 'text-gray-400 border-gray-400/20 bg-gray-400/10';
       default: return 'text-amber-400 border-amber-400/20 bg-amber-400/10';
@@ -44,8 +44,8 @@
 <div class="min-h-screen bg-aura-black pb-20 pt-16 px-6">
   <div class="max-w-4xl mx-auto">
     <div class="flex items-center gap-4 mb-16">
-      <div class="p-4 bg-aura-purple/10 border border-aura-purple/20 rounded-[2rem]">
-        <History class="text-aura-purple" size={36} />
+      <div class="p-4 bg-aura-green/10 border border-aura-green/20 rounded-[2rem]">
+        <History class="text-aura-green" size={36} />
       </div>
       <div>
         <h1 class="text-4xl font-serif font-black text-white">Hub History</h1>
@@ -58,14 +58,14 @@
         <ShoppingBag size={48} class="text-gray-600 mx-auto mb-4" />
         <h3 class="text-xl font-bold text-gray-400 mb-2">No Active Orders</h3>
         <p class="text-xs text-gray-600 mb-8">Start your journey in the Snehalata ecosystem.</p>
-        <a href="/" class="text-aura-purple uppercase tracking-widest font-black text-[10px] hover:underline">Browse Catalog</a>
+        <a href="/" class="text-aura-green uppercase tracking-widest font-black text-[10px] hover:underline">Browse Catalog</a>
       </div>
     {:else}
       <div class="space-y-6">
         {#each orders as order (order.id)}
           <div onclick={() => goto(`/orders/${order.id}`)}
-            class="group bg-aura-glass border border-aura-glassBorder rounded-[2.5rem] p-8 hover:border-aura-purple/50 transition-all duration-500 cursor-pointer shadow-xl relative overflow-hidden">
-            <div class="absolute top-0 right-0 w-48 h-48 bg-aura-purple/5 blur-[80px] rounded-full pointer-events-none" />
+            class="group bg-aura-glass border border-aura-glassBorder rounded-[2.5rem] p-8 hover:border-aura-green/50 transition-all duration-500 cursor-pointer shadow-xl relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-48 h-48 bg-aura-green/5 blur-[80px] rounded-full pointer-events-none" />
             <div class="flex flex-col md:flex-row justify-between gap-8 relative z-10">
               <div class="flex gap-4">
                 <div class="flex -space-x-6">
@@ -88,7 +88,7 @@
                   </div>
                   <div class="text-2xl font-black text-white">৳{order.totalAmount.toLocaleString()}</div>
                 </div>
-                <div class="p-4 bg-white/5 border border-white/10 rounded-2xl text-gray-500 group-hover:bg-aura-purple group-hover:text-white transition-all">
+                <div class="p-4 bg-white/5 border border-white/10 rounded-2xl text-gray-500 group-hover:bg-aura-green group-hover:text-white transition-all">
                   <ArrowRight size={20} />
                 </div>
               </div>

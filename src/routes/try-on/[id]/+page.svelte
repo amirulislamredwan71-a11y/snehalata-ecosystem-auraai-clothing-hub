@@ -115,7 +115,7 @@
   }
 </script>
 
-<div class="min-h-screen bg-[#060507] pb-20 selection:bg-aura-purple selection:text-white">
+<div class="min-h-screen bg-[#080b09] pb-20 selection:bg-aura-green selection:text-white">
   <div class="max-w-7xl mx-auto px-6 py-10">
     <a href="/" class="inline-flex items-center gap-2 text-gray-500 hover:text-white mb-8 transition-colors text-xs font-bold uppercase tracking-widest">
       <ArrowLeft size={14} /> Back to Hub
@@ -125,7 +125,7 @@
       <div class="w-full lg:w-1/3 space-y-8">
         <div>
           <h1 class="text-4xl font-serif font-bold text-white mb-3">
-            Aura <span class="text-aura-purple">Vision</span> Try-On
+            Aura <span class="text-aura-green">Vision</span> Try-On
           </h1>
           <p class="text-gray-400 text-sm leading-relaxed">
             আপনার নিজের ফটো এবং পোশাকের ছবি আপলোড করুন অথবা আমাদের কালেকশন থেকে বেছে নিন। Aura AI আপনাকে রিয়েল-টাইম প্রিভিউ দেখাবে।
@@ -138,7 +138,7 @@
             আপনার ছবি দিন
           </h3>
           <div ondragover={(e) => e.preventDefault()} ondrop={(e) => handleDrop(e, 'user')}
-            class="relative h-48 rounded-2xl border-2 border-dashed transition-all overflow-hidden {userImage ? 'border-aura-purple bg-aura-purple/5' : 'border-white/10 bg-white/5 hover:border-white/20'}">
+            class="relative h-48 rounded-2xl border-2 border-dashed transition-all overflow-hidden {userImage ? 'border-aura-green bg-aura-green/5' : 'border-white/10 bg-white/5 hover:border-white/20'}">
             {#if userImage}
               <img src={userImage} alt="User" class="w-full h-full object-cover" />
               <button onclick={() => userImage = null} class="absolute top-2 right-2 p-1.5 bg-black/60 rounded-full text-white hover:bg-red-500 transition-colors cursor-pointer"><X size={14} /></button>
@@ -158,14 +158,14 @@
               <span class="w-4 h-4 rounded-full bg-white/10 flex items-center justify-center text-[8px] text-white">2</span>
               পোশাক নির্বাচন করুন
             </h3>
-            <label class="cursor-pointer text-[9px] font-bold text-aura-purple hover:text-white transition-colors uppercase tracking-widest flex items-center gap-1">
+            <label class="cursor-pointer text-[9px] font-bold text-aura-green hover:text-white transition-colors uppercase tracking-widest flex items-center gap-1">
               <Upload size={10} /> Upload Custom
               <input type="file" accept="image/*" onchange={(e) => handleImageUpload(e, 'product')} class="hidden" />
             </label>
           </div>
 
           <div ondragover={(e) => e.preventDefault()} ondrop={(e) => handleDrop(e, 'product')}
-            class="relative h-48 rounded-2xl border-2 border-dashed transition-all overflow-hidden {productImage ? 'border-aura-purple bg-aura-purple/5' : 'border-white/10 bg-white/5 hover:border-white/20'}">
+            class="relative h-48 rounded-2xl border-2 border-dashed transition-all overflow-hidden {productImage ? 'border-aura-green bg-aura-green/5' : 'border-white/10 bg-white/5 hover:border-white/20'}">
             {#if productImage}
               <div class="w-full h-full flex p-3 gap-4">
                 <div class="w-1/3 h-full rounded-xl overflow-hidden border border-white/10 bg-black/20">
@@ -187,8 +187,8 @@
               </div>
             {:else}
               <label class="w-full h-full flex flex-col items-center justify-center cursor-pointer p-4 text-center group">
-                <div class="p-4 bg-white/5 rounded-full mb-3 group-hover:bg-aura-purple/20 transition-colors">
-                  <Upload class="text-gray-400 group-hover:text-aura-purple" size={24} />
+                <div class="p-4 bg-white/5 rounded-full mb-3 group-hover:bg-aura-green/20 transition-colors">
+                  <Upload class="text-gray-400 group-hover:text-aura-green" size={24} />
                 </div>
                 <span class="text-xs font-bold text-gray-300 group-hover:text-white">Upload Product Image</span>
                 <span class="text-[9px] text-gray-600 mt-1 uppercase tracking-widest">or drag & drop here</span>
@@ -199,19 +199,19 @@
         </div>
 
         {#if suggestion}
-          <div class="p-4 bg-gradient-to-r from-aura-purple/10 to-transparent border border-aura-purple/20 rounded-2xl flex gap-3" transition:fade>
-            <div class="p-2 bg-aura-purple/20 rounded-lg h-fit">
-              <Sparkles size={14} class="text-aura-purple shrink-0" />
+          <div class="p-4 bg-gradient-to-r from-aura-green/10 to-transparent border border-aura-green/20 rounded-2xl flex gap-3" transition:fade>
+            <div class="p-2 bg-aura-green/20 rounded-lg h-fit">
+              <Sparkles size={14} class="text-aura-green shrink-0" />
             </div>
             <div>
-              <p class="text-[10px] font-black uppercase tracking-widest text-aura-purple mb-1">Aura Suggestion</p>
+              <p class="text-[10px] font-black uppercase tracking-widest text-aura-green mb-1">Aura Suggestion</p>
               <p class="text-xs text-gray-300 italic leading-relaxed">"{suggestion}"</p>
             </div>
           </div>
         {/if}
 
         <button onclick={handleGenerate} disabled={!userImage || !productImage || isProcessing}
-          class="w-full py-4 rounded-xl font-bold uppercase tracking-widest text-xs flex items-center justify-center gap-3 transition-all cursor-pointer {!userImage || !productImage || isProcessing ? 'bg-white/10 text-gray-500 cursor-not-allowed opacity-50' : 'bg-white text-black hover:bg-aura-purple hover:text-white shadow-[0_0_30px_rgba(124,58,237,0.3)]'}">
+          class="w-full py-4 rounded-xl font-bold uppercase tracking-widest text-xs flex items-center justify-center gap-3 transition-all cursor-pointer {!userImage || !productImage || isProcessing ? 'bg-white/10 text-gray-500 cursor-not-allowed opacity-50' : 'bg-white text-black hover:bg-aura-green hover:text-white shadow-[0_0_30px_rgba(16,185,129,0.3)]'}">
           {#if isProcessing}
             <div class="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
             Aura AI জেনারেট করছে...
@@ -231,7 +231,7 @@
           <div class="grid grid-cols-4 gap-2">
             {#each allProducts.slice(0, 4) as p}
               <button onclick={() => selectCatalogProduct(p)}
-                class="aspect-square rounded-lg overflow-hidden border transition-all cursor-pointer {product?.id === p.id ? 'border-aura-purple scale-95 ring-2 ring-aura-purple/20' : 'border-white/5 hover:border-white/20'}">
+                class="aspect-square rounded-lg overflow-hidden border transition-all cursor-pointer {product?.id === p.id ? 'border-aura-green scale-95 ring-2 ring-aura-green/20' : 'border-white/5 hover:border-white/20'}">
                 <img src={p.imageUrl} alt={p.name} class="w-full h-full object-cover" />
               </button>
             {/each}
@@ -240,7 +240,7 @@
       </div>
 
       <div class="flex-1 h-[700px] bg-white/5 border border-white/10 rounded-[32px] overflow-hidden relative flex items-center justify-center shadow-2xl">
-        <div class="absolute top-0 right-0 w-96 h-96 bg-aura-purple/10 blur-[100px] rounded-full" />
+        <div class="absolute top-0 right-0 w-96 h-96 bg-aura-green/10 blur-[100px] rounded-full" />
 
         {#if generatedImage}
           <div class="w-full h-full p-2 relative" transition:scale={{ duration: 700 }}>
@@ -252,7 +252,7 @@
         {:else}
           <div class="text-center space-y-6 max-w-sm px-6">
             <div class="w-20 h-20 bg-white/5 rounded-3xl flex items-center justify-center mx-auto border border-white/10 animate-pulse">
-              <Sparkles size={32} class="text-aura-purple" />
+              <Sparkles size={32} class="text-aura-green" />
             </div>
             <h2 class="text-2xl font-serif font-bold text-white opacity-40">Aura Vision Preview</h2>
             <p class="text-sm text-gray-600 leading-relaxed italic">
@@ -264,8 +264,8 @@
         {#if isProcessing}
           <div class="absolute inset-0 z-20 bg-black/40 backdrop-blur-sm flex flex-col items-center justify-center gap-4" transition:fade>
             <div class="relative">
-              <div class="w-16 h-16 border-4 border-aura-purple/20 border-t-aura-purple rounded-full animate-spin"></div>
-              <Sparkles size={24} class="absolute inset-0 m-auto text-aura-purple animate-pulse" />
+              <div class="w-16 h-16 border-4 border-aura-green/20 border-t-aura-green rounded-full animate-spin"></div>
+              <Sparkles size={24} class="absolute inset-0 m-auto text-aura-green animate-pulse" />
             </div>
             <p class="text-xs font-bold uppercase tracking-[0.3em] text-white animate-pulse">Aura is thinking...</p>
           </div>

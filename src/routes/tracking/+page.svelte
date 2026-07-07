@@ -12,22 +12,22 @@
   }
 </script>
 
-<div class="min-h-screen bg-aura-black pb-32 selection:bg-aura-purple selection:text-white">
+<div class="min-h-screen bg-aura-black pb-32 selection:bg-aura-green selection:text-white">
   <div class="max-w-7xl mx-auto px-6 py-12">
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-8 mb-16">
       <div>
-        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-aura-purple/10 border border-aura-purple/20 mb-4">
-          <Navigation2 size={14} class="text-aura-purple" />
-          <span class="text-[10px] font-black uppercase tracking-widest text-aura-purple">Neural Logistics System</span>
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-aura-green/10 border border-aura-green/20 mb-4">
+          <Navigation2 size={14} class="text-aura-green" />
+          <span class="text-[10px] font-black uppercase tracking-widest text-aura-green">Neural Logistics System</span>
         </div>
-        <h1 class="text-5xl font-serif font-black text-white">Neural Hub <span class="text-aura-purple">Tracking</span></h1>
+        <h1 class="text-5xl font-serif font-black text-white">Neural Hub <span class="text-aura-green">Tracking</span></h1>
       </div>
 
       <div class="w-full md:w-96">
-        <form onsubmit={handleSearch} class="relative flex items-center bg-white/5 border border-white/10 rounded-2xl overflow-hidden focus-within:border-aura-purple transition-all p-1">
+        <form onsubmit={handleSearch} class="relative flex items-center bg-white/5 border border-white/10 rounded-2xl overflow-hidden focus-within:border-aura-green transition-all p-1">
           <Search class="ml-4 text-gray-600" size={18} />
           <input type="text" bind:value={searchInput} placeholder="TRACK ID: ORD-5001" class="flex-1 bg-transparent border-none text-white px-4 py-3 focus:outline-none placeholder-gray-700 font-mono text-sm" />
-          <button type="submit" class="bg-white text-black px-6 py-3 rounded-xl font-black uppercase tracking-widest text-[10px] hover:bg-aura-purple hover:text-white transition-all">Locate</button>
+          <button type="submit" class="bg-white text-black px-6 py-3 rounded-xl font-black uppercase tracking-widest text-[10px] hover:bg-aura-green hover:text-white transition-all">Locate</button>
         </form>
       </div>
     </div>
