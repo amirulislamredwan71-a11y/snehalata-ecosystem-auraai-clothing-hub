@@ -572,6 +572,10 @@
                       </td>
                       <td class="px-8 py-5 text-right">
                         <div class="flex items-center justify-end gap-3">
+                          <a href={`/store/${(v as any).slug || v.id}`} target="_blank" rel="noreferrer"
+                            class="p-2.5 bg-white/5 text-aura-green rounded-lg hover:bg-aura-green hover:text-black transition-all shadow-lg" title="View Storefront">
+                            <Building2 size={16} />
+                          </a>
                           {#if (v.status+'').toLowerCase() !== 'approved'}
                             <button
                               onclick={() => handleUpdateVendorStatus(v.id, 'APPROVED')}
