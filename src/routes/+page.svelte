@@ -4,7 +4,6 @@
   import { fade, fly } from 'svelte/transition';
   import { Search, LayoutGrid, ChevronRight, TrendingUp, Zap, ArrowRight, ShieldCheck, Menu, X, Filter, Globe, Store, History, Camera, Sparkles, Play, Truck, Lock, ChevronDown } from '@lucide/svelte';
   import ProductCard from '$lib/components/ProductCard.svelte';
-  import BDNeuralMap from '$lib/components/BDNeuralMap.svelte';
   import { getProducts, getVendors } from '$lib/mockData';
   import { BD_LOCATIONS } from '$lib/locationData';
   import { ECO_CATEGORIES } from '$lib/categories';
@@ -276,6 +275,14 @@
     'linear-gradient(160deg,#2B2617,#19160D)'
   ];
   const categoryTiles = ECO_CATEGORIES.filter(c => c.id !== 'all');
+
+  // Hero "BD → global" network: nodes scattered near the edges (the world), arcs radiate
+  // from the Bangladesh origin (viewBox centre 200,108) outward to them.
+  const WORLD_NODES = [
+    { x: 44, y: 44 }, { x: 356, y: 52 }, { x: 78, y: 182 }, { x: 332, y: 176 },
+    { x: 20, y: 118 }, { x: 384, y: 120 }, { x: 150, y: 24 }, { x: 286, y: 198 },
+    { x: 116, y: 150 }, { x: 252, y: 58 }
+  ];
 </script>
 
 <svelte:head>
@@ -309,23 +316,37 @@
 
 <div class="min-h-screen bg-transparent text-aura-cream selection:bg-aura-green/30 font-sans">
 
-  <!-- HERO — rotating carousel, neural-grid backdrop -->
+  <!-- HERO — BD map background + BD→global network overlay + rotating text -->
   <section class="relative overflow-hidden border-b border-aura-green/10">
-    <div class="absolute inset-0 neural-grid pointer-events-none opacity-60"></div>
-    <div class="absolute -top-24 -right-24 w-72 h-72 rounded-full bg-[radial-gradient(circle,rgba(16,185,129,0.22),transparent_70%)] blur-lg pointer-events-none" style="animation:pulseGlow 6s ease-in-out infinite;"></div>
-    <div class="absolute top-40 -left-24 w-64 h-64 rounded-full bg-[radial-gradient(circle,rgba(199,154,62,0.14),transparent_70%)] blur pointer-events-none" style="animation:pulseGlow 7s ease-in-out infinite 1.2s;"></div>
+    <!-- Bangladesh map image, darkened to a faint bronze texture -->
+    <img src="/bd-map.webp" alt="" aria-hidden="true" class="absolute inset-0 w-full h-full object-cover opacity-45" />
+    <div class="absolute inset-0 bg-[#080b09]/[0.62]"></div>
+    <div class="absolute inset-0 neural-grid pointer-events-none opacity-25"></div>
 
-    <div class="max-w-7xl mx-auto px-5 sm:px-6 py-12 sm:py-20 relative grid lg:grid-cols-2 gap-12 items-center">
-      <!-- text -->
-      <div>
+    <!-- BD → global network: origin over BD, arcs radiating out to world nodes -->
+    <svg viewBox="0 0 400 220" preserveAspectRatio="xMidYMid slice" class="absolute inset-0 w-full h-full pointer-events-none opacity-70" fill="none" aria-hidden="true">
+      {#each WORLD_NODES as n, i}
+        <path class="hero-arc" d={`M200,108 Q${(200 + n.x) / 2},${Math.min(n.y, 108) - 26} ${n.x},${n.y}`} stroke="rgba(16,185,129,0.28)" stroke-width="0.7" style="animation-delay:{i * 0.28}s" />
+      {/each}
+      {#each WORLD_NODES as n, i}
+        <circle class="hero-node" cx={n.x} cy={n.y} r="2" fill="#10b981" style="animation-delay:{i * 0.32}s" />
+      {/each}
+      <circle class="hero-node" cx="200" cy="108" r="3.6" fill="#c79a3e" />
+      <circle cx="200" cy="108" r="1.8" fill="#ffd77a" />
+    </svg>
+
+    <div class="absolute -top-24 -right-24 w-72 h-72 rounded-full bg-[radial-gradient(circle,rgba(16,185,129,0.18),transparent_70%)] blur-lg pointer-events-none" style="animation:pulseGlow 6s ease-in-out infinite;"></div>
+
+    <div class="max-w-7xl mx-auto px-5 sm:px-6 py-16 sm:py-24 relative z-10">
+      <div class="max-w-2xl">
         {#key heroIndex}
           <div style="animation:fadeSlide .4s ease;">
-            <span class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-aura-gold/40 bg-aura-gold/[0.08] font-display text-[10.5px] font-semibold tracking-wide text-aura-gold">{hero.pill}</span>
-            <h1 class="font-display font-bold text-4xl sm:text-5xl lg:text-6xl leading-[1.1] text-aura-cream mt-5">
+            <span class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-aura-gold/40 bg-aura-gold/[0.12] backdrop-blur-sm font-display text-[10.5px] font-semibold tracking-wide text-aura-gold">{hero.pill}</span>
+            <h1 class="font-display font-bold text-4xl sm:text-5xl lg:text-6xl leading-[1.1] text-aura-cream mt-5 drop-shadow-[0_2px_14px_rgba(0,0,0,0.7)]">
               {hero.t1}<br /><span class="text-aura-green">{hero.t2}</span>
             </h1>
-            <p class="text-[15px] sm:text-base leading-relaxed text-aura-muted mt-4 max-w-xl">{hero.en}</p>
-            <p class="font-bengali text-sm text-[#6e8a80] mt-1.5">{hero.bn}</p>
+            <p class="text-[15px] sm:text-base leading-relaxed text-gray-200 mt-4 max-w-xl drop-shadow-[0_1px_8px_rgba(0,0,0,0.75)]">{hero.en}</p>
+            <p class="font-bengali text-sm text-[#9ec9bb] mt-1.5">{hero.bn}</p>
           </div>
         {/key}
 
@@ -338,22 +359,14 @@
           </a>
         </div>
 
-        <!-- dots -->
         <div class="flex items-center gap-2 mt-8">
           {#each HERO_SLIDES as _, i}
             <button aria-label={`Slide ${i + 1}`} onclick={() => heroIndex = i}
-              class="h-1.5 rounded-full transition-all duration-200 {i === heroIndex ? 'w-5 bg-aura-green' : 'w-1.5 bg-white/20'}"></button>
+              class="h-1.5 rounded-full transition-all duration-200 {i === heroIndex ? 'w-5 bg-aura-green' : 'w-1.5 bg-white/25'}"></button>
           {/each}
         </div>
-      </div>
 
-      <!-- Bangladesh Neural Grid — AI reaching every point of BD -->
-      <div class="relative h-60 sm:h-72 lg:h-80 rounded-3xl overflow-hidden bg-[radial-gradient(circle_at_55%_40%,#16221D,#0B1210)] border border-aura-green/15">
-        <div class="absolute inset-0 neural-grid opacity-40"></div>
-        <BDNeuralMap />
-        <div class="absolute bottom-3 inset-x-0 text-center px-4">
-          <span class="text-[9.5px] font-black uppercase tracking-[0.25em] text-aura-green/90">Aura Neural Grid · সারা বাংলাদেশে</span>
-        </div>
+        <p class="mt-7 text-[9.5px] font-black uppercase tracking-[0.28em] text-aura-green/90">Aura Neural Grid · বাংলাদেশ থেকে বিশ্বজুড়ে</p>
       </div>
     </div>
   </section>
@@ -706,3 +719,24 @@
     </div>
   {/if}
 </div>
+
+<style>
+  /* Hero "BD → global" network animation (pure CSS) */
+  .hero-arc {
+    stroke-dasharray: 3 5;
+    animation: hero-flow 2.6s linear infinite;
+  }
+  @keyframes hero-flow { to { stroke-dashoffset: -16; } }
+  .hero-node {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: hero-blip 3.4s ease-in-out infinite;
+  }
+  @keyframes hero-blip {
+    0%, 100% { opacity: 0.45; transform: scale(0.85); }
+    50% { opacity: 1; transform: scale(1.3); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .hero-arc, .hero-node { animation: none; }
+  }
+</style>
