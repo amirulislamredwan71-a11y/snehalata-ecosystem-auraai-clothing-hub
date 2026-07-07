@@ -1,24 +1,14 @@
 <script lang="ts">
   import { browser } from '$app/environment';
+  import { page } from '$app/stores';
   import { fade, fly } from 'svelte/transition';
-  import { Search, LayoutGrid, ChevronRight, TrendingUp, Zap, ArrowRight, ShieldCheck, Menu, X, Filter, Globe, Store, History, Camera, Loader2, Sparkles, Play, Truck, Lock, ChevronDown } from '@lucide/svelte';
+  import { Search, LayoutGrid, ChevronRight, TrendingUp, Zap, ArrowRight, ShieldCheck, Menu, X, Filter, Globe, Store, History, Camera, Sparkles, Play, Truck, Lock, ChevronDown } from '@lucide/svelte';
   import ProductCard from '$lib/components/ProductCard.svelte';
   import { getProducts, getVendors } from '$lib/mockData';
   import { BD_LOCATIONS } from '$lib/locationData';
   import { track } from '$lib/analytics';
-  import { fileToCompressedDataURL } from '$lib/imageUpload';
 
   let { data } = $props();
-
-  // Debounced search-intent capture for the Grid.
-  let searchTimer: ReturnType<typeof setTimeout>;
-  function onSearchInput() {
-    clearTimeout(searchTimer);
-    searchTimer = setTimeout(() => {
-      const q = searchQuery.trim();
-      if (q.length >= 2) track('search', { meta: { q: q.slice(0, 80) } });
-    }, 900);
-  }
 
   let selectedCategory = $state('all');
   let selectedDistrict = $state('all');
@@ -52,13 +42,11 @@
     }
   }
 
-  async function runVisualSearch(e: Event) {
-    const input = e.target as HTMLInputElement;
-    const file = input.files?.[0];
-    if (!file) return;
+  // Visual (photo) search core — takes a base64 image handed off from the header camera
+  // (via sessionStorage) so it works regardless of which page took the photo.
+  async function runVisualWith(base64: string) {
     searchLoading = true;
     try {
-      const base64 = await fileToCompressedDataURL(file);
       const res = await fetch('/api/search', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ image: base64 })
@@ -73,7 +61,6 @@
       semanticActive = false;
     } finally {
       searchLoading = false;
-      input.value = '';
     }
   }
 
@@ -88,12 +75,34 @@
     if (browser) setTimeout(() => document.getElementById('collection')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60);
   }
 
-  // Top search bar (design places search at the very top) → run neural search, then
-  // bring the product grid into view so results are visible.
-  async function runTopSearch() {
-    await runSemanticSearch();
-    scrollToCollection();
+  // The header's Neural search hands text here via the ?q= URL param → run the semantic
+  // search. `lastQ` is a plain (non-reactive) var so this effect only depends on the URL.
+  let lastQ = '';
+  $effect(() => {
+    const qp = $page.url.searchParams.get('q') || '';
+    if (qp && qp !== lastQ) {
+      lastQ = qp;
+      searchQuery = qp;
+      runSemanticSearch().then(scrollToCollection);
+    } else if (!qp) {
+      lastQ = '';
+    }
+  });
+
+  // The header's camera hands a compressed photo via sessionStorage → consume + run it.
+  function consumePendingVisual() {
+    if (!browser) return;
+    try {
+      const b = sessionStorage.getItem('aura_visual_pending');
+      if (b) { sessionStorage.removeItem('aura_visual_pending'); runVisualWith(b); }
+    } catch { /* ignore */ }
   }
+  $effect(() => {
+    if (!browser) return;
+    consumePendingVisual();
+    window.addEventListener('aura-visual', consumePendingVisual);
+    return () => window.removeEventListener('aura-visual', consumePendingVisual);
+  });
 
   // Pick a category: clear any active photo/semantic search and scroll the results
   // into view so users immediately see the filtered grid.
@@ -299,23 +308,6 @@
 </svelte:head>
 
 <div class="min-h-screen bg-transparent text-aura-cream selection:bg-aura-green/30 font-sans">
-
-  <!-- SEARCH — pinned under the header so it never scrolls away (real neural + visual search) -->
-  <div class="sticky top-20 z-40 bg-[#0a0f0d]/90 backdrop-blur-lg border-b border-aura-green/10">
-    <div class="max-w-7xl mx-auto px-5 sm:px-6 py-3 flex gap-2.5">
-      <div class="flex-1 relative group">
-        <Search class="absolute left-4 top-1/2 -translate-y-1/2 text-aura-dim group-focus-within:text-aura-green transition-colors" size={18} />
-        <input type="text" bind:value={searchQuery} oninput={onSearchInput}
-          onkeydown={(e) => e.key === 'Enter' && runTopSearch()}
-          placeholder="Search products, brands, stores…"
-          class="w-full bg-aura-card border border-aura-green/16 rounded-2xl h-12 pl-12 pr-4 text-sm focus:outline-none focus:border-aura-green/55 transition-all placeholder:text-aura-dim" />
-      </div>
-      <label class="w-12 h-12 shrink-0 rounded-2xl bg-aura-card border border-aura-green/18 flex items-center justify-center text-aura-green hover:border-aura-green transition-all cursor-pointer" title="Search by photo">
-        <input type="file" accept="image/*" onchange={runVisualSearch} class="hidden" disabled={searchLoading} />
-        {#if searchLoading}<Loader2 size={17} class="animate-spin" />{:else}<Camera size={18} />{/if}
-      </label>
-    </div>
-  </div>
 
   <!-- HERO — rotating carousel, neural-grid backdrop -->
   <section class="relative overflow-hidden border-b border-aura-green/10">
