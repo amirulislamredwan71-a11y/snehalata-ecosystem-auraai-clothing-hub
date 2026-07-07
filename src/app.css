@@ -53,7 +53,9 @@ body {
   position: fixed;
   inset: 0;
   z-index: -1;
-  background: radial-gradient(circle at 30% 0%, #12191600 0%, #05070650 40%), #080b09;
+  /* Transparent — must NOT paint a solid fill here or it covers <NeuralBackground/>
+     (which sits at z-index:-10 and carries the green neural grid + glows). */
+  background: transparent;
 }
 
 /* Neural-grid animation keyframes (from the Aura Neural Grid design system) */
@@ -110,8 +112,8 @@ body {
 /* Faint animated neural grid — pure CSS, used behind hero/brand moments */
 .neural-grid {
   background-image:
-    linear-gradient(rgba(16, 185, 129, 0.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(16, 185, 129, 0.05) 1px, transparent 1px);
+    linear-gradient(rgba(16, 185, 129, 0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(16, 185, 129, 0.07) 1px, transparent 1px);
   background-size: 26px 26px;
 }
 

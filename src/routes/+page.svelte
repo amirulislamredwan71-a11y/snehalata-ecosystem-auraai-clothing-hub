@@ -300,14 +300,14 @@
 
 <div class="min-h-screen bg-transparent text-aura-cream selection:bg-aura-green/30 font-sans">
 
-  <!-- SEARCH — at the very top, like the design (real neural + visual search) -->
-  <div class="max-w-7xl mx-auto px-5 sm:px-6 pt-4 pb-1">
-    <div class="flex gap-2.5">
+  <!-- SEARCH — pinned under the header so it never scrolls away (real neural + visual search) -->
+  <div class="sticky top-20 z-40 bg-[#0a0f0d]/90 backdrop-blur-lg border-b border-aura-green/10">
+    <div class="max-w-7xl mx-auto px-5 sm:px-6 py-3 flex gap-2.5">
       <div class="flex-1 relative group">
         <Search class="absolute left-4 top-1/2 -translate-y-1/2 text-aura-dim group-focus-within:text-aura-green transition-colors" size={18} />
         <input type="text" bind:value={searchQuery} oninput={onSearchInput}
           onkeydown={(e) => e.key === 'Enter' && runTopSearch()}
-          placeholder="Search products, brands or stores…"
+          placeholder="Search products, brands, stores…"
           class="w-full bg-aura-card border border-aura-green/16 rounded-2xl h-12 pl-12 pr-4 text-sm focus:outline-none focus:border-aura-green/55 transition-all placeholder:text-aura-dim" />
       </div>
       <label class="w-12 h-12 shrink-0 rounded-2xl bg-aura-card border border-aura-green/18 flex items-center justify-center text-aura-green hover:border-aura-green transition-all cursor-pointer" title="Search by photo">
@@ -468,8 +468,8 @@
     </div>
   </section>
 
-  <!-- Mobile category rail (sticky) — quick category nav + all-categories drawer -->
-  <div class="lg:hidden sticky top-20 z-40 border-y border-aura-green/10 bg-[#0a0f0d]/85 backdrop-blur-xl mt-8">
+  <!-- Mobile category rail — quick category nav + all-categories drawer -->
+  <div class="lg:hidden border-y border-aura-green/10 bg-[#0a0f0d]/60 backdrop-blur-xl mt-8">
     <div class="max-w-7xl mx-auto px-4 py-3 flex items-center gap-2">
       <button type="button" onclick={() => isSidebarOpen = !isSidebarOpen} aria-label="All categories"
         class="shrink-0 p-2.5 bg-white/5 rounded-xl border border-white/10 hover:bg-white/10 transition-all cursor-pointer">

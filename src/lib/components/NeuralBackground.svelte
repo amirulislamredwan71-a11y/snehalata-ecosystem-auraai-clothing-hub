@@ -18,9 +18,9 @@
   <!-- faint drifting neural grid lines -->
   <div class="nb-grid absolute inset-0 neural-grid opacity-70"></div>
   <!-- emerald aurora glow (top) + gold glow (mid-left) -->
-  <div class="absolute inset-0 bg-[radial-gradient(circle_at_50%_-10%,rgba(16,185,129,0.10),transparent_60%)]"></div>
-  <div class="nb-glow nb-glow-green absolute -top-24 -right-24 w-[46vmin] h-[46vmin] rounded-full"></div>
-  <div class="nb-glow nb-glow-gold absolute top-1/3 -left-24 w-[40vmin] h-[40vmin] rounded-full"></div>
+  <div class="absolute inset-0 bg-[radial-gradient(circle_at_50%_-8%,rgba(16,185,129,0.16),transparent_55%)]"></div>
+  <div class="nb-glow nb-glow-green absolute -top-24 -right-24 w-[52vmin] h-[52vmin] rounded-full"></div>
+  <div class="nb-glow nb-glow-gold absolute top-1/3 -left-24 w-[44vmin] h-[44vmin] rounded-full"></div>
   <!-- pulsing node particles -->
   <div class="absolute inset-0 opacity-50">
     {#each PARTICLES as p}
@@ -48,9 +48,9 @@
     filter: blur(8px);
     animation: nb-glowpulse 6.5s ease-in-out infinite;
   }
-  .nb-glow-green { background: radial-gradient(circle, rgba(16, 185, 129, 0.22), transparent 70%); }
-  .nb-glow-gold { background: radial-gradient(circle, rgba(199, 154, 62, 0.14), transparent 70%); animation-delay: 1.2s; }
-  @keyframes nb-glowpulse { 0%, 100% { opacity: 0.35; } 50% { opacity: 0.75; } }
+  .nb-glow-green { background: radial-gradient(circle, rgba(16, 185, 129, 0.30), transparent 70%); }
+  .nb-glow-gold { background: radial-gradient(circle, rgba(199, 154, 62, 0.18), transparent 70%); animation-delay: 1.2s; }
+  @keyframes nb-glowpulse { 0%, 100% { opacity: 0.45; } 50% { opacity: 0.85; } }
   .nb-particle {
     will-change: transform, opacity;
     animation-name: nb-float;
