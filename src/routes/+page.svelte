@@ -2,8 +2,9 @@
   import { browser } from '$app/environment';
   import { page } from '$app/stores';
   import { fade, fly } from 'svelte/transition';
-  import { Search, LayoutGrid, ChevronRight, TrendingUp, Zap, ArrowRight, ShieldCheck, Menu, X, Filter, Globe, Store, History, Camera, Sparkles, Play, Truck, Lock, ChevronDown } from '@lucide/svelte';
+  import { Search, LayoutGrid, ChevronRight, TrendingUp, Zap, ArrowRight, ShieldCheck, Menu, X, Filter, Globe, Store, History, Camera, Sparkles, Play, Truck, Lock, ChevronDown, Wallet } from '@lucide/svelte';
   import ProductCard from '$lib/components/ProductCard.svelte';
+  import { priceStats, fairVerdict } from '$lib/fairPrice';
   import { getProducts, getVendors } from '$lib/mockData';
   import { BD_LOCATIONS } from '$lib/locationData';
   import { ECO_CATEGORIES } from '$lib/categories';
@@ -297,6 +298,49 @@
     [...vendors].sort((a, b) => (featuredSlugs.includes(b.slug) ? 1 : 0) - (featuredSlugs.includes(a.slug) ? 1 : 0)).slice(0, 8)
   );
 
+  // ── সাধ্য (Budget) Mode ── "tell Aura your budget, get the best authentic value within it".
+  // Snehalata's core promise made concrete — fully client-side over the live catalog, zero cost.
+  let budgetAmount = $state<number | null>(null);
+  let budgetNeed = $state('');
+  const BUDGET_CHIPS = [500, 1000, 2000, 5000];
+  // Map a Bengali/English "need" to a category id (t-shirt BEFORE shirt to avoid the substring clash).
+  const NEED_MAP: { kw: string[]; cat: string }[] = [
+    { kw: ['টি-শার্ট', 'টিশার্ট', 't-shirt', 'tshirt', 'tee'], cat: 't-shirt' },
+    { kw: ['পাঞ্জাবি', 'পাঞ্জাবী', 'panjabi'], cat: 'panjabi' },
+    { kw: ['শাড়ি', 'শাড়ী', 'saree', 'sari'], cat: 'saree' },
+    { kw: ['থ্রি', 'three', '3-piece', '3 piece', 'থ্রিপিস'], cat: 'three-piece' },
+    { kw: ['শার্ট', 'shirt'], cat: 'shirt' },
+    { kw: ['প্যান্ট', 'pant', 'trouser', 'জিন্স', 'jeans', 'গ্যাবার্ডিন', 'কার্গো'], cat: 'pant' },
+    { kw: ['বেবি', 'বাচ্চা', 'শিশু', 'baby', 'kids', 'child'], cat: 'baby' },
+    { kw: ['কসমেটিক', 'cosmetic', 'মেকআপ', 'makeup', 'ক্রিম', 'skin'], cat: 'cosmetics' },
+    { kw: ['আন্ডার', 'undergarment', 'নাইটি', 'nightwear', 'ব্রা', 'bra', 'panty'], cat: 'undergarments' }
+  ];
+  const needCategory = (need: string): string | null => {
+    const n = need.toLowerCase();
+    for (const m of NEED_MAP) if (m.kw.some((k) => n.includes(k))) return m.cat;
+    return null;
+  };
+  // Value rank: 🔥 deal first, then fair, then over-priced — the intelligence behind "best value".
+  const valueRank = (p: any) => {
+    const v = fairVerdict(p.price, p.category, $priceStats);
+    return v?.level === 'deal' ? 0 : v?.level === 'high' ? 2 : 1;
+  };
+  let budgetResults = $derived.by(() => {
+    const budget = Number(budgetAmount);
+    if (!budget || budget <= 0) return [] as any[];
+    const need = budgetNeed.trim().toLowerCase();
+    const cat = need ? needCategory(need) : null;
+    return products
+      .filter((p) => {
+        if (Number(p.price) > budget) return false;
+        if (!need) return true;
+        if (cat) return p.category.toLowerCase() === cat;
+        return p.name.toLowerCase().includes(need) || p.category.toLowerCase().includes(need);
+      })
+      .sort((a, b) => valueRank(a) - valueRank(b) || a.price - b.price)
+      .slice(0, 8);
+  });
+
   // Category tiles — gradient fallback for categories that don't have a cover image yet.
   const TILE_BG = [
     'linear-gradient(160deg,#332720,#1B1512)',
@@ -434,6 +478,50 @@
         </p>
       {/if}
     </button>
+  </section>
+
+  <!-- সাধ্য (Budget) Mode — your budget, the best authentic value within it -->
+  <section class="max-w-7xl mx-auto px-5 sm:px-6 mt-5">
+    <div class="rounded-2xl border border-aura-green/25 bg-[linear-gradient(135deg,rgba(16,185,129,0.10),rgba(199,154,62,0.05))] p-4 sm:p-5">
+      <div class="flex items-center gap-3 mb-3.5">
+        <div class="w-9 h-9 rounded-xl bg-aura-green/16 flex items-center justify-center text-aura-green shrink-0"><Wallet size={18} /></div>
+        <div class="flex-1 min-w-0">
+          <div class="font-display text-sm font-bold text-aura-cream">সাধ্য Mode · আপনার বাজেটে সেরাটা</div>
+          <div class="text-[11px] text-[#93a29b] mt-0.5">বাজেট বলুন — Aura যাচাই করা, ন্যায্য দামের পণ্য বেছে দেবে</div>
+        </div>
+        <span class="hidden sm:inline text-[8.5px] font-black uppercase tracking-[0.2em] text-aura-gold/80 shrink-0">BD-তে এই প্রথম</span>
+      </div>
+      <div class="flex flex-col sm:flex-row gap-2.5">
+        <div class="flex items-center gap-2 px-3 rounded-xl bg-[#0a0f0d]/70 border border-aura-green/20 sm:w-40 focus-within:border-aura-green/50">
+          <span class="text-aura-gold font-bold">৳</span>
+          <input type="number" inputmode="numeric" min="0" bind:value={budgetAmount} placeholder="বাজেট" aria-label="বাজেট"
+            class="w-full bg-transparent py-2.5 text-sm text-aura-cream placeholder:text-[#5e6d67] focus:outline-none" />
+        </div>
+        <input type="text" bind:value={budgetNeed} placeholder="কী খুঁজছেন? যেমন: পাঞ্জাবি, শাড়ি (ঐচ্ছিক)" aria-label="কী খুঁজছেন"
+          class="flex-1 px-3.5 py-2.5 rounded-xl bg-[#0a0f0d]/70 border border-aura-green/20 text-sm text-aura-cream placeholder:text-[#5e6d67] focus:outline-none focus:border-aura-green/50" />
+      </div>
+      <div class="flex flex-wrap gap-2 mt-2.5">
+        {#each BUDGET_CHIPS as c}
+          <button type="button" onclick={() => budgetAmount = c}
+            class="px-3 py-1.5 rounded-full text-[11px] font-bold border transition-colors {budgetAmount === c ? 'bg-aura-green text-black border-aura-green' : 'bg-white/[0.03] text-[#9ec9bb] border-aura-green/20 hover:border-aura-green/50'}">৳{c.toLocaleString()}</button>
+        {/each}
+      </div>
+
+      {#if budgetAmount && budgetAmount > 0}
+        <div class="mt-4 pt-4 border-t border-aura-green/15">
+          {#if budgetResults.length > 0}
+            <p class="text-[12.5px] text-[#cfe8dd] mb-3">৳{Number(budgetAmount).toLocaleString()}-এর মধ্যে <span class="font-bold text-aura-green">{budgetResults.length}</span>টি যাচাই করা পণ্য — সেরা ভ্যালু আগে ✓</p>
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+              {#each budgetResults as p (p.id)}
+                <ProductCard product={p} vendor={vendors.find(v => v.id === p.vendorId)} />
+              {/each}
+            </div>
+          {:else}
+            <p class="text-[13px] text-[#93a29b]">৳{Number(budgetAmount).toLocaleString()}-এ {budgetNeed ? `“${budgetNeed}” ` : ''}পাওয়া যায়নি — একটু বাজেট বাড়ান বা অন্য কিছু লিখুন।</p>
+          {/if}
+        </div>
+      {/if}
+    </div>
   </section>
 
   <!-- CATEGORIES rail -->
