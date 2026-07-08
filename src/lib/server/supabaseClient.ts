@@ -21,7 +21,11 @@ export const fetchVendorsFromSupabase = async () => {
 export const fetchProductsFromSupabase = async () => {
   if (!supabase) return { data: null, error: new Error('Supabase not configured') };
   // Only surface products approved/live (is_active true or legacy null) on the storefront.
-  return supabase.from('products').select('*').or('is_active.is.null,is_active.eq.true');
+  // Explicit columns — NEVER the `embedding` vector (server-only; shipping it was ~9s slow).
+  return supabase
+    .from('products')
+    .select('id,name,price,category,image_url,description,stock_quantity,vendor_id,is_active,created_at,moderation_score')
+    .or('is_active.is.null,is_active.eq.true');
 };
 
 export const fetchCategoriesFromSupabase = async () => {

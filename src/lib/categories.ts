@@ -8,6 +8,7 @@ export const ECO_CATEGORIES = [
   { id: 'saree', name: 'শাড়ি (Saree)', icon: Store, cover: '/categories/saree.jpg' },
   { id: 'panjabi', name: 'পাঞ্জাবি (Panjabi)', icon: Store, cover: '/categories/panjabi.jpg' },
   { id: 'three-piece', name: 'থ্রি-পিস (3-Piece)', icon: Store, cover: '/categories/three-piece.jpg' },
+  { id: 'shirt', name: 'শার্ট (Shirt)', icon: Store, cover: '/products/shirt-7.jpg' },
   { id: 't-shirt', name: 'টি-শার্ট (T-Shirt)', icon: Store, cover: '/categories/t-shirt.jpg' },
   { id: 'pant', name: 'প্যান্ট (Pant)', icon: Store, cover: '/categories/pant.jpg' },
   { id: 'baby', name: 'বেবি আইটেম (Baby)', icon: Store, cover: '/categories/baby.jpg' },

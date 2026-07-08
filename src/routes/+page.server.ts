@@ -15,7 +15,11 @@ import { getRealStats, getTrending } from '$lib/server/stats';
 // paint all see real products instead of an empty grid. Supabase rows (when the
 // Neural Grid is configured) are merged on top of the seed catalog; if Supabase
 // is slow or unavailable we degrade gracefully to the seed catalog within ~2.5s.
-export const load: PageServerLoad = async () => {
+export const load: PageServerLoad = async ({ setHeaders }) => {
+  // Edge-cache the SSR home so repeat/first visits are served from the CDN in ~ms
+  // instead of waiting on the ~2.5s Supabase reads. Revalidates in the background.
+  setHeaders({ 'Cache-Control': 'public, s-maxage=120, stale-while-revalidate=600' });
+
   let vendors = [...SEED_VENDORS];
   let products = [...SEED_PRODUCTS];
 

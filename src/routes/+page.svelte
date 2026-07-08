@@ -258,14 +258,17 @@
     'royal-bengal-looms': '/products/saree-10.jpg', // teal silk
     'rajshahi-silk-house': '/products/saree-8.jpg',  // red silk
     'tangail-tant-bazaar': '/products/saree-9.jpg',  // black
-    'panjabi-kuthir': '/products/panjabi-kuthir-cover.jpg'
+    'panjabi-kuthir': '/products/panjabi-kuthir-cover.jpg',
+    'fahi-wear-house': '/products/undergarment-8.jpg', // branded set
+    'fashion-wear': '/products/shirt-6.jpg' // formal & casual shirts
   };
   const coverFor = (v: any) =>
     VENDOR_COVER[v.slug] ?? products.find(p => p.vendorId === v.id)?.imageUrl;
 
   let filteredProducts = $derived(products.filter(p => {
     const vendor = vendors.find(v => v.id === p.vendorId);
-    const matchesCat = selectedCategory === 'all' || p.category.toLowerCase().includes(selectedCategory.toLowerCase());
+    // Exact category match — 'shirt' must NOT match 'T-Shirt' (substring collision).
+    const matchesCat = selectedCategory === 'all' || p.category.toLowerCase() === selectedCategory.toLowerCase();
     const matchesSearch = searchQuery === '' || p.name.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesDistrict = selectedDistrict === 'all' || vendor?.district === selectedDistrict;
     return matchesCat && matchesSearch && matchesDistrict;
@@ -286,7 +289,7 @@
     const matchesDistrict = selectedDistrict === 'all' || v.district === selectedDistrict;
     if (!matchesDistrict) return false;
     if (selectedCategory === 'all') return true;
-    return products.some(p => p.vendorId === v.id && p.category.toLowerCase().includes(selectedCategory.toLowerCase()));
+    return products.some(p => p.vendorId === v.id && p.category.toLowerCase() === selectedCategory.toLowerCase());
   }));
 
   // Neural Verified vendor rail — featured brand(s) first, then the rest (top 8).
