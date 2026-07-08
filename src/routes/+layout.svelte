@@ -7,7 +7,8 @@
   import FloatingCart from '$lib/components/FloatingCart.svelte';
   import NeuralBackground from '$lib/components/NeuralBackground.svelte';
   import { browser } from '$app/environment';
-  import { syncWithNeuralGrid } from '$lib/mockData';
+  import { syncWithNeuralGrid, getProducts } from '$lib/mockData';
+  import { priceStats, buildPriceStats } from '$lib/fairPrice';
 
   let { children } = $props();
 
@@ -18,6 +19,10 @@
   $effect(() => {
     if (!browser) return;
     syncWithNeuralGrid();
+    // Fair-Price Truth stats — rebuilt from the live catalog (global, all pages).
+    const refreshStats = () => priceStats.set(buildPriceStats(getProducts()));
+    refreshStats();
+    window.addEventListener('productUpdated', refreshStats);
     const load = () =>
       import('$lib/components/ChatAssistant.svelte').then((m) => {
         ChatAssistant = m.default;
@@ -27,6 +32,7 @@
     } else {
       setTimeout(load, 400);
     }
+    return () => window.removeEventListener('productUpdated', refreshStats);
   });
 </script>
 

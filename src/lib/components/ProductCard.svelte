@@ -3,10 +3,14 @@
   import { Eye, X, Plus, Minus, CheckCircle2, ShoppingBag, Shirt, Sparkles, ShieldCheck, Palette, Loader2, Share2, Zap } from '@lucide/svelte';
   import { track } from '$lib/analytics';
   import { productImg, imgFallback } from '$lib/imageUpload';
+  import { priceStats, fairVerdict } from '$lib/fairPrice';
   import { fade, scale, fly } from 'svelte/transition';
   import type { Product, Vendor } from '$lib/types';
 
   let { product, vendor }: { product: Product; vendor?: Vendor } = $props();
+
+  // Fair-Price Truth — honest signal vs same-category peers (only when enough comparables).
+  const verdict = $derived(fairVerdict(product.price, (product as any).category, $priceStats));
 
   let isModalOpen = $state(false);
   let isRefineModalOpen = $state(false);
@@ -127,7 +131,12 @@
         {#if vendor}
           <a href={`/store/${vendor.slug}`} class="text-[8px] text-gray-600 uppercase tracking-widest block hover:text-white transition-colors">{vendor.store_name}</a>
         {/if}
-        <div class="text-[13px] sm:text-[15px] font-black text-aura-gold tabular-nums mt-1">৳{product.price.toLocaleString()}</div>
+        <div class="flex items-center gap-2 flex-wrap mt-1">
+          <div class="text-[13px] sm:text-[15px] font-black text-aura-gold tabular-nums">৳{product.price.toLocaleString()}</div>
+          {#if verdict}
+            <span class="text-[7.5px] font-black tracking-wide px-1.5 py-0.5 rounded border leading-none {verdict.cls}" title="Aura Fair-Price — একই ধরনের পণ্যের সাথে তুলনা করা">{verdict.label}</span>
+          {/if}
+        </div>
       </div>
     </div>
 
