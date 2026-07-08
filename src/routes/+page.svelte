@@ -319,12 +319,12 @@
   <!-- HERO — BD map background + BD→global network overlay + rotating text -->
   <section class="relative overflow-hidden border-b border-aura-green/10">
     <!-- Bangladesh map image — small centred at top on mobile, full-bleed texture on desktop -->
-    <img src="/bd-map.webp" alt="" aria-hidden="true" class="absolute inset-x-0 top-0 w-full h-40 object-contain object-top opacity-30 sm:inset-0 sm:h-full sm:object-cover sm:opacity-45" />
+    <img src="/bd-map.webp" alt="" aria-hidden="true" class="absolute inset-0 h-full w-full object-contain object-center opacity-[0.33] sm:object-cover sm:opacity-45" />
     <div class="absolute inset-0 bg-[#080b09]/[0.6]"></div>
     <div class="absolute inset-0 neural-grid pointer-events-none opacity-25"></div>
 
     <!-- BD → global network: origin over BD, arcs radiating out to world nodes -->
-    <svg viewBox="0 0 400 220" preserveAspectRatio="xMidYMid slice" class="absolute inset-x-0 top-0 h-40 w-full pointer-events-none opacity-45 sm:inset-0 sm:h-full sm:opacity-70" fill="none" aria-hidden="true">
+    <svg viewBox="0 0 400 220" preserveAspectRatio="xMidYMid slice" class="absolute inset-0 h-full w-full pointer-events-none opacity-45 sm:opacity-70" fill="none" aria-hidden="true">
       {#each WORLD_NODES as n, i}
         <path class="hero-arc" d={`M200,108 Q${(200 + n.x) / 2},${Math.min(n.y, 108) - 26} ${n.x},${n.y}`} stroke="rgba(16,185,129,0.28)" stroke-width="0.7" style="animation-delay:{i * 0.28}s" />
       {/each}

@@ -1,15 +1,15 @@
 <script lang="ts">
   import { page } from '$app/stores';
-  import { Home, LayoutGrid, PackageSearch, User, Menu } from '@lucide/svelte';
-  import { categorySheetOpen, navMenuOpen } from '$lib/ui';
+  import { Home, LayoutGrid, PackageSearch, User, Shirt } from '@lucide/svelte';
+  import { categorySheetOpen } from '$lib/ui';
 
   // Cart intentionally omitted — the FloatingCart side toggle appears whenever the cart
-  // has items, so a dedicated cart tab would be redundant. The Menu (☰) sits where the
-  // cart used to be and opens the main nav drawer.
+  // has items, so a dedicated cart tab would be redundant. AR Try-On sits centre (the
+  // signature feature); the main nav drawer stays reachable from the top-nav ☰.
   const TABS: { label: string; icon: any; match: (p: string) => boolean; href?: string; action?: () => void }[] = [
     { label: 'Home', href: '/', icon: Home, match: (p) => p === '/' },
     { label: 'Categories', icon: LayoutGrid, action: () => categorySheetOpen.set(true), match: () => false },
-    { label: 'Menu', icon: Menu, action: () => navMenuOpen.set(true), match: () => false },
+    { label: 'AR Try-On', href: '/studio', icon: Shirt, match: (p) => p.startsWith('/studio') },
     { label: 'Track', href: '/tracking', icon: PackageSearch, match: (p) => p.startsWith('/tracking') },
     { label: 'Account', href: '/orders', icon: User, match: (p) => p.startsWith('/orders') }
   ];
@@ -22,7 +22,7 @@
     {#if t.href}
       <a href={t.href} class="flex-1 flex flex-col items-center gap-1 py-1">
         <Icon size={21} class={active ? 'text-aura-green' : 'text-[#5e6d67]'} strokeWidth={1.8} />
-        <span class="text-[10px] font-bold {active ? 'text-aura-green' : 'text-[#5e6d67]'}">{t.label}</span>
+        <span class="text-[10px] font-bold whitespace-nowrap {active ? 'text-aura-green' : 'text-[#5e6d67]'}">{t.label}</span>
       </a>
     {:else}
       <button type="button" onclick={t.action} class="flex-1 flex flex-col items-center gap-1 py-1 touch-manipulation">
