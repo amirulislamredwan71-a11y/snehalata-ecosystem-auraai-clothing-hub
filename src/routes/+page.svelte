@@ -7,6 +7,7 @@
   import { getProducts, getVendors } from '$lib/mockData';
   import { BD_LOCATIONS } from '$lib/locationData';
   import { ECO_CATEGORIES } from '$lib/categories';
+  import { siteCategories, featuredConfig } from '$lib/ui';
   import { track } from '$lib/analytics';
 
   let { data } = $props();
@@ -246,20 +247,21 @@
     })
   );
 
-  // Featured brand — Panjabi Kuthir gets high recommendation (rail-first + grid-first).
-  const FEATURED_SLUG = 'panjabi-kuthir';
-  const featuredVendorId = $derived(vendors.find(v => v.slug === FEATURED_SLUG)?.id);
+  // Featured brand(s) — owner-controlled via the Aura Control Center (falls back to
+  // Panjabi Kuthir). Featured vendors lead the rail; their products lead the grid.
+  const featuredSlugs = $derived($featuredConfig.vendorSlugs ?? []);
+  const featuredVendorIds = $derived(vendors.filter(v => featuredSlugs.includes(v.slug)).map(v => v.id));
 
   // Editorial vendor-showcase covers — a distinct, premium hero per vendor (avoids the
   // "same recoloured saree" repeat); falls back to the vendor's first product.
-  const VENDOR_COVER: Record<number, string> = {
-    2: '/products/saree-10.jpg', // Royal Bengal Looms — teal silk
-    4: '/products/saree-8.jpg',  // Rajshahi Silk House — red silk
-    5: '/products/saree-9.jpg'   // Tangail Tant Bazaar — black
+  const VENDOR_COVER: Record<string, string> = {
+    'royal-bengal-looms': '/products/saree-10.jpg', // teal silk
+    'rajshahi-silk-house': '/products/saree-8.jpg',  // red silk
+    'tangail-tant-bazaar': '/products/saree-9.jpg',  // black
+    'panjabi-kuthir': '/products/panjabi-kuthir-cover.jpg'
   };
   const coverFor = (v: any) =>
-    (v.slug === FEATURED_SLUG ? '/products/panjabi-kuthir-cover.jpg' : VENDOR_COVER[v.id]) ??
-    products.find(p => p.vendorId === v.id)?.imageUrl;
+    VENDOR_COVER[v.slug] ?? products.find(p => p.vendorId === v.id)?.imageUrl;
 
   let filteredProducts = $derived(products.filter(p => {
     const vendor = vendors.find(v => v.id === p.vendorId);
@@ -269,14 +271,14 @@
     return matchesCat && matchesSearch && matchesDistrict;
   }));
 
-  // Default browse leads with the featured brand; search/semantic keep relevance order.
+  // Default browse leads with the featured brand(s); search/semantic keep relevance order.
   let displayProducts = $derived(
     semanticActive
       ? semanticResults
-      : searchQuery !== '' || !featuredVendorId
+      : searchQuery !== '' || featuredVendorIds.length === 0
         ? filteredProducts
         : [...filteredProducts].sort(
-            (a, b) => (b.vendorId === featuredVendorId ? 1 : 0) - (a.vendorId === featuredVendorId ? 1 : 0)
+            (a, b) => (featuredVendorIds.includes(b.vendorId) ? 1 : 0) - (featuredVendorIds.includes(a.vendorId) ? 1 : 0)
           )
   );
 
@@ -287,9 +289,9 @@
     return products.some(p => p.vendorId === v.id && p.category.toLowerCase().includes(selectedCategory.toLowerCase()));
   }));
 
-  // Neural Verified vendor rail — featured brand first, then the rest (top 8).
+  // Neural Verified vendor rail — featured brand(s) first, then the rest (top 8).
   const railVendors = $derived(
-    [...vendors].sort((a, b) => (b.slug === FEATURED_SLUG ? 1 : 0) - (a.slug === FEATURED_SLUG ? 1 : 0)).slice(0, 8)
+    [...vendors].sort((a, b) => (featuredSlugs.includes(b.slug) ? 1 : 0) - (featuredSlugs.includes(a.slug) ? 1 : 0)).slice(0, 8)
   );
 
   // Category tiles — gradient fallback for categories that don't have a cover image yet.
@@ -300,7 +302,7 @@
     'linear-gradient(160deg,#1B2A1E,#101A12)',
     'linear-gradient(160deg,#2B2617,#19160D)'
   ];
-  const categoryTiles = ECO_CATEGORIES.filter(c => c.id !== 'all');
+  const categoryTiles = $derived($siteCategories.filter(c => c.id !== 'all'));
 
   // Hero "BD → global" network: nodes scattered near the edges (the world), arcs radiate
   // from the Bangladesh origin (viewBox centre 200,108) outward to them.
@@ -522,7 +524,7 @@
         <Menu size={18} />
       </button>
       <div class="flex gap-2 overflow-x-auto no-scrollbar">
-        {#each ECO_CATEGORIES as cat}
+        {#each $siteCategories as cat}
           <button type="button" onclick={() => selectCategory(cat.id)}
             class="flex-shrink-0 px-4 py-2 rounded-xl text-[11px] font-bold border transition-all touch-manipulation {selectedCategory === cat.id ? 'bg-aura-green border-aura-green text-black' : 'bg-white/5 border-white/10 text-gray-400'}">
             {cat.name}
@@ -537,7 +539,7 @@
     <aside class="hidden lg:block w-80 h-[calc(100vh-100px)] sticky top-[100px] overflow-y-auto p-8 border-r border-white/5 no-scrollbar">
       <h3 class="text-[10px] font-black uppercase tracking-[0.3em] text-gray-500 mb-8 px-4">Neural Grid Categories</h3>
       <nav class="space-y-2">
-        {#each ECO_CATEGORIES as cat}
+        {#each $siteCategories as cat}
           {@const Icon = cat.icon}
           <button onclick={() => selectCategory(cat.id)}
             class="w-full flex items-center justify-between px-6 py-4 rounded-2xl transition-all group cursor-pointer {selectedCategory === cat.id ? 'bg-aura-green text-black shadow-xl shadow-aura-green/20 translate-x-2' : 'text-gray-400 hover:bg-white/5 hover:text-white'}">
@@ -621,7 +623,7 @@
       <div class="flex flex-col md:flex-row md:items-center justify-between mb-12 gap-8">
         <div class="flex items-center gap-4">
           <h2 class="text-3xl sm:text-4xl font-display font-bold leading-none">
-            {selectedCategory === 'all' ? 'Neural Collection' : ECO_CATEGORIES.find(c => c.id === selectedCategory)?.name}
+            {selectedCategory === 'all' ? 'Neural Collection' : $siteCategories.find(c => c.id === selectedCategory)?.name}
           </h2>
           <span class="h-px w-12 bg-white/10 hidden sm:block"></span>
           <span class="text-[10px] font-black uppercase tracking-widest text-gray-500">{displayProducts.length} Items</span>
@@ -651,7 +653,7 @@
         <section class="mb-16">
           <div class="flex items-center justify-between mb-8 px-2">
             <h3 class="text-[10px] font-black uppercase tracking-[0.3em] text-gray-600">
-              Verified Vendors in {ECO_CATEGORIES.find(c => c.id === selectedCategory)?.name}
+              Verified Vendors in {$siteCategories.find(c => c.id === selectedCategory)?.name}
             </h3>
             <div class="h-px flex-1 mx-8 bg-white/5 hidden sm:block" />
           </div>
@@ -733,7 +735,7 @@
         </button>
       </div>
       <div class="space-y-2 pb-6">
-        {#each ECO_CATEGORIES as cat}
+        {#each $siteCategories as cat}
           {@const Icon = cat.icon}
           <button type="button" onclick={() => selectCategory(cat.id)}
             class="w-full flex items-center gap-4 p-3.5 rounded-2xl border transition-all cursor-pointer touch-manipulation {selectedCategory === cat.id ? 'bg-aura-green border-aura-green text-black shadow-xl' : 'bg-white/5 border-white/10 text-gray-400'}">

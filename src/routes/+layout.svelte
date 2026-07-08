@@ -9,6 +9,9 @@
   import { browser } from '$app/environment';
   import { syncWithNeuralGrid, getProducts } from '$lib/mockData';
   import { priceStats, buildPriceStats } from '$lib/fairPrice';
+  import { siteCategories, featuredConfig } from '$lib/ui';
+  import { ECO_CATEGORIES } from '$lib/categories';
+  import { LayoutGrid } from '@lucide/svelte';
 
   let { children } = $props();
 
@@ -23,6 +26,29 @@
     const refreshStats = () => priceStats.set(buildPriceStats(getProducts()));
     refreshStats();
     window.addEventListener('productUpdated', refreshStats);
+
+    // Owner-controlled site config (categories + featured) from the Aura Control Center.
+    // Icons only live in code, so merge saved cover/name over the ECO_CATEGORIES defaults
+    // (matched by id) to keep an icon fallback for tiles without a cover.
+    const refreshConfig = () =>
+      fetch('/api/settings')
+        .then((r) => r.json())
+        .then((cfg) => {
+          if (Array.isArray(cfg?.categories) && cfg.categories.length) {
+            const byId = new Map(ECO_CATEGORIES.map((c) => [c.id, c]));
+            const allTile = byId.get('all') ?? { id: 'all', name: 'সব সংগ্রহ (All)', icon: LayoutGrid, cover: '' };
+            const mapped = cfg.categories
+              .filter((c: any) => c.active !== false && c.id !== 'all')
+              .sort((a: any, b: any) => (a.order ?? 0) - (b.order ?? 0))
+              .map((c: any) => ({ icon: LayoutGrid, ...(byId.get(c.id) ?? {}), id: c.id, name: c.name, cover: c.cover ?? '' }));
+            siteCategories.set([allTile, ...mapped]);
+          }
+          if (cfg?.featured) featuredConfig.set({ vendorSlugs: cfg.featured.vendorSlugs ?? [], productIds: cfg.featured.productIds ?? [] });
+        })
+        .catch(() => {});
+    refreshConfig();
+    window.addEventListener('siteConfigUpdated', refreshConfig);
+
     const load = () =>
       import('$lib/components/ChatAssistant.svelte').then((m) => {
         ChatAssistant = m.default;
@@ -32,7 +58,10 @@
     } else {
       setTimeout(load, 400);
     }
-    return () => window.removeEventListener('productUpdated', refreshStats);
+    return () => {
+      window.removeEventListener('productUpdated', refreshStats);
+      window.removeEventListener('siteConfigUpdated', refreshConfig);
+    };
   });
 </script>
 

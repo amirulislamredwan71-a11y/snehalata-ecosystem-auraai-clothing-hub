@@ -7,6 +7,100 @@
   const adminPass = () => (typeof localStorage !== 'undefined' ? localStorage.getItem('aura_admin_pass') || '' : '');
   import type { EcosystemStats, Vendor, Product, Category } from '$lib/types';
   import { BD_LOCATIONS } from '$lib/locationData';
+  import { ECO_CATEGORIES } from '$lib/categories';
+
+  // ── Aura Control Center — home config (categories + featured), Storage-backed ──
+  type HomeCat = { id: string; name: string; cover: string; active: boolean; order: number };
+  let homeCats = $state<HomeCat[]>([]);
+  let featuredSlugs = $state<string>('panjabi-kuthir');
+  let configLoaded = $state(false);
+  let isSavingConfig = $state(false);
+  let configMsg = $state('');
+
+  function seedHomeCatsFromDefaults(): HomeCat[] {
+    return ECO_CATEGORIES.filter(c => c.id !== 'all').map((c, i) => ({
+      id: c.id, name: c.name, cover: (c as any).cover || '', active: true, order: i
+    }));
+  }
+
+  async function loadHomeConfig() {
+    try {
+      const r = await fetch('/api/settings');
+      const cfg = await r.json();
+      homeCats = Array.isArray(cfg?.categories) && cfg.categories.length
+        ? cfg.categories.map((c: any, i: number) => ({ id: c.id, name: c.name, cover: c.cover || '', active: c.active !== false, order: c.order ?? i }))
+        : seedHomeCatsFromDefaults();
+      featuredSlugs = (cfg?.featured?.vendorSlugs ?? ['panjabi-kuthir']).join(', ');
+    } catch {
+      homeCats = seedHomeCatsFromDefaults();
+    }
+    configLoaded = true;
+  }
+
+  function fileToDataUrl(file: File): Promise<string> {
+    return new Promise((res, rej) => {
+      const fr = new FileReader();
+      fr.onload = () => res(String(fr.result));
+      fr.onerror = rej;
+      fr.readAsDataURL(file);
+    });
+  }
+
+  async function uploadCategoryCover(idx: number, e: Event) {
+    const file = (e.target as HTMLInputElement).files?.[0];
+    if (!file) return;
+    configMsg = 'Uploading image…';
+    try {
+      const dataUrl = await fileToDataUrl(file);
+      const r = await fetch('/api/admin/upload', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-admin-pass': adminPass() },
+        body: JSON.stringify({ image: dataUrl, prefix: `categories/${homeCats[idx].id}` })
+      });
+      const d = await r.json();
+      if (d.ok && d.url) { homeCats[idx].cover = d.url; configMsg = 'Image uploaded ✓ (Save to apply)'; }
+      else configMsg = 'Upload failed';
+    } catch { configMsg = 'Upload failed'; }
+  }
+
+  function addHomeCat() {
+    const id = 'cat-' + Date.now().toString(36);
+    homeCats = [...homeCats, { id, name: 'নতুন ক্যাটাগরি', cover: '', active: true, order: homeCats.length }];
+  }
+  function removeHomeCat(idx: number) {
+    if (!confirm('Delete this category from the home page?')) return;
+    homeCats = homeCats.filter((_, i) => i !== idx);
+  }
+  function moveHomeCat(idx: number, dir: -1 | 1) {
+    const j = idx + dir;
+    if (j < 0 || j >= homeCats.length) return;
+    const arr = [...homeCats];
+    [arr[idx], arr[j]] = [arr[j], arr[idx]];
+    homeCats = arr.map((c, i) => ({ ...c, order: i }));
+  }
+
+  async function saveHomeConfig() {
+    isSavingConfig = true;
+    configMsg = 'Saving…';
+    try {
+      const categories = homeCats.map((c, i) => ({ ...c, order: i }));
+      const featured = { vendorSlugs: featuredSlugs.split(',').map(s => s.trim()).filter(Boolean), productIds: [] };
+      const r = await fetch('/api/settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-admin-pass': adminPass() },
+        body: JSON.stringify({ categories, featured })
+      });
+      const d = await r.json();
+      configMsg = d.ok ? 'Saved ✓ — live on the home page' : 'Save failed: ' + (d.message || 'error');
+      if (d.ok && typeof window !== 'undefined') window.dispatchEvent(new Event('siteConfigUpdated'));
+    } catch (e: any) {
+      configMsg = 'Save failed: ' + (e?.message || 'network');
+    }
+    isSavingConfig = false;
+  }
+
+  // Derived subdomain for a vendor (matches src/hooks.ts slug reroute).
+  const subdomainFor = (v: any) => `${v.slug}.snehalata.com`;
 
   type Tab = 'OVERVIEW' | 'VENDORS' | 'PRODUCTS' | 'REVIEW' | 'ORDERS' | 'CATEGORIES' | 'TRACKING';
 
@@ -126,6 +220,7 @@
     categories = getCategories();
     loadPending();
     loadOrders();
+    loadHomeConfig();
     isLoading = false;
   }
 
@@ -540,7 +635,8 @@
                           <div class="w-10 h-10 bg-aura-green/10 rounded-xl flex items-center justify-center text-aura-green font-black">{(v.store_name || 'V')[0]}</div>
                           <div>
                             <div class="text-sm font-bold text-white">{v.store_name || 'Legacy Vendor'}</div>
-                            <div class="text-[10px] text-gray-500 font-mono">{v.id}</div>
+                            <a href={`https://${subdomainFor(v)}`} target="_blank" rel="noreferrer" class="text-[10px] text-aura-green/80 hover:text-aura-green font-mono hover:underline">{subdomainFor(v)}</a>
+                            <div class="text-[9px] text-gray-600 font-mono">#{v.id} · {products.filter(p => p.vendorId === v.id).length} products · {(v as any).district || '—'}</div>
                           </div>
                         </div>
                       </td>
@@ -893,62 +989,70 @@
           </div>
 
         {:else if activeTab === 'CATEGORIES'}
-          <div transition:fade={{ duration: 500 }} class="space-y-8">
-            <div class="flex justify-between items-center bg-white/5 border border-white/10 rounded-2xl p-6">
-              <div>
-                <h2 class="text-2xl font-serif font-black text-white">ECOSYSTEM TAXONOMY</h2>
-                <p class="text-[10px] text-gray-500 uppercase tracking-widest font-black">Manage product categories and neural tags</p>
-              </div>
-              <button
-                onclick={() => isCategoryModalOpen = true}
-                class="px-6 py-3 bg-aura-green text-white rounded-xl font-black uppercase tracking-widest text-[10px] shadow-2xl hover:scale-105 transition-all"
-              >
-                <Plus size={16} class="inline mr-2" /> Add Category
-              </button>
+          <div transition:fade={{ duration: 500 }} class="space-y-8 max-w-5xl mx-auto">
+            <!-- Featured / High-Recommended -->
+            <div class="bg-white/5 border border-white/10 rounded-2xl p-6">
+              <h2 class="text-xl font-serif font-black text-white mb-1">Featured · High Recommended</h2>
+              <p class="text-[10px] text-gray-500 uppercase tracking-widest font-black mb-4">Vendor slug(s) shown first in the home vendor rail + grid (comma-separated)</p>
+              <input type="text" bind:value={featuredSlugs} placeholder="panjabi-kuthir, royal-bengal-looms"
+                class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-aura-green transition-all font-mono" />
+              <p class="text-[9px] text-gray-600 mt-2">Available slugs: {vendors.map(v => v.slug).join(' · ')}</p>
             </div>
 
-            <div class="bg-white/5 border border-white/10 rounded-2xl p-8 text-center max-w-3xl mx-auto shadow-2xl relative overflow-hidden">
-              <div class="absolute top-0 right-0 w-24 h-24 bg-aura-green/10 blur-[40px] rounded-full"></div>
-              <div class="flex flex-col items-center mb-6">
-                <div class="p-4 bg-white/5 border border-white/10 rounded-2xl mb-4">
-                  <Tag size={32} class="text-aura-green" />
+            <!-- Home category tiles (with cover images) -->
+            <div class="bg-white/5 border border-white/10 rounded-2xl p-6">
+              <div class="flex justify-between items-center mb-5">
+                <div>
+                  <h2 class="text-xl font-serif font-black text-white">Home Categories & Images</h2>
+                  <p class="text-[10px] text-gray-500 uppercase tracking-widest font-black">These drive the home category rail + mobile sheet</p>
                 </div>
-                <h2 class="text-2xl font-serif font-black text-white mb-1">Ecosystem Taxonomy</h2>
-                <p class="text-gray-500 text-[9px] uppercase tracking-[0.4em] font-black">Neural Classification Node</p>
+                <button onclick={addHomeCat} class="px-5 py-2.5 bg-white/10 text-white rounded-xl font-black uppercase tracking-widest text-[10px] hover:bg-white/20 transition-all">
+                  <Plus size={14} class="inline mr-1.5" /> Add
+                </button>
               </div>
 
-              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {#if categories.length > 0}
-                  {#each categories as cat (cat.id)}
-                    <div class="group p-6 bg-white/[0.03] border border-white/10 rounded-2xl text-left hover:border-aura-green hover:bg-aura-green/[0.05] transition-all duration-500 relative">
-                      <div class="flex justify-between items-start mb-4">
-                        <div class="p-2.5 bg-black rounded-xl border border-white/5 group-hover:bg-aura-green group-hover:text-white transition-all">
-                          <Tag size={14} />
+              {#if !configLoaded}
+                <div class="py-10 text-center text-gray-600 text-xs animate-pulse">Loading config…</div>
+              {:else}
+                <div class="space-y-3">
+                  {#each homeCats as cat, idx (cat.id)}
+                    <div class="flex items-center gap-3 p-3 bg-white/[0.03] border border-white/10 rounded-2xl">
+                      <div class="relative w-16 h-16 shrink-0 rounded-xl overflow-hidden bg-black/40 border border-white/10">
+                        {#if cat.cover}
+                          <img src={cat.cover} alt={cat.name} class="absolute inset-0 w-full h-full object-cover" />
+                        {:else}
+                          <div class="absolute inset-0 flex items-center justify-center text-gray-700"><ImageIcon size={20} /></div>
+                        {/if}
+                      </div>
+                      <div class="flex-1 min-w-0 space-y-2">
+                        <input type="text" bind:value={cat.name} class="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-aura-green" />
+                        <div class="flex items-center gap-2 text-[10px]">
+                          <label class="px-2.5 py-1.5 bg-aura-green/10 text-aura-green rounded-lg font-bold cursor-pointer hover:bg-aura-green/20 transition-all">
+                            <Upload size={11} class="inline mr-1" /> Image
+                            <input type="file" accept="image/*" class="hidden" onchange={(e) => uploadCategoryCover(idx, e)} />
+                          </label>
+                          <label class="flex items-center gap-1 text-gray-400 cursor-pointer">
+                            <input type="checkbox" bind:checked={cat.active} /> Active
+                          </label>
+                          <span class="text-gray-600">· {products.filter(p => p.category?.toLowerCase().includes(cat.id.toLowerCase())).length} items</span>
                         </div>
-                        <button
-                          onclick={() => handleDeleteCategory(cat.id)}
-                          class="p-1.5 text-gray-600 hover:text-red-500"
-                        >
-                          <Trash2 size={12} />
-                        </button>
                       </div>
-                      <h3 class="text-lg font-bold text-white mb-0.5">{cat.name}</h3>
-                      <p class="text-[8px] text-gray-500 line-clamp-2 mb-4">{cat.description || 'No description provided.'}</p>
-                      <div class="flex items-center gap-2">
-                        <span class="text-[20px] font-black text-white/40 group-hover:text-white transition-colors">
-                          {products.filter(p => p.category?.toLowerCase() === cat.name.toLowerCase()).length}
-                        </span>
-                        <span class="text-[8px] font-black uppercase tracking-widest text-gray-500">Synchronized</span>
+                      <div class="flex flex-col gap-1 shrink-0">
+                        <button onclick={() => moveHomeCat(idx, -1)} class="p-1 text-gray-500 hover:text-white" aria-label="Up"><ChevronDown size={14} class="rotate-180" /></button>
+                        <button onclick={() => moveHomeCat(idx, 1)} class="p-1 text-gray-500 hover:text-white" aria-label="Down"><ChevronDown size={14} /></button>
                       </div>
+                      <button onclick={() => removeHomeCat(idx)} class="p-2 text-gray-600 hover:text-red-500 shrink-0" aria-label="Delete"><Trash2 size={14} /></button>
                     </div>
                   {/each}
-                {:else}
-                  <div class="col-span-full py-12 text-gray-600 italic">No categories found in neural grid. Add one to begin.</div>
-                {/if}
-              </div>
+                </div>
+              {/if}
 
-              <div class="mt-12 p-6 bg-aura-green/5 border border-aura-green/20 rounded-2xl">
-                <p class="text-gray-400 text-xs leading-relaxed">Global category mapping is automated via Aura Neural Labeling. <span class="text-white font-bold underline decoration-aura-green">Status: Optimized for {products.length} catalog points.</span></p>
+              <div class="flex items-center gap-4 mt-6 pt-5 border-t border-white/10">
+                <button onclick={saveHomeConfig} disabled={isSavingConfig}
+                  class="px-8 py-3.5 bg-aura-green text-white rounded-xl font-black uppercase tracking-widest text-[11px] shadow-2xl hover:scale-[1.03] transition-all disabled:opacity-50">
+                  {#if isSavingConfig}<Loader2 size={14} class="inline animate-spin" />{:else}Save to Home{/if}
+                </button>
+                {#if configMsg}<span class="text-[11px] font-bold {configMsg.includes('fail') ? 'text-red-400' : 'text-aura-green'}">{configMsg}</span>{/if}
               </div>
             </div>
           </div>

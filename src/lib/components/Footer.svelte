@@ -52,9 +52,6 @@
           </a>
         </li>
       </ul>
-      <a href="/admin-login" class="inline-flex items-center gap-2 mt-4 text-[10px] text-gray-600 hover:text-aura-green transition-colors">
-        <BarChart3 size={12} /> Admin Gateway
-      </a>
     </div>
   </div>
   

@@ -2,8 +2,7 @@
   import { goto } from '$app/navigation';
   import { fade, fly } from 'svelte/transition';
   import { X, ShieldCheck } from '@lucide/svelte';
-  import { ECO_CATEGORIES } from '$lib/categories';
-  import { categorySheetOpen } from '$lib/ui';
+  import { categorySheetOpen, siteCategories } from '$lib/ui';
 
   function pick(id: string) {
     categorySheetOpen.set(false);
@@ -22,7 +21,7 @@
       <button onclick={() => categorySheetOpen.set(false)} aria-label="Close" class="p-2 rounded-xl bg-white/5 text-gray-400 hover:text-white transition-colors"><X size={18} /></button>
     </div>
     <div class="grid grid-cols-3 gap-3">
-      {#each ECO_CATEGORIES as cat}
+      {#each $siteCategories as cat}
         {@const Icon = cat.icon}
         <button type="button" onclick={() => pick(cat.id)}
           class="flex flex-col items-center gap-2 p-2.5 rounded-2xl bg-white/[0.03] border border-aura-green/12 hover:border-aura-green/50 active:scale-95 transition-all touch-manipulation">
