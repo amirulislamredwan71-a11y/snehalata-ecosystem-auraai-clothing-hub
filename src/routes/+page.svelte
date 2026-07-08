@@ -246,6 +246,21 @@
     })
   );
 
+  // Featured brand — Panjabi Kuthir gets high recommendation (rail-first + grid-first).
+  const FEATURED_SLUG = 'panjabi-kuthir';
+  const featuredVendorId = $derived(vendors.find(v => v.slug === FEATURED_SLUG)?.id);
+
+  // Editorial vendor-showcase covers — a distinct, premium hero per vendor (avoids the
+  // "same recoloured saree" repeat); falls back to the vendor's first product.
+  const VENDOR_COVER: Record<number, string> = {
+    2: '/products/saree-10.jpg', // Royal Bengal Looms — teal silk
+    4: '/products/saree-8.jpg',  // Rajshahi Silk House — red silk
+    5: '/products/saree-9.jpg'   // Tangail Tant Bazaar — black
+  };
+  const coverFor = (v: any) =>
+    (v.slug === FEATURED_SLUG ? '/products/panjabi-kuthir-cover.jpg' : VENDOR_COVER[v.id]) ??
+    products.find(p => p.vendorId === v.id)?.imageUrl;
+
   let filteredProducts = $derived(products.filter(p => {
     const vendor = vendors.find(v => v.id === p.vendorId);
     const matchesCat = selectedCategory === 'all' || p.category.toLowerCase().includes(selectedCategory.toLowerCase());
@@ -254,7 +269,16 @@
     return matchesCat && matchesSearch && matchesDistrict;
   }));
 
-  let displayProducts = $derived(semanticActive ? semanticResults : filteredProducts);
+  // Default browse leads with the featured brand; search/semantic keep relevance order.
+  let displayProducts = $derived(
+    semanticActive
+      ? semanticResults
+      : searchQuery !== '' || !featuredVendorId
+        ? filteredProducts
+        : [...filteredProducts].sort(
+            (a, b) => (b.vendorId === featuredVendorId ? 1 : 0) - (a.vendorId === featuredVendorId ? 1 : 0)
+          )
+  );
 
   let categoryVendors = $derived(vendors.filter(v => {
     const matchesDistrict = selectedDistrict === 'all' || v.district === selectedDistrict;
@@ -263,8 +287,10 @@
     return products.some(p => p.vendorId === v.id && p.category.toLowerCase().includes(selectedCategory.toLowerCase()));
   }));
 
-  // Neural Verified vendor rail — real vendors (top 8).
-  const railVendors = $derived(vendors.slice(0, 8));
+  // Neural Verified vendor rail — featured brand first, then the rest (top 8).
+  const railVendors = $derived(
+    [...vendors].sort((a, b) => (b.slug === FEATURED_SLUG ? 1 : 0) - (a.slug === FEATURED_SLUG ? 1 : 0)).slice(0, 8)
+  );
 
   // Category tiles — gradient fallback for categories that don't have a cover image yet.
   const TILE_BG = [
@@ -319,7 +345,7 @@
   <!-- HERO — BD map background + BD→global network overlay + rotating text -->
   <section class="relative overflow-hidden border-b border-aura-green/10">
     <!-- Bangladesh map image — small centred at top on mobile, full-bleed texture on desktop -->
-    <img src="/bd-map.webp" alt="" aria-hidden="true" class="absolute inset-0 h-full w-full object-contain object-center opacity-[0.33] sm:object-cover sm:opacity-45" />
+    <img src="/bd-map.webp" alt="" aria-hidden="true" class="absolute inset-0 h-full w-full object-contain object-center scale-[1.45] opacity-30 sm:scale-100 sm:object-cover sm:opacity-45" />
     <div class="absolute inset-0 bg-[#080b09]/[0.6]"></div>
     <div class="absolute inset-0 neural-grid pointer-events-none opacity-25"></div>
 
@@ -443,7 +469,7 @@
       </div>
       <div class="flex gap-3 overflow-x-auto no-scrollbar pb-1">
         {#each railVendors as v}
-          {@const cover = products.find(p => p.vendorId === v.id)?.imageUrl}
+          {@const cover = coverFor(v)}
           <a href={`/store/${v.slug}`} class="w-40 shrink-0">
             <div class="relative w-40 h-[104px] rounded-2xl border border-white/5 overflow-hidden bg-[linear-gradient(160deg,#1A2C24,#0D1712)]">
               {#if cover}
