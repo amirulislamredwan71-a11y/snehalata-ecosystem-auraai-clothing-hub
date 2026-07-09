@@ -8,6 +8,7 @@
   import type { EcosystemStats, Vendor, Product, Category } from '$lib/types';
   import { BD_LOCATIONS } from '$lib/locationData';
   import { ECO_CATEGORIES } from '$lib/categories';
+  import { siteCategories } from '$lib/ui';
 
   // ── Aura Control Center — home config (categories + featured), Storage-backed ──
   type HomeCat = { id: string; name: string; cover: string; active: boolean; order: number };
@@ -249,7 +250,8 @@
       store_name: v.store_name || '',
       owner_name: (v as any).owner_name || '',
       website_url: (v as any).website_url || '',
-      district: (v as any).district || ''
+      district: (v as any).district || '',
+      category: (v as any).category || ''
     };
   }
   async function saveEditVendor() {
@@ -1194,6 +1196,15 @@
                 <option value="" class="bg-black">—</option>
                 {#each Object.keys(BD_LOCATIONS) as d}
                   <option value={d} class="bg-black">{d}</option>
+                {/each}
+              </select>
+            </div>
+            <div class="space-y-1">
+              <label class="text-[9px] text-gray-500 font-black uppercase tracking-widest px-1">Primary Category</label>
+              <select bind:value={editVendor.category} class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-aura-green appearance-none cursor-pointer">
+                <option value="" class="bg-black">—</option>
+                {#each $siteCategories.filter((c) => c.id !== 'all') as c}
+                  <option value={c.id} class="bg-black">{c.name}</option>
                 {/each}
               </select>
             </div>

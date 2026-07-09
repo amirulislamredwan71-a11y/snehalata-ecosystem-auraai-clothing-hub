@@ -61,6 +61,7 @@
           websiteUrl: formData.websiteUrl,
           district: formData.district,
           area: formData.area,
+          category: formData.categoryId || null,
           category_id: formData.categoryId || null,
           vendorType: formData.vendorType
         })

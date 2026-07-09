@@ -58,7 +58,7 @@ export const PATCH: RequestHandler = async ({ request, url }) => {
     update.status = norm;
   }
   // Editable profile fields (whitelist — only columns known to exist on `vendors`).
-  for (const f of ['store_name', 'owner_name', 'website_url', 'district', 'area', 'description']) {
+  for (const f of ['store_name', 'owner_name', 'website_url', 'district', 'area', 'description', 'category']) {
     if (body[f] !== undefined) update[f] = body[f] === '' ? null : body[f];
   }
   if (Object.keys(update).length === 0) throw error(400, 'no fields to update');

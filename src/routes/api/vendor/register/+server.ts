@@ -31,7 +31,7 @@ export const POST: RequestHandler = async ({ request }) => {
     website_url: b.websiteUrl || '',
     district: b.district || '',
     area: b.area || '',
-    category_id: b.category_id ? Number(b.category_id) : null,
+    category: b.category || null,
     vendor_type: b.vendorType || 'SUBDOMAIN'
   };
   const { data: vend, error: ve } = await a.from('vendors').insert(row).select().single();
