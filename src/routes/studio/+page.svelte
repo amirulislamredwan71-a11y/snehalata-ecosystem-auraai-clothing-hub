@@ -1,5 +1,6 @@
 <script lang="ts">
   import { browser } from '$app/environment';
+  import { tick } from 'svelte';
   import { fade, scale, slide } from 'svelte/transition';
   import {
     Sparkles, Loader2, Download, Layers, Zap, X,
@@ -39,10 +40,21 @@
   }));
 
   $effect(() => {
-    if (browser) {
+    if (!browser) return;
+    // Refresh garments from the LIVE catalog (not just the seed) — the layout's
+    // syncWithNeuralGrid fills it after mount + fires productUpdated. Without this the
+    // picker showed only the handful of seed sarees.
+    const refresh = () => {
       products = getProducts();
       vendors = getVendors();
-    }
+    };
+    refresh();
+    window.addEventListener('productUpdated', refresh);
+    window.addEventListener('vendorUpdated', refresh);
+    return () => {
+      window.removeEventListener('productUpdated', refresh);
+      window.removeEventListener('vendorUpdated', refresh);
+    };
   });
 
   $effect(() => {
@@ -53,16 +65,29 @@
   });
 
   const startCamera = async () => {
+    if (!navigator.mediaDevices?.getUserMedia) {
+      studioError = 'এই ব্রাউজারে ক্যামেরা সমর্থন করে না — ছবি আপলোড করুন।';
+      return;
+    }
     try {
       const newStream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 720 } }
       });
       stream = newStream;
-      if (videoRef) videoRef.srcObject = newStream;
-      isCameraActive = true;
       capturedImage = null;
+      studioError = null;
+      // Render the <video> FIRST (it lives inside {#if isCameraActive}), THEN attach the
+      // stream + play() — otherwise videoRef is null and the feed never shows (blank on mobile).
+      isCameraActive = true;
+      await tick();
+      if (videoRef) {
+        videoRef.srcObject = newStream;
+        try { await videoRef.play(); } catch { /* iOS may need the muted attr; it's set on the element */ }
+      }
     } catch (err) {
       console.error('Camera access denied', err);
+      isCameraActive = false;
+      studioError = 'ক্যামেরা চালু করা যায়নি — অনুমতি দিন, নাহলে ছবি আপলোড করুন।';
     }
   };
 
@@ -134,7 +159,7 @@
   };
 
   const STYLE_VIBES = ['Vintage Heritage', 'Classic Oil', 'Sketch', 'Studio Portrait', 'Golden Hour', 'Editorial'];
-  const PRODUCT_CATEGORIES = ['All', 'Saree', 'Panjabi', 'Three-Piece', 'Modern'];
+  const PRODUCT_CATEGORIES = ['All', 'Saree', 'Panjabi', 'Shirt', 'T-Shirt', 'Three-Piece', 'Pant', 'Baby'];
 </script>
 
 {#snippet toolTab(active, IconComponent, label, sub, onClick)}
@@ -389,7 +414,7 @@
               <canvas bind:this={canvasRef} class="hidden" />
               {#if isCameraActive}
                 <div class="relative w-full h-full bg-black">
-                  <video bind:this={videoRef} autoplay playsinline class="w-full h-full object-cover scale-x-[-1]" />
+                  <video bind:this={videoRef} autoplay playsinline muted class="w-full h-full object-cover scale-x-[-1]" ></video>
                   <div class="absolute inset-0 border-[40px] border-black/40 pointer-events-none" />
                   <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80%] h-[80%] border-2 border-dashed border-aura-green/40 rounded-[3rem] pointer-events-none">
                     <div class="absolute top-4 left-4 w-12 h-12 border-t-2 border-l-2 border-aura-green rounded-tl-3xl" />

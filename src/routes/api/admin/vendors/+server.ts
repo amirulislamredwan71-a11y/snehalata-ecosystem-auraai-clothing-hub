@@ -44,16 +44,28 @@ export const POST: RequestHandler = async ({ request, url }) => {
   return json({ ok: true, email: vend.email, store_name: vend.store_name, password });
 };
 
+// PATCH handles BOTH a status change (approve/block) AND editing vendor profile fields.
 export const PATCH: RequestHandler = async ({ request, url }) => {
   assertAdmin(request);
   const id = url.searchParams.get('id');
   if (!id) throw error(400, 'id query param required');
-  const { status } = await request.json();
-  const norm = String(status || '').toLowerCase();
-  if (!['approved', 'pending', 'blocked', 'suspended'].includes(norm)) throw error(400, 'invalid status');
-  const { error: e } = await adminClient().from('vendors').update({ status: norm }).eq('id', id);
+  const body = await request.json();
+  const update: Record<string, any> = {};
+
+  if (body.status !== undefined) {
+    const norm = String(body.status || '').toLowerCase();
+    if (!['approved', 'pending', 'blocked', 'suspended'].includes(norm)) throw error(400, 'invalid status');
+    update.status = norm;
+  }
+  // Editable profile fields (whitelist — only columns known to exist on `vendors`).
+  for (const f of ['store_name', 'owner_name', 'website_url', 'district', 'area', 'description']) {
+    if (body[f] !== undefined) update[f] = body[f] === '' ? null : body[f];
+  }
+  if (Object.keys(update).length === 0) throw error(400, 'no fields to update');
+
+  const { data, error: e } = await adminClient().from('vendors').update(update).eq('id', id).select().single();
   if (e) throw error(500, e.message);
-  return json({ ok: true, status: norm });
+  return json({ ok: true, vendor: data });
 };
 
 export const DELETE: RequestHandler = async ({ request, url }) => {

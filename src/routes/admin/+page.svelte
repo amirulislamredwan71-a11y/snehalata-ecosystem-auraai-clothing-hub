@@ -1,7 +1,7 @@
 <script lang="ts">
   import { browser } from '$app/environment';
   import { fade, slide, scale } from 'svelte/transition';
-  import { TrendingUp, Users, ShoppingCart, Activity, Globe, Zap, ShieldCheck, ShieldAlert, Shield, Trash2, CheckCircle, XCircle, Plus, Search, Filter, RefreshCw, Package, Tag, Building2, BarChart3, CreditCard, Upload, Loader2, Image as ImageIcon, Network, KeyRound, ChevronDown } from '@lucide/svelte';
+  import { TrendingUp, Users, ShoppingCart, Activity, Globe, Zap, ShieldCheck, ShieldAlert, Shield, Trash2, CheckCircle, XCircle, Plus, Search, Filter, RefreshCw, Package, Tag, Building2, BarChart3, CreditCard, Upload, Loader2, Image as ImageIcon, Network, KeyRound, ChevronDown, Pencil } from '@lucide/svelte';
   import { getEcosystemStats, getVendors, getProducts, getOrders, getCategories, addProduct, deleteProduct, deleteVendor, deleteCategory, getOrderById, getLiveSales, syncWithNeuralGrid } from '$lib/mockData';
 
   const adminPass = () => (typeof localStorage !== 'undefined' ? localStorage.getItem('aura_admin_pass') || '' : '');
@@ -209,6 +209,70 @@
     }
   }
 
+  function handleLogout() {
+    localStorage.removeItem('aura_admin_token');
+    localStorage.removeItem('aura_admin_pass');
+    isAuthenticated = false;
+    window.location.hash = '/admin-login';
+  }
+
+  // Per-vendor sales intelligence — computed from REAL orders (dbOrders → items[]).
+  // Honest zeros until orders exist; moves the moment a COD order is placed.
+  let vendorStats = $derived.by(() => {
+    const m: Record<number, { units: number; revenue: number; payout: number; skus: number; top: string }> = {};
+    for (const v of vendors) m[v.id] = { units: 0, revenue: 0, payout: 0, skus: products.filter((p) => p.vendorId === v.id).length, top: '' };
+    const topCount: Record<number, Record<string, number>> = {};
+    for (const o of dbOrders) {
+      for (const it of (o.items || o.order_items || [])) {
+        const vid = Number(it.vendor_id);
+        if (!m[vid]) continue;
+        const qty = Number(it.quantity) || 1;
+        m[vid].units += qty;
+        m[vid].revenue += Number(it.line_total) || 0;
+        m[vid].payout += Number(it.vendor_payout) || 0;
+        (topCount[vid] ||= {});
+        topCount[vid][it.name] = (topCount[vid][it.name] || 0) + qty;
+      }
+    }
+    for (const vid in topCount) {
+      const top = Object.entries(topCount[vid]).sort((a, b) => b[1] - a[1])[0];
+      if (top) m[Number(vid)].top = `${top[0]} ×${top[1]}`;
+    }
+    return m;
+  });
+
+  // Vendor profile edit (name / owner / website / district) via PATCH /api/admin/vendors.
+  let editVendor = $state<any>(null);
+  function openEditVendor(v: any) {
+    editVendor = {
+      id: v.id,
+      store_name: v.store_name || '',
+      owner_name: (v as any).owner_name || '',
+      website_url: (v as any).website_url || '',
+      district: (v as any).district || ''
+    };
+  }
+  async function saveEditVendor() {
+    if (!editVendor) return;
+    isLoading = true;
+    try {
+      const { id, ...fields } = editVendor;
+      const res = await fetch(`/api/admin/vendors?id=${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', 'x-admin-pass': adminPass() },
+        body: JSON.stringify(fields)
+      });
+      if (!res.ok) throw new Error((await res.json().catch(() => ({}))).message || `HTTP ${res.status}`);
+      editVendor = null;
+      await syncWithNeuralGrid();
+      loadData();
+    } catch (err: any) {
+      alert('Vendor update failed: ' + (err?.message || 'error'));
+    } finally {
+      isLoading = false;
+    }
+  }
+
   function loadData() {
     isLoading = true;
     const freshStats = getEcosystemStats();
@@ -364,20 +428,21 @@
     reader.readAsDataURL(file);
   }
 
-  function handleAddCategory(e: Event) {
+  // Add a category to the ONE real, persistent store (site-config homeCats via /api/settings).
+  // This flows everywhere: the home rail + mobile sheet, the admin product Taxonomy, AND the
+  // vendor-registration Primary Category — all read the same `siteCategories`.
+  async function handleAddCategory(e: Event) {
     e.preventDefault();
+    const label = newCategory.name.trim();
+    if (!label) return;
     isLoading = true;
-    const dbCategories = JSON.parse(localStorage.getItem('aura_categories') || '[]');
-    const newCat: Category = {
-      id: Date.now(),
-      name: newCategory.name,
-      slug: newCategory.name.toLowerCase().replace(/\s+/g, '-'),
-      description: newCategory.description
-    };
-    dbCategories.push(newCat);
-    localStorage.setItem('aura_categories', JSON.stringify(dbCategories));
-    window.dispatchEvent(new Event('categoryUpdated'));
-    categories = getCategories();
+    const id =
+      label.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-+|-+$)/g, '') ||
+      'cat-' + Date.now().toString(36);
+    if (!homeCats.some((c) => c.id === id)) {
+      homeCats = [...homeCats, { id, name: label, cover: '', active: true, order: homeCats.length }];
+      await saveHomeConfig(); // persists to /api/settings + dispatches siteConfigUpdated
+    }
     isCategoryModalOpen = false;
     newCategory = { name: '', description: '' };
     isLoading = false;
@@ -446,14 +511,11 @@
               <RefreshCw size={18} />
             </button>
             <button
-              onclick={() => {
-                localStorage.removeItem('aura_admin_token');
-                window.location.hash = '/admin-login';
-              }}
-              class="p-3 bg-red-500/10 border border-red-500/20 rounded-xl text-red-500 hover:bg-red-500 hover:text-white transition-all"
-              title="Sign Out"
+              onclick={handleLogout}
+              class="flex items-center gap-2 px-4 py-3 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400 hover:bg-red-500 hover:text-white transition-all text-[11px] font-black uppercase tracking-widest"
+              title="Log out of the Control Center"
             >
-              <XCircle size={18} />
+              <XCircle size={16} /> Logout
             </button>
             <div class="flex items-center gap-2 px-4 py-2.5 bg-green-500/5 border border-green-500/20 rounded-xl">
               <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(34,197,94,0.5)]"></span>
@@ -621,6 +683,7 @@
                 <thead class="bg-white/[0.02] border-b border-white/5">
                   <tr>
                     <th class="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-gray-500">Artisan Brand</th>
+                    <th class="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-gray-500">Sales</th>
                     <th class="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-gray-500">Identity</th>
                     <th class="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-gray-500">Website</th>
                     <th class="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-gray-500">Status</th>
@@ -629,6 +692,7 @@
                 </thead>
                 <tbody class="divide-y divide-white/5">
                   {#each filteredVendors as v (v.id)}
+                    {@const st = vendorStats[v.id] || { units: 0, revenue: 0, payout: 0, skus: 0, top: '' }}
                     <tr class="group hover:bg-white/[0.02] transition-colors">
                       <td class="px-8 py-5">
                         <div class="flex items-center gap-4">
@@ -636,9 +700,14 @@
                           <div>
                             <div class="text-sm font-bold text-white">{v.store_name || 'Legacy Vendor'}</div>
                             <a href={`https://${subdomainFor(v)}`} target="_blank" rel="noreferrer" class="text-[10px] text-aura-green/80 hover:text-aura-green font-mono hover:underline">{subdomainFor(v)}</a>
-                            <div class="text-[9px] text-gray-600 font-mono">#{v.id} · {products.filter(p => p.vendorId === v.id).length} products · {(v as any).district || '—'}</div>
+                            <div class="text-[9px] text-gray-600 font-mono">#{v.id} · {st.skus} products · {(v as any).district || '—'}</div>
                           </div>
                         </div>
+                      </td>
+                      <td class="px-8 py-5">
+                        <div class="text-sm font-black text-aura-green tabular-nums">৳{st.revenue.toLocaleString()}</div>
+                        <div class="text-[10px] text-gray-500">{st.units} sold{st.payout ? ` · payout ৳${st.payout.toLocaleString()}` : ''}</div>
+                        {#if st.top}<div class="text-[9px] text-gray-600 truncate max-w-[150px]">🔥 {st.top}</div>{/if}
                       </td>
                       <td class="px-8 py-5">
                         <div class="text-xs text-gray-300 font-medium">{(v as any).owner_name}</div>
@@ -691,6 +760,13 @@
                             </button>
                           {/if}
                           <button
+                            onclick={() => openEditVendor(v)}
+                            class="p-2.5 bg-white/5 text-gray-300 rounded-lg hover:bg-white hover:text-black transition-all shadow-lg"
+                            title="Edit Vendor Details"
+                          >
+                            <Pencil size={16} />
+                          </button>
+                          <button
                             onclick={() => handleResetVendorPassword(v.id)}
                             class="p-2.5 bg-blue-500/10 text-blue-400 rounded-lg hover:bg-blue-500 hover:text-white transition-all shadow-lg"
                             title="Reset Vendor Password"
@@ -709,7 +785,7 @@
                     </tr>
                   {:else}
                     <tr>
-                      <td colspan={5} class="px-8 py-20 text-center text-gray-600 font-black uppercase tracking-[0.3em] text-xs">No vendors found matching the search criteria</td>
+                      <td colspan={6} class="px-8 py-20 text-center text-gray-600 font-black uppercase tracking-[0.3em] text-xs">No vendors found matching the search criteria</td>
                     </tr>
                   {/each}
                 </tbody>
@@ -1089,6 +1165,49 @@
       </div>
     {/if}
 
+    {#if editVendor}
+      <div class="fixed inset-0 z-[120] flex items-center justify-center p-6 backdrop-blur-3xl bg-black/70" transition:fade={{ duration: 200 }}>
+        <div class="w-full max-w-md bg-[#0A0A0A] border border-white/10 rounded-[2rem] p-8 shadow-2xl" transition:scale={{ duration: 300 }}>
+          <div class="flex items-center justify-between mb-6">
+            <div class="flex items-center gap-3">
+              <div class="p-3 bg-white/5 rounded-xl"><Pencil size={20} class="text-aura-green" /></div>
+              <h2 class="text-xl font-serif font-black text-white">Edit Vendor</h2>
+            </div>
+            <button onclick={() => editVendor = null} class="text-gray-500 hover:text-white transition-colors"><XCircle size={22} /></button>
+          </div>
+          <div class="space-y-4">
+            <div class="space-y-1">
+              <label class="text-[9px] text-gray-500 font-black uppercase tracking-widest px-1">Store Name</label>
+              <input bind:value={editVendor.store_name} class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-aura-green" />
+            </div>
+            <div class="space-y-1">
+              <label class="text-[9px] text-gray-500 font-black uppercase tracking-widest px-1">Owner Name</label>
+              <input bind:value={editVendor.owner_name} class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-aura-green" />
+            </div>
+            <div class="space-y-1">
+              <label class="text-[9px] text-gray-500 font-black uppercase tracking-widest px-1">Website URL</label>
+              <input bind:value={editVendor.website_url} placeholder="https://…" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-aura-green placeholder:text-gray-700" />
+            </div>
+            <div class="space-y-1">
+              <label class="text-[9px] text-gray-500 font-black uppercase tracking-widest px-1">District</label>
+              <select bind:value={editVendor.district} class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-aura-green appearance-none cursor-pointer">
+                <option value="" class="bg-black">—</option>
+                {#each Object.keys(BD_LOCATIONS) as d}
+                  <option value={d} class="bg-black">{d}</option>
+                {/each}
+              </select>
+            </div>
+          </div>
+          <div class="flex gap-3 mt-7">
+            <button onclick={() => editVendor = null} class="flex-1 py-3.5 bg-white/5 border border-white/10 text-gray-300 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-white/10 transition-all">Cancel</button>
+            <button onclick={saveEditVendor} disabled={isLoading} class="flex-1 py-3.5 bg-aura-green text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:shadow-2xl transition-all disabled:opacity-50">
+              {#if isLoading}<Loader2 size={14} class="inline animate-spin" />{:else}Save Changes{/if}
+            </button>
+          </div>
+        </div>
+      </div>
+    {/if}
+
     {#if isCategoryModalOpen}
       <div class="fixed inset-0 z-[100] flex items-center justify-center p-4 backdrop-blur-3xl bg-black/60" transition:fade={{ duration: 200 }}>
         <div class="w-full max-w-md bg-aura-glass border border-aura-glassBorder rounded-2xl p-0.5 shadow-2xl" transition:scale={{ duration: 300 }}>
@@ -1152,7 +1271,7 @@
                       <label class="text-[8px] text-gray-500 font-black uppercase tracking-widest px-1">Taxonomy</label>
                       <select required bind:value={newProduct.category} class="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-[11px] text-white focus:outline-none focus:border-aura-green transition-all appearance-none cursor-pointer">
                         <option value="" class="bg-black text-white">Select Type</option>
-                        {#each ['Saree', 'Panjabi', 'Three-Piece', 'T-Shirt', 'Pant', 'Baby', 'Hoodie', 'Others'] as c}
+                        {#each ['Saree', 'Panjabi', 'Shirt', 'T-Shirt', 'Three-Piece', 'Pant', 'Baby', 'Undergarments', 'Cosmetics', 'Market', 'Gadgets', 'Others'] as c}
                           <option value={c} class="bg-black text-white">{c}</option>
                         {/each}
                       </select>

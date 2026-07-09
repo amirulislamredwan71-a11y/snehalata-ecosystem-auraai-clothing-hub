@@ -9,10 +9,12 @@
     Tag, MapPin
   } from '@lucide/svelte';
   import { auditVendorDescription } from '$lib/geminiService';
-  import { getCategories } from '$lib/mockData';
+  import { siteCategories } from '$lib/ui';
   import { BD_LOCATIONS } from '$lib/locationData';
 
-  let categories = $state<any[]>([]);
+  // The vendor's Primary Category = the SAME live category list the home + admin use
+  // (site-config, admin-editable), not the old 3-row legacy `categories` table.
+  const categories = $derived($siteCategories.filter((c: any) => c.id !== 'all'));
   let formData = $state({
     ownerName: '',
     shopName: '',
@@ -27,11 +29,6 @@
     vendorType: 'EXTERNAL_BRIDGE'
   });
 
-  $effect(() => {
-    if (browser) {
-      categories = getCategories();
-    }
-  });
 
   let step = $state(1);
   let status = $state<'IDLE' | 'AUDITING' | 'SAVING' | 'SUCCESS' | 'REJECTED' | 'PENDING_HUB'>('IDLE');
