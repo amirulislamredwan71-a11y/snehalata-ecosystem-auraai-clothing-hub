@@ -30,6 +30,7 @@ export type ImportedProduct = {
   imageUrl: string;
   description: string;
   category?: string;
+  url?: string; // the product's own page — used to recover an image when JSON-LD omits it
   confidence?: number;
 };
 
@@ -127,6 +128,7 @@ function jsonLdProducts(html: string, origin: string): ImportedProduct[] {
           imageUrl: pickImage(p.image || n.image, origin),
           description: String(p.description || '').trim().slice(0, 500),
           category: String(p.category || '').trim() || undefined,
+          url: p.url || n.url ? toAbsolute(String(p.url || n.url), origin) : undefined,
           confidence: 90
         });
       } else if (types.includes('Product')) {
@@ -137,6 +139,7 @@ function jsonLdProducts(html: string, origin: string): ImportedProduct[] {
           imageUrl: pickImage(n.image, origin),
           description: String(n.description || '').trim().slice(0, 500),
           category: String(n.category || '').trim() || undefined,
+          url: n.url || offers?.url ? toAbsolute(String(n.url || offers?.url), origin) : undefined,
           confidence: 90
         });
       }
@@ -197,6 +200,32 @@ async function geminiFallback(html: string): Promise<ImportedProduct[]> {
   return [];
 }
 
+// Extract a representative image from a product page when its JSON-LD had none:
+// og:image / twitter:image / the first real JSON-LD product image on that page.
+function ogImage(html: string, origin: string): string {
+  const og =
+    html.match(/<meta[^>]+property=["']og:image["'][^>]+content=["']([^"']+)["']/i) ||
+    html.match(/<meta[^>]+name=["']twitter:image["'][^>]+content=["']([^"']+)["']/i);
+  if (og?.[1]) return toAbsolute(og[1], origin);
+  const ld = jsonLdProducts(html, origin).find((p) => p.imageUrl);
+  return ld?.imageUrl || '';
+}
+
+// For products that came through without an image but DO have their own page URL,
+// fetch that page and recover the image. Capped + concurrent to respect the budget.
+async function enrichImages(items: ImportedProduct[], origin: string, cap = 30): Promise<void> {
+  const need = items.filter((p) => !p.imageUrl && p.url).slice(0, cap);
+  const batch = 6;
+  for (let i = 0; i < need.length; i += batch) {
+    const slice = need.slice(i, i + batch);
+    const pages = await Promise.all(slice.map((p) => httpGet(p.url!, 8000)));
+    slice.forEach((p, j) => {
+      const html = pages[j];
+      if (typeof html === 'string') p.imageUrl = ogImage(html, origin);
+    });
+  }
+}
+
 function dedupeByName(items: ImportedProduct[]): ImportedProduct[] {
   const map = new Map<string, ImportedProduct>();
   const score = (x: ImportedProduct) => (x.price > 0 ? 2 : 0) + (x.imageUrl ? 1 : 0);
@@ -231,6 +260,10 @@ export async function scrapeProducts(url: string): Promise<ImportedProduct[]> {
     // 3. Sitemap sweep to get the FULL catalog (not just what's on the homepage).
     const swept = await fromSitemap(origin);
     const structured = dedupeByName([...onPage, ...swept]);
+    if (structured.length) {
+      // Recover images for products whose JSON-LD omitted them (fetch their page → og:image).
+      await enrichImages(structured, origin);
+    }
     if (structured.length >= 3) return structured;
     if (structured.length) {
       // A couple structured hits — try AI too and merge for better coverage.
