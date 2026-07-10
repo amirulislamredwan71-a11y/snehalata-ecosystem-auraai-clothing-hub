@@ -453,10 +453,10 @@
 
   <!-- HERO — BD map background + BD→global network overlay + rotating text -->
   <section class="relative overflow-hidden border-b border-aura-green/10">
-    <!-- Aura "Neural Verified" shield-badge backdrop — premium brand texture, darkened so the
-         rotating hero text + CTAs stay readable (like the old map, but on-brand). -->
-    <img src="/aura-hero-bg.jpg" alt="" aria-hidden="true" class="absolute inset-0 h-full w-full object-cover object-center opacity-40" />
-    <div class="absolute inset-0 bg-gradient-to-b from-[#080b09]/72 via-[#080b09]/58 to-[#080b09]/82"></div>
+    <!-- Bangladesh map image — the "BD → spreads across the whole world" theme (owner's favourite):
+         small centred at top on mobile, full-bleed texture on desktop. -->
+    <img src="/bd-map.webp" alt="" aria-hidden="true" class="absolute inset-0 h-full w-full object-contain object-center scale-[1.45] opacity-30 sm:scale-100 sm:object-cover sm:opacity-45" />
+    <div class="absolute inset-0 bg-[#080b09]/[0.6]"></div>
     <div class="absolute inset-0 neural-grid pointer-events-none opacity-25"></div>
 
     <!-- BD → global network: origin over BD, arcs radiating out to world nodes -->
@@ -507,8 +507,14 @@
     </div>
   </section>
 
+  <!-- "NEURAL VERIFIED" band — shield-badge backdrop spanning the core-feature strip + সাধ্য Mode -->
+  <div class="relative overflow-hidden mt-6">
+    <img src="/aura-hero-bg.jpg" alt="" aria-hidden="true" class="absolute inset-0 h-full w-full object-cover object-center opacity-[0.10] pointer-events-none" />
+    <div class="absolute inset-0 bg-gradient-to-b from-[#080b09] via-[#080b09]/85 to-[#080b09] pointer-events-none"></div>
+    <div class="relative z-10">
+
   <!-- AURA FEATURE STRIP — the "AI Powered Smart Shopping" poster, recreated as tappable chips -->
-  <section class="max-w-7xl mx-auto px-3 sm:px-6 mt-6">
+  <section class="max-w-7xl mx-auto px-3 sm:px-6">
     <div class="text-center mb-4">
       <p class="font-display text-[10px] sm:text-[11px] font-black uppercase tracking-[0.35em] text-aura-green/90">AI Powered Smart Shopping</p>
     </div>
@@ -602,6 +608,10 @@
       {/if}
     </div>
   </section>
+
+    </div>
+  </div>
+  <!-- /NEURAL VERIFIED band -->
 
   <!-- CATEGORIES rail -->
   <section class="max-w-7xl mx-auto px-5 sm:px-6 mt-8">
