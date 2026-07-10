@@ -51,6 +51,29 @@
   let merchQuality = $state<number | null>(null);
   let merchNote = $state<string>('');
 
+  // One category list for the add-product form (matches the live storefront categories —
+  // note "Shirt" is distinct from "T-Shirt"). Stored value lowercases to the home category id.
+  const PRODUCT_CATEGORIES = ['Saree', 'Panjabi', 'Three-Piece', 'Shirt', 'T-Shirt', 'Pant', 'Baby', 'Cosmetics', 'Undergarments', 'Gadgets', 'Others'];
+  // Snap a free-form (AI-suggested) category onto a real storefront category so a photo import
+  // can never create an invisible orphan product. Falls back to "Others" when nothing matches.
+  function snapCategory(raw: string): string {
+    if (!raw) return newProduct.category;
+    const n = String(raw).toLowerCase().trim();
+    const exact = PRODUCT_CATEGORIES.find((c) => c.toLowerCase() === n);
+    if (exact) return exact;
+    if (n.includes('saree') || n.includes('sari')) return 'Saree';
+    if (n.includes('panjabi') || n.includes('punjabi') || n.includes('kurta')) return 'Panjabi';
+    if (n.includes('three') || n.includes('3-piece') || n.includes('3 piece') || n.includes('salwar') || n.includes('kameez')) return 'Three-Piece';
+    if (n.includes('t-shirt') || n.includes('tshirt') || n.includes('tee')) return 'T-Shirt';
+    if (n.includes('shirt')) return 'Shirt';
+    if (n.includes('pant') || n.includes('trouser') || n.includes('jean') || n.includes('cargo') || n.includes('gabardine')) return 'Pant';
+    if (n.includes('baby') || n.includes('kid') || n.includes('child') || n.includes('infant')) return 'Baby';
+    if (n.includes('cosmetic') || n.includes('makeup') || n.includes('beauty') || n.includes('skin') || n.includes('cream')) return 'Cosmetics';
+    if (n.includes('under') || n.includes('lingerie') || n.includes('night') || n.includes('bra') || n.includes('panty')) return 'Undergarments';
+    if (n.includes('gadget') || n.includes('electronic') || n.includes('device')) return 'Gadgets';
+    return 'Others';
+  }
+
   async function handleMerchandise(e: Event) {
     const input = e.target as HTMLInputElement;
     const file = input.files?.[0];
@@ -69,7 +92,7 @@
       newProduct = {
         name: s.title || newProduct.name,
         price: s.suggested_price_bdt ? String(Math.round(s.suggested_price_bdt)) : newProduct.price,
-        category: s.category || newProduct.category,
+        category: snapCategory(s.category),
         description: [s.description_bn, s.description_en].filter(Boolean).join('\n\n') || newProduct.description,
         imageUrl: base64
       };
@@ -444,17 +467,9 @@
               <select bind:value={newProduct.category}
                 class="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-sm focus:border-aura-green outline-none transition-all appearance-none">
                 <option value="General">Category</option>
-                <option value="Saree">Saree</option>
-                <option value="Panjabi">Panjabi</option>
-                <option value="Three-Piece">Three-Piece</option>
-                <option value="T-Shirt">T-Shirt</option>
-                <option value="Pant">Pant</option>
-                <option value="Baby">Baby</option>
-                <option value="Cosmetics">Cosmetics</option>
-                <option value="Undergarments">Undergarments</option>
-                <option value="Gadgets">Gadgets</option>
-                <option value="Modern">Modern</option>
-                <option value="Others">Others</option>
+                {#each PRODUCT_CATEGORIES as c}
+                  <option value={c}>{c}</option>
+                {/each}
               </select>
             </div>
             <textarea placeholder="Neural Description" bind:value={newProduct.description}

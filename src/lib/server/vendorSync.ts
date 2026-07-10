@@ -276,6 +276,28 @@ export async function scrapeProducts(url: string): Promise<ImportedProduct[]> {
   return [];
 }
 
+// Snap a scraped/free-form source category onto a real storefront category so imported
+// products (once approved) never land in an orphan category the home rail can't show.
+// Mirrors the dashboard snapCategory; "Others" is the safe catch-all.
+function snapImportedCategory(raw?: string): string {
+  const n = String(raw || '').toLowerCase().trim();
+  if (!n) return 'Others';
+  const KNOWN = ['saree', 'panjabi', 'three-piece', 'shirt', 't-shirt', 'pant', 'baby', 'cosmetics', 'undergarments', 'gadgets', 'others'];
+  const exact = KNOWN.find((c) => c === n);
+  if (exact) return exact.replace(/\b\w/g, (m) => m.toUpperCase());
+  if (n.includes('saree') || n.includes('sari')) return 'Saree';
+  if (n.includes('panjabi') || n.includes('punjabi') || n.includes('kurta')) return 'Panjabi';
+  if (n.includes('three') || n.includes('3-piece') || n.includes('3 piece') || n.includes('salwar') || n.includes('kameez')) return 'Three-Piece';
+  if (n.includes('t-shirt') || n.includes('tshirt') || n.includes('tee')) return 'T-Shirt';
+  if (n.includes('shirt')) return 'Shirt';
+  if (n.includes('pant') || n.includes('trouser') || n.includes('jean') || n.includes('cargo') || n.includes('gabardine')) return 'Pant';
+  if (n.includes('baby') || n.includes('kid') || n.includes('child') || n.includes('infant')) return 'Baby';
+  if (n.includes('cosmetic') || n.includes('makeup') || n.includes('beauty') || n.includes('skin') || n.includes('cream') || n.includes('lipstick')) return 'Cosmetics';
+  if (n.includes('under') || n.includes('lingerie') || n.includes('night') || n.includes('bra') || n.includes('panty')) return 'Undergarments';
+  if (n.includes('gadget') || n.includes('electronic') || n.includes('device')) return 'Gadgets';
+  return 'Others';
+}
+
 /**
  * Sync one vendor's catalog from their own website into snehalata's DB.
  * Idempotent: only inserts products whose name isn't already present for the
@@ -297,7 +319,7 @@ export async function syncVendor(
     .map((it) => ({
       name: String(it.name).slice(0, 200),
       price: Number(it.price) || 0,
-      category: (it.category || 'Imported').slice(0, 60),
+      category: snapImportedCategory(it.category),
       description: (it.description || `Imported from ${vendor.store_name}`).slice(0, 500),
       image_url: it.imageUrl || '',
       stock_quantity: 10,
