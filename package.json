@@ -26,8 +26,10 @@
 	"dependencies": {
 		"@google/genai": "^2.3.0",
 		"@lucide/svelte": "^1.16.0",
+		"@sparticuz/chromium": "^131.0.1",
 		"@supabase/supabase-js": "^2.105.4",
 		"axios": "^1.16.1",
-		"cheerio": "^1.2.0"
+		"cheerio": "^1.2.0",
+		"puppeteer-core": "^23.11.1"
 	}
 }

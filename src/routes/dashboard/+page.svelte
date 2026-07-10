@@ -116,6 +116,27 @@
   let pwMsg = $state<string | null>(null);
   let pwLoading = $state(false);
   let isSyncing = $state(false);
+  let isDeepImporting = $state(false);
+
+  // Heavy headless render — for app-style (SPA) sites the fast Sync can't read.
+  async function handleDeepImport() {
+    isDeepImporting = true;
+    try {
+      const res = await fetch('/api/vendor/deep-import', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${vendorToken()}` }
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.message || `HTTP ${res.status}`);
+      await syncWithNeuralGrid();
+      loadVendorData();
+      alert(`Deep import complete — ${data.imported || 0} new product(s) added for review (${data.found ?? 0} detected on your live site).`);
+    } catch (err: any) {
+      alert('Deep import: ' + (err?.message || 'unavailable'));
+    } finally {
+      isDeepImporting = false;
+    }
+  }
 
   async function handleSync() {
     isSyncing = true;
@@ -547,6 +568,15 @@
             >
               <Globe size={18} class={isSyncing ? 'animate-spin' : ''} />
               <span>{isSyncing ? 'Syncing…' : 'Sync from Website'}</span>
+            </button>
+            <button
+              onclick={handleDeepImport}
+              disabled={isDeepImporting}
+              title="For app-style sites the normal Sync can't read — renders your live site to pull products + images"
+              class="group px-8 py-5 bg-white/5 border border-aura-ai/30 text-white rounded-3xl font-black uppercase text-[11px] tracking-widest flex items-center gap-3 hover:border-aura-ai transition-all disabled:opacity-50"
+            >
+              <Sparkles size={18} class={isDeepImporting ? 'animate-spin' : ''} />
+              <span>{isDeepImporting ? 'Rendering…' : 'Deep Import'}</span>
             </button>
           {/if}
           <button
