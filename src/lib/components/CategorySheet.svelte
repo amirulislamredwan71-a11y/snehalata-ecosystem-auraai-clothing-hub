@@ -2,15 +2,11 @@
   import { goto } from '$app/navigation';
   import { fade, fly } from 'svelte/transition';
   import { X, ShieldCheck } from '@lucide/svelte';
-  import { categorySheetOpen, siteCategories, stockedCategoryIds } from '$lib/ui';
+  import { categorySheetOpen, siteCategories } from '$lib/ui';
 
-  // Only show categories that have live products (plus "all"); if the home page hasn't
-  // published the stocked set yet, fall back to showing everything — never a blank sheet.
-  const cats = $derived(
-    $stockedCategoryIds.size === 0
-      ? $siteCategories
-      : $siteCategories.filter((c) => c.id === 'all' || $stockedCategoryIds.has(c.id.toLowerCase()))
-  );
+  // Category visibility is owner-controlled via the admin `active` flag ($siteCategories) —
+  // empty categories are intentional placeholders, so show them all.
+  const cats = $derived($siteCategories);
 
   function pick(id: string) {
     categorySheetOpen.set(false);

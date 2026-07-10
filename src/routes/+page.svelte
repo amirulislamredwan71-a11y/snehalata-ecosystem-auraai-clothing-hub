@@ -387,19 +387,17 @@
     'linear-gradient(160deg,#1B2A1E,#101A12)',
     'linear-gradient(160deg,#2B2617,#19160D)'
   ];
-  // Only show categories that actually have live products — no dead-end tiles (market/
-  // gadgets/others stay hidden until stocked, then reappear automatically).
-  const nonEmptyCat = (c: any) =>
+  // Category visibility is owner-controlled (the admin `active` flag → $siteCategories),
+  // NOT product-count-driven: empty categories are intentional placeholders that fill over
+  // time (market, T-Shirt, borka…). `hasProducts` is used only to badge a tile "শীঘ্রই".
+  const hasProducts = (c: any) =>
     c.id === 'all' || products.some((p) => p.category?.toLowerCase() === c.id.toLowerCase());
-  const categoryTiles = $derived($siteCategories.filter((c) => c.id !== 'all' && nonEmptyCat(c)));
-  // Same rule for the nav chips / sidebars — keep "All" + only stocked categories.
-  const navCategories = $derived($siteCategories.filter(nonEmptyCat));
+  const categoryTiles = $derived($siteCategories.filter((c) => c.id !== 'all'));
+  const navCategories = $derived($siteCategories);
 
-  // Publish the set of stocked category ids so the global CategorySheet (bottom nav) can
-  // hide empty categories too. Writes an external store only — no self-dependency loop.
+  // Publish the full set of visible category ids so the global CategorySheet mirrors the home.
   $effect(() => {
-    const ids = new Set(products.map((p) => String(p.category || '').toLowerCase()).filter(Boolean));
-    stockedCategoryIds.set(ids);
+    stockedCategoryIds.set(new Set($siteCategories.map((c) => String(c.id).toLowerCase())));
   });
 
   // Hero "BD → global" network: nodes scattered near the edges (the world), arcs radiate
@@ -598,13 +596,18 @@
             {#if cat.cover}
               <img src={cat.cover} alt={cat.name} loading="lazy" class="absolute inset-0 w-full h-full object-cover" />
               <div class="absolute inset-0 bg-gradient-to-t from-black/65 via-black/10 to-transparent"></div>
-              <div class="absolute top-1.5 right-1.5 flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-[#0a0f0d]/85 border border-aura-green/50" title="Neural Verified">
-                <ShieldCheck size={9} class="text-aura-green" /><span class="text-[7px] font-black text-aura-green tracking-tight">Verified</span>
-              </div>
+              {#if hasProducts(cat)}
+                <div class="absolute top-1.5 right-1.5 flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-[#0a0f0d]/85 border border-aura-green/50" title="Neural Verified">
+                  <ShieldCheck size={9} class="text-aura-green" /><span class="text-[7px] font-black text-aura-green tracking-tight">Verified</span>
+                </div>
+              {/if}
             {:else}
               <div class="w-full h-full flex items-center justify-center text-aura-cream/80" style="background:{TILE_BG[i % TILE_BG.length]};">
                 <Icon size={26} strokeWidth={1.6} />
               </div>
+            {/if}
+            {#if !hasProducts(cat)}
+              <div class="absolute bottom-0 inset-x-0 bg-[#0a0f0d]/80 border-t border-aura-gold/30 py-0.5 text-[7.5px] font-black uppercase tracking-widest text-aura-gold text-center">শীঘ্রই</div>
             {/if}
           </div>
           <div class="text-[11.5px] font-semibold text-[#dde5e1] mt-2 leading-tight">{cat.name}</div>
@@ -863,12 +866,18 @@
         {/each}
 
         {#if displayProducts.length === 0}
+          {@const emptyCat = selectedCategory !== 'all' && !semanticActive && searchQuery === ''}
           <div class="col-span-full py-40 text-center">
-            <div class="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-8 border border-white/10">
-              <Search size={32} class="text-gray-800" />
+            <div class="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-8 border {emptyCat ? 'border-aura-gold/25' : 'border-white/10'}">
+              {#if emptyCat}<Sparkles size={32} class="text-aura-gold/70" />{:else}<Search size={32} class="text-gray-800" />{/if}
             </div>
-            <h3 class="text-2xl font-display font-bold mb-2">No Neural Signal</h3>
-            <p class="text-gray-500 text-sm max-w-xs mx-auto">Try another category or refine your search.</p>
+            {#if emptyCat}
+              <h3 class="text-2xl font-display font-bold mb-2 text-aura-gold">শীঘ্রই আসছে · Coming Soon</h3>
+              <p class="text-gray-400 text-sm max-w-xs mx-auto">এই ক্যাটাগরিতে খুব শীঘ্রই যাচাই করা পণ্য যোগ হচ্ছে।</p>
+            {:else}
+              <h3 class="text-2xl font-display font-bold mb-2">No Neural Signal</h3>
+              <p class="text-gray-500 text-sm max-w-xs mx-auto">Try another category or refine your search.</p>
+            {/if}
           </div>
         {/if}
       </div>

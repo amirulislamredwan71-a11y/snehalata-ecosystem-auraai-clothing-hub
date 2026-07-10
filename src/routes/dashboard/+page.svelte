@@ -53,7 +53,7 @@
 
   // One category list for the add-product form (matches the live storefront categories —
   // note "Shirt" is distinct from "T-Shirt"). Stored value lowercases to the home category id.
-  const PRODUCT_CATEGORIES = ['Saree', 'Panjabi', 'Three-Piece', 'Shirt', 'T-Shirt', 'Pant', 'Baby', 'Cosmetics', 'Undergarments', 'Gadgets', 'Others'];
+  const PRODUCT_CATEGORIES = ['Saree', 'Panjabi', 'Three-Piece', 'Borka', 'Shirt', 'T-Shirt', 'Pant', 'Baby', 'Cosmetics', 'Undergarments', 'Gadgets', 'Others'];
   // Snap a free-form (AI-suggested) category onto a real storefront category so a photo import
   // can never create an invisible orphan product. Falls back to "Others" when nothing matches.
   function snapCategory(raw: string): string {
@@ -64,6 +64,7 @@
     if (n.includes('saree') || n.includes('sari')) return 'Saree';
     if (n.includes('panjabi') || n.includes('punjabi') || n.includes('kurta')) return 'Panjabi';
     if (n.includes('three') || n.includes('3-piece') || n.includes('3 piece') || n.includes('salwar') || n.includes('kameez')) return 'Three-Piece';
+    if (n.includes('borka') || n.includes('borkha') || n.includes('burka') || n.includes('hijab') || n.includes('niqab') || n.includes('nikab') || n.includes('abaya')) return 'Borka';
     if (n.includes('t-shirt') || n.includes('tshirt') || n.includes('tee')) return 'T-Shirt';
     if (n.includes('shirt')) return 'Shirt';
     if (n.includes('pant') || n.includes('trouser') || n.includes('jean') || n.includes('cargo') || n.includes('gabardine')) return 'Pant';

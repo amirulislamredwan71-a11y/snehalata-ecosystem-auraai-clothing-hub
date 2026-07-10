@@ -282,12 +282,13 @@ export async function scrapeProducts(url: string): Promise<ImportedProduct[]> {
 function snapImportedCategory(raw?: string): string {
   const n = String(raw || '').toLowerCase().trim();
   if (!n) return 'Others';
-  const KNOWN = ['saree', 'panjabi', 'three-piece', 'shirt', 't-shirt', 'pant', 'baby', 'cosmetics', 'undergarments', 'gadgets', 'others'];
+  const KNOWN = ['saree', 'panjabi', 'three-piece', 'borka', 'shirt', 't-shirt', 'pant', 'baby', 'cosmetics', 'undergarments', 'gadgets', 'others'];
   const exact = KNOWN.find((c) => c === n);
   if (exact) return exact.replace(/\b\w/g, (m) => m.toUpperCase());
   if (n.includes('saree') || n.includes('sari')) return 'Saree';
   if (n.includes('panjabi') || n.includes('punjabi') || n.includes('kurta')) return 'Panjabi';
   if (n.includes('three') || n.includes('3-piece') || n.includes('3 piece') || n.includes('salwar') || n.includes('kameez')) return 'Three-Piece';
+  if (n.includes('borka') || n.includes('borkha') || n.includes('burka') || n.includes('hijab') || n.includes('niqab') || n.includes('nikab') || n.includes('abaya')) return 'Borka';
   if (n.includes('t-shirt') || n.includes('tshirt') || n.includes('tee')) return 'T-Shirt';
   if (n.includes('shirt')) return 'Shirt';
   if (n.includes('pant') || n.includes('trouser') || n.includes('jean') || n.includes('cargo') || n.includes('gabardine')) return 'Pant';

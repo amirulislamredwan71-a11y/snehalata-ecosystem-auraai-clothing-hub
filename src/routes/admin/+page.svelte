@@ -29,9 +29,15 @@
     try {
       const r = await fetch('/api/settings');
       const cfg = await r.json();
-      homeCats = Array.isArray(cfg?.categories) && cfg.categories.length
-        ? cfg.categories.map((c: any, i: number) => ({ id: c.id, name: c.name, cover: c.cover || '', active: c.active !== false, order: c.order ?? i }))
-        : seedHomeCatsFromDefaults();
+      if (Array.isArray(cfg?.categories) && cfg.categories.length) {
+        const mapped = cfg.categories.map((c: any, i: number) => ({ id: c.id, name: c.name, cover: c.cover || '', active: c.active !== false, order: c.order ?? i }));
+        // Surface any code-defined category not yet in the saved config (e.g. borka) so it's editable here.
+        const have = new Set(mapped.map((c: HomeCat) => c.id));
+        const missing = ECO_CATEGORIES.filter((e) => e.id !== 'all' && !have.has(e.id)).map((e, i) => ({ id: e.id, name: e.name, cover: (e as any).cover || '', active: true, order: mapped.length + i }));
+        homeCats = [...mapped, ...missing];
+      } else {
+        homeCats = seedHomeCatsFromDefaults();
+      }
       featuredSlugs = (cfg?.featured?.vendorSlugs ?? ['panjabi-kuthir']).join(', ');
       if (cfg?.commission) commissionCfg = { mode: cfg.commission.mode === 'aura' ? 'aura' : 'fixed', base: Number(cfg.commission.base) || 10, min: Number(cfg.commission.min) || 6, max: Number(cfg.commission.max) || 11 };
     } catch {
@@ -1313,7 +1319,7 @@
                       <label class="text-[8px] text-gray-500 font-black uppercase tracking-widest px-1">Taxonomy</label>
                       <select required bind:value={newProduct.category} class="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-[11px] text-white focus:outline-none focus:border-aura-green transition-all appearance-none cursor-pointer">
                         <option value="" class="bg-black text-white">Select Type</option>
-                        {#each ['Saree', 'Panjabi', 'Shirt', 'T-Shirt', 'Three-Piece', 'Pant', 'Baby', 'Undergarments', 'Cosmetics', 'Market', 'Gadgets', 'Others'] as c}
+                        {#each ['Saree', 'Panjabi', 'Three-Piece', 'Borka', 'Shirt', 'T-Shirt', 'Pant', 'Baby', 'Undergarments', 'Cosmetics', 'Market', 'Gadgets', 'Others'] as c}
                           <option value={c} class="bg-black text-white">{c}</option>
                         {/each}
                       </select>

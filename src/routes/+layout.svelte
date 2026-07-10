@@ -42,7 +42,11 @@
               .filter((c: any) => c.active !== false && c.id !== 'all')
               .sort((a: any, b: any) => (a.order ?? 0) - (b.order ?? 0))
               .map((c: any) => ({ icon: LayoutGrid, ...(byId.get(c.id) ?? {}), id: c.id, name: c.name, cover: c.cover ?? '' }));
-            siteCategories.set([allTile, ...mapped]);
+            // Append any code-defined (ECO) category the saved config doesn't have yet (e.g.
+            // borka) so new categories always appear without the owner re-saving the config.
+            const have = new Set(cfg.categories.map((c: any) => c.id));
+            const missing = ECO_CATEGORIES.filter((e) => e.id !== 'all' && !have.has(e.id));
+            siteCategories.set([allTile, ...mapped, ...missing]);
           }
           if (cfg?.featured) featuredConfig.set({ vendorSlugs: cfg.featured.vendorSlugs ?? [], productIds: cfg.featured.productIds ?? [] });
         })

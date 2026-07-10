@@ -187,7 +187,7 @@
   };
 
   const STYLE_VIBES = ['Vintage Heritage', 'Classic Oil', 'Sketch', 'Studio Portrait', 'Golden Hour', 'Editorial'];
-  const PRODUCT_CATEGORIES = ['All', 'Saree', 'Panjabi', 'Shirt', 'T-Shirt', 'Three-Piece', 'Pant', 'Baby'];
+  const PRODUCT_CATEGORIES = ['All', 'Saree', 'Panjabi', 'Three-Piece', 'Borka', 'Shirt', 'T-Shirt', 'Pant', 'Baby'];
 </script>
 
 {#snippet toolTab(active, IconComponent, label, sub, onClick)}
