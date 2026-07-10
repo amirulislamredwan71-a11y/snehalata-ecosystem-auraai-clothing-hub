@@ -7,9 +7,19 @@ export const config = { maxDuration: 60 };
 
 export const POST = async ({ request }) => {
   const { userImg, productImg, category } = await request.json();
-  let mlNoCredits = false;
+  let gemQuota = false;
 
-  // 1) ModelsLab dedicated garment try-on (primary — cheapest ~$0.002/img)
+  // 1) Gemini image try-on (PRIMARY — billing is enabled; accepts URL or base64 now).
+  try {
+    const data = await gemini.generateTryOnTransformation(userImg, productImg);
+    if (data) return json({ image: `data:image/png;base64,${data}` });
+  } catch (e: any) {
+    const m = String(e?.message || '');
+    gemQuota = /RESOURCE_EXHAUSTED|429|quota|limit:\s*0|billing/i.test(m);
+    if (!gemQuota) console.error('[try-on] Gemini failed:', m);
+  }
+
+  // 2) ModelsLab dedicated garment engine (SECONDARY — higher quality, needs wallet credit).
   if (modelslabConfigured()) {
     try {
       const out = await tryOnModelsLab({
@@ -19,35 +29,20 @@ export const POST = async ({ request }) => {
       });
       if (out) return json({ image: out }); // out is a public URL
     } catch (e: any) {
-      mlNoCredits = e instanceof NoCreditsError;
-      if (!mlNoCredits) console.error('[try-on] ModelsLab failed:', e?.message);
+      if (!(e instanceof NoCreditsError)) console.error('[try-on] ModelsLab failed:', e?.message);
     }
   }
 
-  // 2) Gemini image fallback (works only if Gemini billing is enabled)
-  try {
-    const data = await gemini.generateTryOnTransformation(userImg, productImg);
-    if (data) return json({ image: `data:image/png;base64,${data}` });
-  } catch (e: any) {
-    const m = String(e?.message || '');
-    const gemQuota = /RESOURCE_EXHAUSTED|429|quota|limit:\s*0|billing/i.test(m);
-    if (mlNoCredits || gemQuota) {
-      return json({
-        error: 'setup',
-        message:
-          'Aura Try-On is ready — just add a little ModelsLab wallet credit (or enable Gemini billing) and it activates instantly. আপাতত AI ইমেজ কোটা শেষ, একটু পরে আবার চেষ্টা করুন।'
-      });
-    }
-    return json({ error: 'busy', message: 'Aura Vision is very busy right now — please try again in a few seconds.' });
-  }
-
-  // Gemini returned no image without throwing
-  if (mlNoCredits) {
+  // Honest failure — no image was produced.
+  if (gemQuota) {
     return json({
-      error: 'setup',
-      message:
-        'Aura Try-On is ready — just add a little ModelsLab wallet credit (or enable Gemini billing) and it activates instantly.'
+      error: 'busy',
+      message: 'Aura Vision এখন খুব ব্যস্ত (AI image quota) — একটু পরে আবার চেষ্টা করুন।'
     });
   }
-  return json({ error: 'busy', message: 'Aura could not read the photos clearly — please try clearer images.' });
+  return json({
+    error: 'busy',
+    message:
+      'Aura ছবিটা পরিষ্কারভাবে পড়তে পারেনি — আপনার পুরো শরীরের একটা স্পষ্ট ছবি (ভালো আলোতে, সোজা হয়ে দাঁড়িয়ে) দিয়ে আবার চেষ্টা করুন।'
+  });
 };

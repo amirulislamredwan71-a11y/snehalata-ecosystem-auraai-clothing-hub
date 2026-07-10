@@ -171,21 +171,52 @@ export const analyzeSearchIntent = async (userPrompt: string) => {
     return JSON.parse(response.text || 'null');
 };
 
+// Turn ANY image reference into Gemini inlineData {data(base64), mimeType}. Handles a
+// data: URL (split), an http(s) URL, or a site-relative "/path" (fetched server-side,
+// prefixed with the site origin — mirrors toPublicUrl in modelslab.server.ts). This is
+// the fix for try-on: /studio & catalog products pass a URL, not base64.
+const SITE_ORIGIN = 'https://www.snehalata.com';
+async function imageToInline(ref: string): Promise<{ data: string; mimeType: string }> {
+    if (!ref) throw new Error('empty image reference');
+    const m = ref.match(/^data:(image\/[\w+.-]+);base64,(.+)$/s);
+    if (m) return { data: m[2], mimeType: m[1] };
+    const url = /^https?:\/\//i.test(ref) ? ref : SITE_ORIGIN + (ref.startsWith('/') ? ref : '/' + ref);
+    const resp = await fetch(url);
+    if (!resp.ok) throw new Error(`could not fetch image (${resp.status})`);
+    const ct = (resp.headers.get('content-type') || '').split(';')[0].trim();
+    const buf = Buffer.from(await resp.arrayBuffer());
+    return { data: buf.toString('base64'), mimeType: ct.startsWith('image/') ? ct : 'image/jpeg' };
+}
+
 export const generateTryOnTransformation = async (userImg: string, productImg: string) => {
-    const response = await withRetry(() => ai.models.generateContent({
-        model: 'gemini-2.5-flash-image',
-        contents: {
-            parts: [
-                { inlineData: { data: userImg.split(',')[1], mimeType: 'image/jpeg' } },
-                { inlineData: { data: productImg.split(',')[1], mimeType: 'image/jpeg' } },
-                { text: "Photorealistic virtual try-on. Dress the PERSON in the first image with the GARMENT/product shown in the second image. Keep the person's face, body, skin tone and pose exactly the same; replace only their outfit with the garment, fitted naturally with realistic folds, drape, lighting and shadows. Return only the edited photo." }
-            ]
-        },
-        config: { responseModalities: [Modality.IMAGE] }
-    }));
-    for (const part of response.candidates?.[0]?.content?.parts || []) {
-        if (part.inlineData) return part.inlineData.data;
+    const [person, garment] = await Promise.all([imageToInline(userImg), imageToInline(productImg)]);
+    const parts = [
+        { inlineData: { data: person.data, mimeType: person.mimeType } },
+        { inlineData: { data: garment.data, mimeType: garment.mimeType } },
+        { text: "Photorealistic virtual try-on. Take the PERSON in the FIRST image and dress them in the GARMENT shown in the SECOND image. Keep the person's face, hairstyle, body shape, skin tone, pose and background EXACTLY the same — change ONLY their clothing to the garment, fitted naturally with realistic folds, drape, lighting and shadows. Output a single clean full-body photo. Return ONLY the edited image, no text." }
+    ];
+    // gemini-3.1 image preview composites two images better; fall back to 2.5 if unavailable.
+    const models = ['gemini-3.1-flash-image-preview', 'gemini-2.5-flash-image'];
+    let lastErr: any = null;
+    for (const model of models) {
+        try {
+            const response = await withRetry(() => ai.models.generateContent({
+                model,
+                contents: { parts },
+                config: { responseModalities: [Modality.IMAGE] }
+            }));
+            for (const part of response.candidates?.[0]?.content?.parts || []) {
+                if (part.inlineData) return part.inlineData.data;
+            }
+            // model returned no image (e.g. text refusal) — try the next model
+        } catch (e: any) {
+            lastErr = e;
+            // A genuine quota/billing error must bubble up so the endpoint can be honest.
+            if (/RESOURCE_EXHAUSTED|429|quota|billing|limit:\s*0/i.test(String(e?.message || ''))) throw e;
+            // otherwise try the next model
+        }
     }
+    if (lastErr) console.error('[try-on] both image models failed:', lastErr?.message || lastErr);
     return null;
 };
 

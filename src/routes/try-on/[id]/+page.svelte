@@ -47,16 +47,20 @@
   }
 
   async function processFile(file: File, type: 'user' | 'product') {
-    // Downscale before use so phone-camera photos stay under the serverless body limit.
-    const dataUrl = await fileToCompressedDataURL(file);
-    if (type === 'user') {
-      userImage = dataUrl;
-    } else {
-      productImage = dataUrl;
-      product = undefined;
+    try {
+      // Downscale before use so phone-camera photos stay under the serverless body limit.
+      const dataUrl = await fileToCompressedDataURL(file);
+      if (type === 'user') {
+        userImage = dataUrl;
+      } else {
+        productImage = dataUrl;
+        product = undefined;
+      }
+      generatedImage = null;
+      error = null;
+    } catch {
+      error = 'ছবিটি পড়া গেল না — অন্য একটি ছবি চেষ্টা করুন।';
     }
-    generatedImage = null;
-    error = null;
   }
 
   function handleImageUpload(e: Event, type: 'user' | 'product') {
