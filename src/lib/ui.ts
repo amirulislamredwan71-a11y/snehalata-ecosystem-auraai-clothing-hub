@@ -19,3 +19,8 @@ export const featuredConfig = writable<{ vendorSlugs: string[]; productIds: numb
   productIds: []
 });
 
+// Lowercased category ids that actually have ≥1 live product. The home page publishes
+// this from its live catalog; the global CategorySheet reads it to hide dead-end
+// (empty) categories. Empty set = "not computed yet" → show all (safe fallback).
+export const stockedCategoryIds = writable<Set<string>>(new Set());
+

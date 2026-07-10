@@ -8,7 +8,7 @@
   import { getProducts, getVendors } from '$lib/mockData';
   import { BD_LOCATIONS } from '$lib/locationData';
   import { ECO_CATEGORIES } from '$lib/categories';
-  import { siteCategories, featuredConfig } from '$lib/ui';
+  import { siteCategories, featuredConfig, stockedCategoryIds } from '$lib/ui';
   import { track } from '$lib/analytics';
 
   let { data } = $props();
@@ -341,6 +341,42 @@
       .slice(0, 8);
   });
 
+  // সাধ্য v2 — "পুরো সাজ" (a complete outfit within one budget). When the need mentions an
+  // outfit/set word, pair the best-value top + bottom that BOTH fit the budget (deterministic,
+  // client-side); fall back to a single complete-attire piece (saree/three-piece/panjabi).
+  const OUTFIT_KW = ['সাজ', 'সেট', 'outfit', 'পুরো', 'ফুল', 'full', 'complete', 'কমপ্লিট', 'কম্পলিট', 'ঈদ', 'eid', 'লুক', 'look', 'পোশাক', 'set'];
+  const isOutfitNeed = (need: string) => {
+    const n = need.toLowerCase();
+    return OUTFIT_KW.some((k) => n.includes(k));
+  };
+  const bestValue = (pool: any[]) =>
+    [...pool].sort((a, b) => valueRank(a) - valueRank(b) || a.price - b.price)[0] || null;
+  let budgetOutfit = $derived.by(() => {
+    const budget = Number(budgetAmount);
+    if (!budget || budget <= 0) return null as null | { items: any[]; total: number };
+    const need = budgetNeed.trim();
+    if (!need || !isOutfitNeed(need)) return null;
+    const tops = products.filter((p) => ['panjabi', 'shirt', 't-shirt'].includes(String(p.category).toLowerCase()));
+    const bottoms = products.filter((p) => String(p.category).toLowerCase() === 'pant');
+    if (tops.length && bottoms.length) {
+      const cheapestTop = Math.min(...tops.map((p) => Number(p.price)));
+      // bottoms cheap enough to still leave room for at least the cheapest top
+      const affordableBottoms = bottoms.filter((p) => Number(p.price) <= budget - cheapestTop);
+      if (affordableBottoms.length) {
+        const bottom = bestValue(affordableBottoms);
+        const top = bestValue(tops.filter((p) => Number(p.price) <= budget - Number(bottom.price)));
+        if (top) return { items: [top, bottom], total: Number(top.price) + Number(bottom.price) };
+      }
+    }
+    // Fallback — a single complete-attire piece that fits.
+    const single = bestValue(
+      products.filter(
+        (p) => ['saree', 'three-piece', 'panjabi'].includes(String(p.category).toLowerCase()) && Number(p.price) <= budget
+      )
+    );
+    return single ? { items: [single], total: Number(single.price) } : null;
+  });
+
   // Category tiles — gradient fallback for categories that don't have a cover image yet.
   const TILE_BG = [
     'linear-gradient(160deg,#332720,#1B1512)',
@@ -349,7 +385,20 @@
     'linear-gradient(160deg,#1B2A1E,#101A12)',
     'linear-gradient(160deg,#2B2617,#19160D)'
   ];
-  const categoryTiles = $derived($siteCategories.filter(c => c.id !== 'all'));
+  // Only show categories that actually have live products — no dead-end tiles (market/
+  // gadgets/others stay hidden until stocked, then reappear automatically).
+  const nonEmptyCat = (c: any) =>
+    c.id === 'all' || products.some((p) => p.category?.toLowerCase() === c.id.toLowerCase());
+  const categoryTiles = $derived($siteCategories.filter((c) => c.id !== 'all' && nonEmptyCat(c)));
+  // Same rule for the nav chips / sidebars — keep "All" + only stocked categories.
+  const navCategories = $derived($siteCategories.filter(nonEmptyCat));
+
+  // Publish the set of stocked category ids so the global CategorySheet (bottom nav) can
+  // hide empty categories too. Writes an external store only — no self-dependency loop.
+  $effect(() => {
+    const ids = new Set(products.map((p) => String(p.category || '').toLowerCase()).filter(Boolean));
+    stockedCategoryIds.set(ids);
+  });
 
   // Hero "BD → global" network: nodes scattered near the edges (the world), arcs radiate
   // from the Bangladesh origin (viewBox centre 200,108) outward to them.
@@ -497,7 +546,7 @@
           <input type="number" inputmode="numeric" min="0" bind:value={budgetAmount} placeholder="বাজেট" aria-label="বাজেট"
             class="w-full bg-transparent py-2.5 text-sm text-aura-cream placeholder:text-[#5e6d67] focus:outline-none" />
         </div>
-        <input type="text" bind:value={budgetNeed} placeholder="কী খুঁজছেন? যেমন: পাঞ্জাবি, শাড়ি (ঐচ্ছিক)" aria-label="কী খুঁজছেন"
+        <input type="text" bind:value={budgetNeed} placeholder="কী খুঁজছেন? যেমন: পাঞ্জাবি, শাড়ি, বা ‘পুরো ঈদের সাজ’" aria-label="কী খুঁজছেন"
           class="flex-1 px-3.5 py-2.5 rounded-xl bg-[#0a0f0d]/70 border border-aura-green/20 text-sm text-aura-cream placeholder:text-[#5e6d67] focus:outline-none focus:border-aura-green/50" />
       </div>
       <div class="flex flex-wrap gap-2 mt-2.5">
@@ -509,7 +558,16 @@
 
       {#if budgetAmount && budgetAmount > 0}
         <div class="mt-4 pt-4 border-t border-aura-green/15">
-          {#if budgetResults.length > 0}
+          {#if budgetOutfit}
+            <p class="text-[12.5px] text-[#cfe8dd] mb-3">
+              ৳{Number(budgetAmount).toLocaleString()} বাজেটে <span class="font-bold text-aura-green">{budgetOutfit.items.length > 1 ? 'পুরো সাজ' : 'সেরা পোশাক'}</span> — মোট <span class="font-bold text-aura-gold">৳{budgetOutfit.total.toLocaleString()}</span>{#if budgetOutfit.items.length > 1} <span class="text-[#93a29b]">({budgetOutfit.items.length} পিস · টপ + বটম)</span>{/if} ✓
+            </p>
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+              {#each budgetOutfit.items as p (p.id)}
+                <ProductCard product={p} vendor={vendors.find(v => v.id === p.vendorId)} />
+              {/each}
+            </div>
+          {:else if budgetResults.length > 0}
             <p class="text-[12.5px] text-[#cfe8dd] mb-3">৳{Number(budgetAmount).toLocaleString()}-এর মধ্যে <span class="font-bold text-aura-green">{budgetResults.length}</span>টি যাচাই করা পণ্য — সেরা ভ্যালু আগে ✓</p>
             <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
               {#each budgetResults as p (p.id)}
@@ -615,7 +673,7 @@
         <Menu size={18} />
       </button>
       <div class="flex gap-2 overflow-x-auto no-scrollbar">
-        {#each $siteCategories as cat}
+        {#each navCategories as cat}
           <button type="button" onclick={() => selectCategory(cat.id)}
             class="flex-shrink-0 px-4 py-2 rounded-xl text-[11px] font-bold border transition-all touch-manipulation {selectedCategory === cat.id ? 'bg-aura-green border-aura-green text-black' : 'bg-white/5 border-white/10 text-gray-400'}">
             {cat.name}
@@ -630,7 +688,7 @@
     <aside class="hidden lg:block w-80 h-[calc(100vh-100px)] sticky top-[100px] overflow-y-auto p-8 border-r border-white/5 no-scrollbar">
       <h3 class="text-[10px] font-black uppercase tracking-[0.3em] text-gray-500 mb-8 px-4">Neural Grid Categories</h3>
       <nav class="space-y-2">
-        {#each $siteCategories as cat}
+        {#each navCategories as cat}
           {@const Icon = cat.icon}
           <button onclick={() => selectCategory(cat.id)}
             class="w-full flex items-center justify-between px-6 py-4 rounded-2xl transition-all group cursor-pointer {selectedCategory === cat.id ? 'bg-aura-green text-black shadow-xl shadow-aura-green/20 translate-x-2' : 'text-gray-400 hover:bg-white/5 hover:text-white'}">
@@ -826,7 +884,7 @@
         </button>
       </div>
       <div class="space-y-2 pb-6">
-        {#each $siteCategories as cat}
+        {#each navCategories as cat}
           {@const Icon = cat.icon}
           <button type="button" onclick={() => selectCategory(cat.id)}
             class="w-full flex items-center gap-4 p-3.5 rounded-2xl border transition-all cursor-pointer touch-manipulation {selectedCategory === cat.id ? 'bg-aura-green border-aura-green text-black shadow-xl' : 'bg-white/5 border-white/10 text-gray-400'}">
