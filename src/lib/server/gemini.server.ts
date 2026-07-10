@@ -220,6 +220,35 @@ export const generateTryOnTransformation = async (userImg: string, productImg: s
     return null;
 };
 
+// Cosmetics try-on — a SINGLE-image selfie edit (the reliable Gemini path): recolour the
+// lips/cheeks/eyelids with the chosen shade, everything else untouched. `shade` is a colour
+// name or hex; `kind` = lipstick | blush | eyeshadow.
+export const generateMakeupTryOn = async (selfie: string, shade: string, kind: string = 'lipstick') => {
+    const person = await imageToInline(selfie);
+    const area = kind === 'blush' ? 'cheeks' : kind === 'eyeshadow' ? 'upper eyelids' : 'lips';
+    const parts = [
+        { inlineData: { data: person.data, mimeType: person.mimeType } },
+        { text: `Virtual makeup try-on. Apply ${shade} ${kind} to this person's ${area} with a natural, realistic finish that matches the face's lighting and skin. Keep the face, skin, facial features, expression, hair and background EXACTLY the same — change ONLY the colour of the ${area}. Return ONLY the edited photo, no text.` }
+    ];
+    const models = ['gemini-3.1-flash-image-preview', 'gemini-2.5-flash-image'];
+    let lastErr: any = null;
+    for (const model of models) {
+        try {
+            const response = await withRetry(() => ai.models.generateContent({
+                model, contents: { parts }, config: { responseModalities: [Modality.IMAGE] }
+            }));
+            for (const part of response.candidates?.[0]?.content?.parts || []) {
+                if (part.inlineData) return part.inlineData.data;
+            }
+        } catch (e: any) {
+            lastErr = e;
+            if (/RESOURCE_EXHAUSTED|429|quota|billing|limit:\s*0/i.test(String(e?.message || ''))) throw e;
+        }
+    }
+    if (lastErr) console.error('[makeup] failed:', lastErr?.message || lastErr);
+    return null;
+};
+
 export const generateAuraSpeech = async (text: string) => {
     const response = await ai.models.generateContent({
       model: "gemini-3.1-flash-tts-preview",

@@ -76,7 +76,7 @@
             name: formData.name, phone: formData.phone, email: formData.email,
             district: formData.district, area: formData.area, address: formData.address, note: formData.note
           },
-          items: cartItems.map((i) => ({ id: i.id, quantity: i.quantity })),
+          items: cartItems.map((i) => ({ id: i.id, quantity: i.quantity, size: i.size ?? null })),
           payment: { method: payMethod, txid: payTxid || null }
         })
       });
@@ -177,7 +177,10 @@
                       <img src={item.imageUrl} alt={item.name} class="w-16 h-16 sm:w-20 sm:h-20 rounded-xl object-cover border border-gray-100 shrink-0" />
                       <div class="flex-1 min-w-0">
                         <h4 class="font-bold text-sm truncate">{item.name}</h4>
-                        <p class="text-[10px] text-gray-500 uppercase font-black tracking-widest mt-1">৳{item.price}</p>
+                        <div class="flex items-center gap-2 mt-1">
+                          <p class="text-[10px] text-gray-500 uppercase font-black tracking-widest">৳{item.price}</p>
+                          {#if item.size}<span class="text-[9px] font-black uppercase tracking-widest text-aura-green bg-aura-green/10 px-2 py-0.5 rounded-full">Size {item.size}</span>{/if}
+                        </div>
                       </div>
                       <div class="flex items-center gap-2 sm:gap-4 bg-gray-50 rounded-full px-3 sm:px-4 py-1 shrink-0">
                         <button onclick={() => updateQuantity(item.id, -1)} class="p-1 hover:text-aura-green transition-colors"><Minus size={14} /></button>
@@ -304,7 +307,7 @@
                   <img src={item.imageUrl} alt={item.name} class="w-14 h-14 rounded-xl object-cover shrink-0" />
                   <div class="flex-1 min-w-0">
                     <h4 class="font-bold text-xs truncate">{item.name}</h4>
-                    <p class="text-[9px] text-gray-500 font-black uppercase tracking-widest mt-1">Qty: {item.quantity}</p>
+                    <p class="text-[9px] text-gray-500 font-black uppercase tracking-widest mt-1">Qty: {item.quantity}{#if item.size} · Size {item.size}{/if}</p>
                   </div>
                   <span class="font-black tabular-nums text-sm">৳{(item.price * item.quantity).toLocaleString()}</span>
                 </div>

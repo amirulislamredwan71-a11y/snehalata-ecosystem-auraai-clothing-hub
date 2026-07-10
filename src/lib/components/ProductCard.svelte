@@ -18,6 +18,12 @@
   // Live rating for this product (from the global aggregates store).
   const agg = $derived($reviewAgg.byProduct[String(product.id)]);
 
+  // Size selection — apparel categories only (skip Saree/Cosmetics/Baby/etc.).
+  const SIZED_CATS = ['panjabi', 'shirt', 't-shirt', 'pant', 'three-piece'];
+  const SIZES = ['XS', 'S', 'M', 'L', 'XL'];
+  const needsSize = $derived(SIZED_CATS.includes(String((product as any).category || '').toLowerCase()));
+  let selectedSize = $state('M');
+
   // Reviews loaded lazily when the modal opens (list + submit form).
   let reviews = $state<any[]>([]);
   let reviewsLoaded = $state(false);
@@ -106,13 +112,18 @@
   }
 
   function addToCart(imgUrl: string, qty: number) {
+    const size = needsSize ? selectedSize : null;
     const cart = JSON.parse(localStorage.getItem('aura_cart') || '[]');
     const existing = cart.findIndex((i: any) => i.id === product.id);
-    if (existing > -1) cart[existing].quantity += qty;
-    else cart.push({ ...product, imageUrl: imgUrl, quantity: qty });
+    if (existing > -1) {
+      cart[existing].quantity += qty;
+      if (size) cart[existing].size = size; // latest chosen size wins
+    } else {
+      cart.push({ ...product, imageUrl: imgUrl, quantity: qty, size });
+    }
     localStorage.setItem('aura_cart', JSON.stringify(cart));
     window.dispatchEvent(new Event('cartUpdated'));
-    track('add_to_cart', { product_id: Number(product.id), vendor_id: vendor ? Number(vendor.id) : null, meta: { qty } });
+    track('add_to_cart', { product_id: Number(product.id), vendor_id: vendor ? Number(vendor.id) : null, meta: { qty, size } });
   }
 
   function handleQuickAdd(e: MouseEvent) {
@@ -296,6 +307,18 @@
                 <div class="text-aura-gold font-black text-2xl tracking-tighter">৳{product.price.toLocaleString()}</div>
               </div>
             </header>
+
+            {#if needsSize}
+              <div class="space-y-3">
+                <label class="text-[11px] text-gray-500 font-black uppercase tracking-[0.3em] px-2">সাইজ · Size</label>
+                <div class="flex gap-2">
+                  {#each SIZES as s}
+                    <button type="button" onclick={() => selectedSize = s}
+                      class="flex-1 py-3 rounded-xl text-sm font-black border transition-all cursor-pointer {selectedSize === s ? 'bg-aura-green border-aura-green text-black' : 'bg-white/5 border-white/10 text-gray-300 hover:border-white/30'}">{s}</button>
+                  {/each}
+                </div>
+              </div>
+            {/if}
 
             <div class="space-y-5">
               <label class="text-[11px] text-gray-500 font-black uppercase tracking-[0.3em] px-2">Quantity Allocation</label>

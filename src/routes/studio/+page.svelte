@@ -7,14 +7,32 @@
     Camera, RefreshCw, CheckCircle2, User,
     Upload, Palette, Sliders, Info, Ruler, Scan
   } from '@lucide/svelte';
-  import { generateTryOnTransformation, generateStyleTransfer } from '$lib/geminiService';
+  import { generateTryOnTransformation, generateStyleTransfer, generateMakeupTryOn } from '$lib/geminiService';
   import { getProducts, getVendors } from '$lib/mockData';
   import { fileToCompressedDataURL, productImg, imgFallback } from '$lib/imageUpload';
   import { BD_LOCATIONS } from '$lib/locationData';
   import type { Product } from '$lib/types';
 
-  let activeTool = $state<'TRYON' | 'STYLE'>('TRYON');
+  let activeTool = $state<'TRYON' | 'MAKEUP' | 'STYLE'>('TRYON');
   let stylePrompt = $state('Vintage Heritage / Warm Film');
+  // Cosmetics try-on — selfie + a shade → recoloured lips/cheeks/eyes (single-image, reliable).
+  const MAKEUP_KINDS = [
+    { id: 'lipstick', label: 'লিপস্টিক' },
+    { id: 'blush', label: 'ব্লাশ' },
+    { id: 'eyeshadow', label: 'আইশ্যাডো' }
+  ];
+  const SHADES = [
+    { name: 'Classic Red', hex: '#c8102e' },
+    { name: 'Maroon', hex: '#7b1e3a' },
+    { name: 'Coral', hex: '#ff6f61' },
+    { name: 'Nude Pink', hex: '#c98a7a' },
+    { name: 'Berry', hex: '#8e2e5d' },
+    { name: 'Plum', hex: '#5e2750' },
+    { name: 'Rose', hex: '#d6688a' },
+    { name: 'Brick', hex: '#a63a2a' }
+  ];
+  let makeupKind = $state('lipstick');
+  let selectedShade = $state<{ name: string; hex: string } | null>(null);
   let result = $state<any>(null);
   let studioError = $state<string | null>(null);
   let isProcessing = $state(false);
@@ -127,6 +145,7 @@
 
   const handleRun = async () => {
     if (activeTool === 'TRYON' && (!selectedProduct || (!capturedImage && !isCameraActive))) return;
+    if (activeTool === 'MAKEUP' && (!selectedShade || (!capturedImage && !isCameraActive))) return;
     if (activeTool === 'STYLE' && (!capturedImage && !isCameraActive)) return;
 
     isProcessing = true;
@@ -143,6 +162,12 @@
         if (selectedProduct && capturedImage) {
           const transformed = await generateTryOnTransformation(capturedImage, selectedProduct.imageUrl!, selectedProduct.category);
           if (transformed.image) result = { type: 'TRYON', url: transformed.image, product: selectedProduct };
+          else studioError = transformed.error || busyMsg;
+        }
+      } else if (activeTool === 'MAKEUP') {
+        if (capturedImage && selectedShade) {
+          const transformed = await generateMakeupTryOn(capturedImage, `${selectedShade.name} (${selectedShade.hex})`, makeupKind);
+          if (transformed.image) result = { type: 'MAKEUP', url: transformed.image, shade: selectedShade };
           else studioError = transformed.error || busyMsg;
         }
       } else if (capturedImage) {
@@ -193,6 +218,9 @@
       <aside class="flex lg:flex-col gap-3 overflow-x-auto no-scrollbar min-w-0">
         <div class="min-w-[220px] lg:min-w-0">
           {@render toolTab(activeTool === 'TRYON', Camera, 'Neural AR Try-On', 'Live Vision • Virtual Fit', () => activeTool = 'TRYON')}
+        </div>
+        <div class="min-w-[220px] lg:min-w-0">
+          {@render toolTab(activeTool === 'MAKEUP', Sparkles, 'Makeup Try-On', 'Selfie • Lip & Shade', () => activeTool = 'MAKEUP')}
         </div>
         <div class="min-w-[220px] lg:min-w-0">
           {@render toolTab(activeTool === 'STYLE', Palette, 'Style Transfer', 'Creative • Photo Restyle', () => activeTool = 'STYLE')}
@@ -252,6 +280,28 @@
                   {/each}
                 </div>
                 <input type="text" bind:value={stylePrompt} placeholder="Or specify a custom artistic medium..." class="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-xs text-white focus:outline-none focus:border-aura-green transition-all" />
+              </div>
+            {/if}
+
+            {#if activeTool === 'MAKEUP'}
+              <div class="space-y-4">
+                <div class="flex gap-2">
+                  {#each MAKEUP_KINDS as k}
+                    <button type="button" onclick={() => makeupKind = k.id}
+                      class="px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border transition-all {makeupKind === k.id ? 'bg-aura-green border-aura-green text-white' : 'bg-white/5 border-white/10 text-gray-400'}">{k.label}</button>
+                  {/each}
+                </div>
+                <label class="text-[10px] font-black uppercase tracking-widest text-aura-green px-1 block">শেড বেছে নিন · Pick a shade</label>
+                <div class="flex gap-3 overflow-x-auto no-scrollbar pb-2">
+                  {#each SHADES as s}
+                    <button type="button" onclick={() => selectedShade = s} title={s.name}
+                      class="flex-shrink-0 flex flex-col items-center gap-1.5 group">
+                      <span class="w-11 h-11 rounded-full border-2 transition-all {selectedShade?.name === s.name ? 'border-white scale-110 ring-2 ring-aura-green' : 'border-white/20 group-hover:border-white/50'}" style="background:{s.hex}"></span>
+                      <span class="text-[8px] font-bold uppercase tracking-wide {selectedShade?.name === s.name ? 'text-white' : 'text-gray-500'}">{s.name}</span>
+                    </button>
+                  {/each}
+                </div>
+                <p class="text-[10px] text-gray-500 italic px-1">সেলফি তুলুন বা আপলোড করুন — Aura আপনার {makeupKind === 'blush' ? 'গালে' : makeupKind === 'eyeshadow' ? 'চোখে' : 'ঠোঁটে'} শেডটা বসিয়ে দেখাবে।</p>
               </div>
             {/if}
 
@@ -339,7 +389,7 @@
               <button
                 type="button"
                 onclick={handleRun}
-                disabled={isProcessing || (activeTool === 'TRYON' && !selectedProduct) || (!capturedImage && !isCameraActive)}
+                disabled={isProcessing || (activeTool === 'TRYON' && !selectedProduct) || (activeTool === 'MAKEUP' && !selectedShade) || (!capturedImage && !isCameraActive)}
                 class="bg-white text-black px-10 py-4 rounded-2xl font-black uppercase tracking-[0.2em] text-xs flex items-center gap-3 hover:bg-aura-green hover:text-white transition-all shadow-xl disabled:opacity-50"
               >
                 {#if isProcessing}
@@ -347,7 +397,7 @@
                 {:else}
                   <Zap size={16} />
                 {/if}
-                {isProcessing ? 'Synthesizing...' : activeTool === 'TRYON' ? 'Synthesize AR Look' : 'Synthesize Style'}
+                {isProcessing ? 'Synthesizing...' : activeTool === 'TRYON' ? 'Synthesize AR Look' : activeTool === 'MAKEUP' ? 'Apply Makeup' : 'Synthesize Style'}
               </button>
             </div>
           </div>
@@ -398,6 +448,21 @@
                     <span class="text-[10px] font-black uppercase tracking-widest text-white">Neural Style Transfer Applied</span>
                   </div>
                   <a href={result.url} download="aura-style.png" class="absolute bottom-6 right-6 p-6 bg-white text-black rounded-full shadow-2xl hover:scale-110 transition-transform"><Download size={24} /></a>
+                </div>
+              {/if}
+              {#if result.type === 'MAKEUP'}
+                <div transition:scale class="relative w-full h-full duration-700">
+                  <img src={result.url} class="w-full h-full object-contain rounded-3xl" alt="Makeup try-on result" />
+                  <div class="absolute top-6 left-6 flex items-center gap-3 bg-black/60 backdrop-blur-md px-6 py-3 rounded-full border border-white/10">
+                    <CheckCircle2 size={16} class="text-green-400" />
+                    <span class="text-[10px] font-black uppercase tracking-widest text-white">Makeup Applied</span>
+                  </div>
+                  {#if result.shade}
+                    <div class="absolute bottom-6 right-6 flex items-center gap-3 bg-aura-glass backdrop-blur-3xl border border-aura-glassBorder rounded-full pl-3 pr-5 py-2 shadow-2xl">
+                      <span class="w-7 h-7 rounded-full border border-white/20" style="background:{result.shade.hex}"></span>
+                      <span class="text-white font-bold text-xs">{result.shade.name}</span>
+                    </div>
+                  {/if}
                 </div>
               {/if}
             </div>

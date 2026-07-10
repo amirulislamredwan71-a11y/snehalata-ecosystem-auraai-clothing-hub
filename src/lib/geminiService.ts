@@ -71,6 +71,21 @@ export const generateTryOnTransformation = async (userImg: string, productImg: s
   }
 };
 
+export const generateMakeupTryOn = async (selfie: string, shade: string, kind = 'lipstick'): Promise<ImageResult> => {
+  try {
+    const response = await fetch("/api/gemini/makeup", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ selfie, shade, kind }),
+    });
+    const data = await response.json();
+    if (data.image) return { image: data.image, error: null, code: null };
+    return { image: null, error: data.message || 'Aura Vision is busy — please try again.', code: data.error || 'busy' };
+  } catch (e) {
+    console.error("Aura Makeup Error", e);
+    return { image: null, error: 'Neural link interrupted — please try again.', code: 'network' };
+  }
+};
+
 export const generateAuraImage = async (prompt: string, referenceImage?: string) => {
   try {
     const response = await fetch("/api/gemini/generate-image", {

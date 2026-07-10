@@ -43,8 +43,10 @@ export const POST: RequestHandler = async ({ request }) => {
     const commission = money((line * rate) / 100);
     const payout = money(line - commission);
     subtotal += line; commissionTotal += commission; payoutTotal += payout;
+    // Chosen size is recorded on the item name so the vendor/admin see it (no schema change).
+    const size = it.size ? String(it.size).slice(0, 8).replace(/[^\w-]/g, '') : '';
     lineItems.push({
-      product_id: p.id, vendor_id: p.vendor_id, name: p.name, image_url: p.image_url,
+      product_id: p.id, vendor_id: p.vendor_id, name: size ? `${p.name} · Size ${size}` : p.name, image_url: p.image_url,
       unit_price: unit, quantity: qty, line_total: line,
       commission_rate: rate, commission_amount: commission, vendor_payout: payout, item_status: 'PLACED'
     });
