@@ -9,6 +9,8 @@
   import { BD_LOCATIONS } from '$lib/locationData';
   import { ECO_CATEGORIES } from '$lib/categories';
   import { siteCategories, featuredConfig, stockedCategoryIds } from '$lib/ui';
+  import { reviewAgg } from '$lib/reviews';
+  import Stars from '$lib/components/Stars.svelte';
   import { track } from '$lib/analytics';
 
   let { data } = $props();
@@ -635,10 +637,19 @@
               </div>
             </div>
             <div class="text-[13px] font-bold text-aura-cream mt-2 truncate">{v.store_name}</div>
-            <div class="flex items-center gap-1.5 mt-1">
-              <span class="w-1.5 h-1.5 rounded-full bg-aura-green"></span>
-              <span class="text-[10.5px] text-[#93a29b] truncate">{v.description || 'Verified Storefront'}</span>
-            </div>
+            {#if $reviewAgg.byVendor[String(v.id)]?.count > 0}
+              {@const va = $reviewAgg.byVendor[String(v.id)]}
+              <div class="flex items-center gap-1 mt-1">
+                <Stars value={va.avg} size={10} />
+                <span class="text-[10px] font-bold text-aura-gold tabular-nums">{va.avg}</span>
+                <span class="text-[9.5px] text-[#93a29b]">({va.count})</span>
+              </div>
+            {:else}
+              <div class="flex items-center gap-1.5 mt-1">
+                <span class="w-1.5 h-1.5 rounded-full bg-aura-green"></span>
+                <span class="text-[10.5px] text-[#93a29b] truncate">{v.description || 'Verified Storefront'}</span>
+              </div>
+            {/if}
           </a>
         {/each}
       </div>

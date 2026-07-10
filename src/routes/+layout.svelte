@@ -10,6 +10,7 @@
   import { syncWithNeuralGrid, getProducts } from '$lib/mockData';
   import { priceStats, buildPriceStats } from '$lib/fairPrice';
   import { siteCategories, featuredConfig } from '$lib/ui';
+  import { loadReviewAgg } from '$lib/reviews';
   import { ECO_CATEGORIES } from '$lib/categories';
   import { LayoutGrid } from '@lucide/svelte';
 
@@ -48,6 +49,10 @@
         .catch(() => {});
     refreshConfig();
     window.addEventListener('siteConfigUpdated', refreshConfig);
+
+    // Live review aggregates (product + vendor avg/count) — one global fetch drives every
+    // ProductCard star-badge and the vendor rail rating. No-op if the table isn't provisioned.
+    loadReviewAgg();
 
     const load = () =>
       import('$lib/components/ChatAssistant.svelte').then((m) => {
