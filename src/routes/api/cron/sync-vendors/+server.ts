@@ -19,7 +19,7 @@ async function enrichPendingProducts(a: ReturnType<typeof adminClient>) {
   } catch { /* embedding column not migrated / Gemini offline — ignore */ }
   try {
     const { data: toMod } = await a
-      .from('products').select('id,name,category,description,price').is('moderation_score', null).limit(20);
+      .from('products').select('id,name,category,description,price').is('moderation_score', null).limit(40);
     for (const p of toMod || []) {
       const m = await withTimeout(moderateListing(p.name, p.description || '', Number(p.price) || 0, p.category || 'Others'), 12000);
       if (m) {

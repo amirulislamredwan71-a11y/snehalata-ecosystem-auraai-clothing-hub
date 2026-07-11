@@ -182,10 +182,14 @@
     <img src={productImg(currentImageUrl)} onerror={imgFallback} alt={product.name} loading="lazy" decoding="async"
       class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
 
-    <div class="absolute top-3 left-3 flex items-center gap-1 px-2 py-1 rounded-lg bg-black/45 border border-aura-gold/25">
-      <ShieldCheck size={10} class="text-aura-gold" />
-      <span class="text-[7px] font-black uppercase tracking-[0.2em] text-aura-gold">Verified</span>
-    </div>
+    <!-- Neural Verified: shown once Aura's moderation has passed (score ≥ 55). Un-scored
+         (null) live products still show it — they cleared the admin Review gate. -->
+    {#if product.moderationScore == null || product.moderationScore >= 55}
+      <div class="absolute top-3 left-3 flex items-center gap-1 px-2 py-1 rounded-lg bg-black/45 border border-aura-gold/25">
+        <ShieldCheck size={10} class="text-aura-gold" />
+        <span class="text-[7px] font-black uppercase tracking-[0.2em] text-aura-gold">Verified</span>
+      </div>
+    {/if}
 
     {#if isRefining}
       <div class="absolute inset-0 bg-black/60 backdrop-blur-md z-30 flex flex-col items-center justify-center gap-4">

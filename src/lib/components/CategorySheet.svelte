@@ -2,7 +2,7 @@
   import { goto } from '$app/navigation';
   import { fade, fly } from 'svelte/transition';
   import { X, ShieldCheck } from '@lucide/svelte';
-  import { categorySheetOpen, siteCategories } from '$lib/ui';
+  import { categorySheetOpen, siteCategories, stockedCategoryIds } from '$lib/ui';
 
   // Category visibility is owner-controlled via the admin `active` flag ($siteCategories) —
   // empty categories are intentional placeholders, so show them all.
@@ -33,9 +33,11 @@
             {#if cat.cover}
               <img src={cat.cover} alt={cat.name} loading="lazy" class="absolute inset-0 w-full h-full object-cover" />
               <div class="absolute inset-0 bg-gradient-to-t from-black/55 to-transparent"></div>
-              <div class="absolute top-1 right-1"><ShieldCheck size={12} class="text-aura-green drop-shadow" /></div>
             {:else}
               <div class="w-full h-full bg-aura-green/10 flex items-center justify-center text-aura-green"><Icon size={22} /></div>
+            {/if}
+            {#if $stockedCategoryIds.has(String(cat.id).toLowerCase())}
+              <div class="absolute top-1 right-1" title="Neural Verified"><ShieldCheck size={12} class="text-aura-green drop-shadow" /></div>
             {/if}
           </div>
           <span class="text-[11px] font-semibold text-[#dde5e1] text-center leading-tight">{cat.name}</span>

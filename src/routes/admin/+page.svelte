@@ -993,6 +993,16 @@
                         <h3 class="text-white font-bold truncate">{p.name}</h3>
                         <p class="text-green-400 font-black text-sm">৳{Number(p.price).toLocaleString()}</p>
                       </div>
+                      <!-- Aura auto-verification verdict — Aura scores every listing; you give the final approve. -->
+                      <div>
+                        {#if p.moderation_score == null}
+                          <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-widest bg-white/5 text-gray-400 border border-white/10" title="Aura will score this shortly">Aura · যাচাই হচ্ছে…</span>
+                        {:else if p.moderation_score >= 55}
+                          <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-widest bg-green-500/10 text-green-400 border border-green-500/20" title={p.moderation_note || 'Aura moderation passed'}><ShieldCheck size={10} /> Aura Verified · {p.moderation_score}</span>
+                        {:else}
+                          <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-widest bg-amber-500/10 text-amber-400 border border-amber-500/20" title={p.moderation_note || 'Aura flagged this — take a closer look before approving'}>⚠ Aura · {p.moderation_score} · দেখুন</span>
+                        {/if}
+                      </div>
                       <p class="text-[10px] text-gray-500 line-clamp-2">{p.description}</p>
                       <div class="grid grid-cols-2 gap-3 pt-2">
                         <button onclick={() => handleRejectProduct(p.id)} class="py-3 bg-red-500/10 border border-red-500/20 text-red-400 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-red-500 hover:text-white transition-all cursor-pointer">Reject</button>

@@ -303,7 +303,9 @@ export const mapProductRow = (p: any): Product => ({
   imageUrl: p.image_url,
   externalUrl: p.external_url,
   // Real DB schema has no vendor_id column; 0 => no vendor chip rendered.
-  vendorId: p.vendor_id ?? 0
+  vendorId: p.vendor_id ?? 0,
+  // Aura moderation trust score (null when the DB column is absent / not yet scored).
+  moderationScore: p.moderation_score ?? null
 });
 
 /** Merge collections keeping the last occurrence per id (remote overrides seed). */

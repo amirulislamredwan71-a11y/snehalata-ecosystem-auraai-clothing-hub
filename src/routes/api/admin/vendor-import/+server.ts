@@ -110,7 +110,7 @@ export const POST: RequestHandler = async ({ request }) => {
     } catch {
       imageUrl = ''; // non-fatal — the listing still imports, admin can add an image in Review
     }
-    const row = {
+    const row: Record<string, any> = {
       name: String(s.title || 'Imported item').slice(0, 200),
       price: s.suggested_price_bdt ? Math.round(Number(s.suggested_price_bdt)) : 0,
       category: snapCat(s.category),
@@ -120,6 +120,11 @@ export const POST: RequestHandler = async ({ request }) => {
       vendor_id: vendorId,
       is_active: false
     };
+    // Aura auto-verification: score the listing so Review shows a trust verdict (non-fatal).
+    try {
+      const m = await withTimeout(gemini.moderateListing(row.name, row.description, row.price, row.category), 12000);
+      if (m) { row.moderation_score = Math.round(Number(m.trust_score) || 0); row.moderation_note = m.note || null; }
+    } catch { /* Gemini busy / columns absent — cron backfill scores it later */ }
     const { error: ie } = await a.from('products').insert(row);
     if (ie) throw error(500, ie.message);
     return json({ ok: true, imported: 1, name: row.name });

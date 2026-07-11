@@ -21,6 +21,8 @@ export interface Product {
   imageUrl: string;
   externalUrl?: string;
   category: string;
+  /** Aura moderation trust score 0–100 (null = not yet scored). Drives the "Neural Verified" badge. */
+  moderationScore?: number | null;
 }
 
 export interface Vendor {

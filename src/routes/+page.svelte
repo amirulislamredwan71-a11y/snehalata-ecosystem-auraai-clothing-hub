@@ -406,9 +406,10 @@
   const categoryTiles = $derived($siteCategories.filter((c) => c.id !== 'all'));
   const navCategories = $derived($siteCategories);
 
-  // Publish the full set of visible category ids so the global CategorySheet mirrors the home.
+  // Publish the ids that actually have ≥1 live product so the global CategorySheet can show
+  // the same "Neural Verified" mark the home tiles do (empty placeholders stay unmarked).
   $effect(() => {
-    stockedCategoryIds.set(new Set($siteCategories.map((c) => String(c.id).toLowerCase())));
+    stockedCategoryIds.set(new Set($siteCategories.filter((c) => hasProducts(c)).map((c) => String(c.id).toLowerCase())));
   });
 
   // Hero "BD → global" network: nodes scattered near the edges (the world), arcs radiate
@@ -622,14 +623,14 @@
             {#if cat.cover}
               <img src={cat.cover} alt={cat.name} loading="lazy" class="absolute inset-0 w-full h-full object-cover" />
               <div class="absolute inset-0 bg-gradient-to-t from-black/65 via-black/10 to-transparent"></div>
-              {#if hasProducts(cat)}
-                <div class="absolute top-1.5 right-1.5 flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-[#0a0f0d]/85 border border-aura-green/50" title="Neural Verified">
-                  <ShieldCheck size={9} class="text-aura-green" /><span class="text-[7px] font-black text-aura-green tracking-tight">Verified</span>
-                </div>
-              {/if}
             {:else}
               <div class="w-full h-full flex items-center justify-center text-aura-cream/80" style="background:{TILE_BG[i % TILE_BG.length]};">
                 <Icon size={26} strokeWidth={1.6} />
+              </div>
+            {/if}
+            {#if hasProducts(cat)}
+              <div class="absolute top-1.5 right-1.5 flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-[#0a0f0d]/85 border border-aura-green/50" title="Neural Verified">
+                <ShieldCheck size={9} class="text-aura-green" /><span class="text-[7px] font-black text-aura-green tracking-tight">Verified</span>
               </div>
             {/if}
           </div>
