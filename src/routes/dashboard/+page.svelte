@@ -1,7 +1,7 @@
 <script lang="ts">
   import { browser } from '$app/environment';
   import { fade, scale } from 'svelte/transition';
-  import { Zap, LayoutDashboard, Users, ShieldCheck, Cpu, Network, Package, Plus, Layout, Palette, Eye, Globe, BarChart3, Sparkles, Loader2 } from '@lucide/svelte';
+  import { Zap, LayoutDashboard, Users, ShieldCheck, Cpu, Network, Package, Plus, Layout, Palette, Eye, Globe, BarChart3, Sparkles, Loader2, Upload } from '@lucide/svelte';
   import ProductCard from '$lib/components/ProductCard.svelte';
   import { analyzeWebsiteProducts } from '$lib/geminiService';
   import { getVendors, getProductsByVendor, syncWithNeuralGrid } from '$lib/mockData';
@@ -150,6 +150,36 @@
     } finally {
       isDeepImporting = false;
     }
+  }
+
+  // Folder / multi-photo AI import — select many product photos at once → each becomes a
+  // pending listing (Aura fills name/price/description). Loops client-side so it never times out.
+  let isFolderImporting = $state(false);
+  let folderProgress = $state('');
+  async function handleFolderImport(e: Event) {
+    const input = e.target as HTMLInputElement;
+    const files = Array.from(input.files || []);
+    if (!files.length) return;
+    isFolderImporting = true;
+    let ok = 0;
+    for (let i = 0; i < files.length; i++) {
+      folderProgress = `ছবি ${i + 1}/${files.length} প্রসেস হচ্ছে…`;
+      try {
+        const dataUrl = await fileToCompressedDataURL(files[i]);
+        const res = await fetch('/api/vendor/import-photo', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${vendorToken()}` },
+          body: JSON.stringify({ image: dataUrl })
+        });
+        if (res.ok) ok++;
+      } catch { /* skip a bad photo, keep going */ }
+    }
+    folderProgress = '';
+    isFolderImporting = false;
+    input.value = '';
+    await syncWithNeuralGrid();
+    loadVendorData();
+    alert(`${ok}/${files.length} ছবি থেকে পণ্য বানানো হয়েছে — রিভিউ শেষে ক্যাটালগে দেখাবে।`);
   }
 
   async function handleSync() {
@@ -599,6 +629,14 @@
               <span>{isDeepImporting ? 'Rendering…' : 'Deep Import'}</span>
             </button>
           {/if}
+          <label
+            title="একসাথে অনেক প্রোডাক্টের ছবি সিলেক্ট করুন — Aura প্রতিটা থেকে listing বানাবে (রিভিউর পর live)"
+            class="group px-8 py-5 bg-white/5 border border-aura-gold/30 text-white rounded-3xl font-black uppercase text-[11px] tracking-widest flex items-center gap-3 hover:border-aura-gold transition-all cursor-pointer {isFolderImporting ? 'opacity-50 pointer-events-none' : ''}"
+          >
+            {#if isFolderImporting}<Loader2 size={18} class="animate-spin" />{:else}<Upload size={18} />{/if}
+            <span>{isFolderImporting ? (folderProgress || 'Importing…') : 'Import Photos/Folder'}</span>
+            <input type="file" accept="image/*" multiple onchange={handleFolderImport} class="hidden" disabled={isFolderImporting} />
+          </label>
           <button
             onclick={() => isAddingProduct = true}
             class="group px-10 py-5 bg-aura-green text-white rounded-3xl font-black uppercase text-[11px] tracking-widest flex items-center gap-3 hover:bg-white hover:text-black transition-all shadow-[0_20px_40px_rgba(16,185,129,0.2)]"
