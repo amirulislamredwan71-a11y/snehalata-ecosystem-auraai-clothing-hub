@@ -17,6 +17,34 @@
   let importBusy = $state('');       // '', 'set-url', 'sync', 'deep', 'photos'
   let importMsg = $state('');
   let importPhotoProgress = $state('');
+  // "Import from ANY website" — paste any URL, auto-creates a store (not tied to a vendor).
+  let importAnyUrl = $state('');
+  let importAnyName = $state('');
+  let importAnyBusy = $state('');     // '', 'fetch', 'deep'
+  let importAnyMsg = $state('');
+  async function importAnyUrlRun(deep = false) {
+    const url = importAnyUrl.trim();
+    if (!url) return;
+    importAnyBusy = deep ? 'deep' : 'fetch';
+    importAnyMsg = deep ? 'সাইট render করে আনা হচ্ছে (একটু সময় লাগতে পারে)…' : 'সাইট থেকে পণ্য আনা হচ্ছে…';
+    try {
+      const res = await fetch('/api/admin/import-url', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-admin-pass': adminPass() },
+        body: JSON.stringify({ url, storeName: importAnyName.trim() || undefined, deep })
+      });
+      const d = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(d.message || `HTTP ${res.status}`);
+      const store = d.vendor?.store_name || 'store';
+      const tag = d.vendor?.created ? 'নতুন স্টোর তৈরি' : 'বিদ্যমান স্টোর';
+      importAnyMsg = `${d.imported ?? 0}টি পণ্য import হয়েছে → "${store}" (${tag}); সাইটে ${d.found ?? 0}টি পাওয়া গেছে। Review ট্যাবে approve করুন।`;
+      loadData();
+    } catch (e: any) {
+      importAnyMsg = 'Import failed: ' + (e?.message || 'error');
+    } finally {
+      importAnyBusy = '';
+    }
+  }
   function selectImportVendor(id: number) {
     importVendorId = id;
     const v = vendors.find((x: any) => x.id === id) as any;
@@ -872,8 +900,29 @@
           <div transition:fade={{ duration: 500 }} class="space-y-6">
             <div>
               <h2 class="text-2xl font-serif font-black text-white">Import Console</h2>
-              <p class="text-[10px] text-gray-500 uppercase tracking-widest font-black mt-1">যেকোনো vendor-এর পণ্য import করুন — website / deep render / ছবি-ফোল্ডার (AI)</p>
+              <p class="text-[10px] text-gray-500 uppercase tracking-widest font-black mt-1">যেকোনো website থেকে পণ্য import করুন — নতুন স্টোর অটো-তৈরি, অথবা registered vendor-এ</p>
             </div>
+
+            <!-- ★ Import from ANY website URL — auto-creates a store (not tied to a vendor) -->
+            <div class="bg-aura-green/[0.06] border border-aura-green/25 rounded-3xl p-5 space-y-3">
+              <label class="text-[10px] font-black uppercase tracking-widest text-aura-green flex items-center gap-2"><Globe size={13} /> যেকোনো website থেকে import — নতুন স্টোর অটো-তৈরি</label>
+              <p class="text-[11px] text-gray-400">যেকোনো shop-এর লিংক দিন (WooCommerce / Shopify / WordPress / যেকোনো সাইট — glamourstouch-এর মতো)। আমার registered vendor না হলেও চলবে — সাইটের নামে একটা নতুন স্টোর তৈরি হয়ে পণ্যগুলো তার নিচে <span class="text-aura-gold font-bold">pending</span> আসবে।</p>
+              <input type="text" bind:value={importAnyUrl} placeholder="https://any-shop.com" class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-gray-700 focus:outline-none focus:border-aura-green" />
+              <input type="text" bind:value={importAnyName} placeholder="স্টোরের নাম (ঐচ্ছিক — খালি রাখলে সাইট থেকে নেবে)" class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-gray-700 focus:outline-none focus:border-aura-green" />
+              <div class="flex flex-wrap gap-2">
+                <button onclick={() => importAnyUrlRun(false)} disabled={!!importAnyBusy || !importAnyUrl.trim()} class="px-6 py-3 bg-aura-green text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-white hover:text-black transition-all disabled:opacity-50 flex items-center gap-2">
+                  {#if importAnyBusy === 'fetch'}<Loader2 size={14} class="animate-spin" />{:else}<Globe size={14} />{/if} Fetch & Import
+                </button>
+                <button onclick={() => importAnyUrlRun(true)} disabled={!!importAnyBusy || !importAnyUrl.trim()} class="px-6 py-3 bg-white/5 border border-aura-ai/30 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:border-aura-ai transition-all disabled:opacity-50 flex items-center gap-2">
+                  {#if importAnyBusy === 'deep'}<Loader2 size={14} class="animate-spin" />{:else}<Zap size={14} />{/if} Deep (render)
+                </button>
+              </div>
+              {#if importAnyMsg}
+                <div class="p-3 rounded-2xl border {importAnyMsg.toLowerCase().includes('fail') ? 'bg-red-500/10 border-red-500/25 text-red-300' : 'bg-aura-green/10 border-aura-green/25 text-aura-green'} text-[12px] font-bold">{importAnyMsg}</div>
+              {/if}
+            </div>
+
+            <div class="flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-gray-600"><div class="h-px flex-1 bg-white/10"></div>অথবা registered vendor-এ import<div class="h-px flex-1 bg-white/10"></div></div>
 
             <!-- 1. pick a vendor -->
             <div class="bg-white/[0.03] border border-white/10 rounded-3xl p-5 space-y-3">
