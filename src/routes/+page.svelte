@@ -507,19 +507,15 @@
     </div>
   </section>
 
-  <!-- NEURAL VERIFIED emblem — Snehalata's trust symbol, shown clearly right under the map -->
-  <section class="max-w-2xl mx-auto px-5 sm:px-6 mt-7">
-    <div class="relative rounded-[2rem] overflow-hidden border border-aura-green/30 shadow-[0_0_55px_rgba(16,185,129,0.20)]">
-      <img src="/aura-hero-bg.jpg" alt="SNEHALATA — Neural Verified" loading="lazy" class="w-full h-auto block" />
-      <div class="pointer-events-none absolute inset-0 ring-1 ring-inset ring-aura-gold/15 rounded-[2rem]"></div>
-    </div>
-  </section>
-
-  <!-- AURA FEATURE STRIP — the "AI Powered Smart Shopping" poster, recreated as tappable chips -->
-  <section class="max-w-7xl mx-auto px-3 sm:px-6 mt-6">
-    <div class="text-center mb-4">
-      <p class="font-display text-[10px] sm:text-[11px] font-black uppercase tracking-[0.35em] text-aura-green/90">AI Powered Smart Shopping</p>
-    </div>
+  <!-- AURA FEATURE STRIP over the Neural-Verified shield backdrop (like the map behind the hero) -->
+  <div class="relative overflow-hidden mt-6">
+    <img src="/aura-hero-bg.jpg" alt="" aria-hidden="true" class="absolute inset-0 h-full w-full object-cover object-center opacity-[0.32] pointer-events-none" />
+    <div class="absolute inset-0 bg-[#080b09]/55 pointer-events-none"></div>
+    <section class="relative z-10 max-w-7xl mx-auto px-3 sm:px-6 py-6">
+      <div class="text-center mb-4">
+        <p class="font-display text-[10px] sm:text-[11px] font-black uppercase tracking-[0.35em] text-aura-cream drop-shadow-[0_1px_6px_rgba(0,0,0,0.8)]">SNEHALATA · Neural Verified</p>
+        <p class="font-display text-[9px] sm:text-[10px] font-bold uppercase tracking-[0.3em] text-aura-green/90 mt-1">AI Powered Smart Shopping</p>
+      </div>
     <div class="flex sm:justify-center gap-3 sm:gap-5 overflow-x-auto no-scrollbar pb-1 px-1">
       {#each HERO_FEATURES as f}
         {@const Icon = f.icon}
@@ -536,7 +532,8 @@
         {/if}
       {/each}
     </div>
-  </section>
+    </section>
+  </div>
 
   <!-- NEURAL VERIFIED banner -->
   <section id="trust-banner" class="max-w-7xl mx-auto px-5 sm:px-6 mt-5 scroll-mt-24">
