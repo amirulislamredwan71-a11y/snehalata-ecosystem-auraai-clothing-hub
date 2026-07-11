@@ -289,6 +289,8 @@ export const mapVendorRow = (v: any): Vendor => ({
   description: v.description || 'Verified Artisan Hub',
   website_url: v.website_url,
   category_id: v.category_id,
+  category: v.category ?? null,
+  commission_rate: v.commission_rate,
   district: v.district || 'Bangladesh',
   area: v.area
 });

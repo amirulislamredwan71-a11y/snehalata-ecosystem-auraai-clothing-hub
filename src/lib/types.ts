@@ -35,6 +35,9 @@ export interface Vendor {
   description: string;
   tradeLicense?: string;
   category_id?: number;
+  /** Vendor's primary storefront category (a category id like 'saree'/'gadgets'). */
+  category?: string | null;
+  commission_rate?: number;
   district: string;
   area?: string;
 }

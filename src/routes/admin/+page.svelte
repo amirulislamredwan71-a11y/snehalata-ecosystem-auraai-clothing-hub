@@ -217,7 +217,9 @@
   let trackedOrder = $state<any>(null);
   let isTrackingLoading = $state(false);
   let isUploadingImage = $state(false);
-  let newProduct = $state({ name: '', price: '', category: '', description: '', imageUrl: '' });
+  let newProduct = $state({ name: '', price: '', category: '', description: '', imageUrl: '', vendorId: '' as string | number, isActive: true });
+  // When set, the product modal is EDITING this id (PATCH) instead of adding (POST).
+  let editingProductId = $state<number | null>(null);
   let newCategory = $state({ name: '', description: '' });
   let vendorCred = $state<{ email: string; password: string; store: string } | null>(null);
   let pendingProducts = $state<any[]>([]);
@@ -481,28 +483,52 @@
     }
   }
 
-  async function handleAddProduct(e: Event) {
+  function resetProductForm() {
+    editingProductId = null;
+    isProductModalOpen = false;
+    newProduct = { name: '', price: '', category: '', description: '', imageUrl: '', vendorId: '', isActive: true };
+  }
+  // Open the modal in EDIT mode for an existing product (grid Product or raw Review row).
+  function openEditProduct(p: any) {
+    editingProductId = p.id;
+    newProduct = {
+      name: p.name || '',
+      price: String(p.price ?? ''),
+      category: p.category || '',
+      description: p.description || '',
+      imageUrl: p.imageUrl || p.image_url || '',
+      vendorId: p.vendorId ?? p.vendor_id ?? '',
+      isActive: p.is_active !== undefined ? Boolean(p.is_active) : true
+    };
+    isProductModalOpen = true;
+  }
+  // Add (POST) or Edit (PATCH) a product — admin can set price/name/category/description/
+  // image, reassign the vendor, and toggle live/pending for ANY vendor's product.
+  async function handleSaveProduct(e: Event) {
     e.preventDefault();
     isLoading = true;
     try {
-      const res = await fetch('/api/admin/products', {
-        method: 'POST',
+      const body: Record<string, any> = {
+        name: newProduct.name,
+        price: Number(newProduct.price),
+        category: newProduct.category,
+        description: newProduct.description,
+        image_url: newProduct.imageUrl || '',
+        is_active: newProduct.isActive
+      };
+      if (newProduct.vendorId !== '' && newProduct.vendorId != null) body.vendor_id = Number(newProduct.vendorId);
+      const editing = editingProductId != null;
+      const res = await fetch(editing ? `/api/admin/products?id=${editingProductId}` : '/api/admin/products', {
+        method: editing ? 'PATCH' : 'POST',
         headers: { 'Content-Type': 'application/json', 'x-admin-pass': adminPass() },
-        body: JSON.stringify({
-          name: newProduct.name,
-          price: Number(newProduct.price),
-          category: newProduct.category,
-          description: newProduct.description,
-          image_url: newProduct.imageUrl || ''
-        })
+        body: JSON.stringify(body)
       });
       if (!res.ok) throw new Error((await res.json().catch(() => ({}))).message || `HTTP ${res.status}`);
       await syncWithNeuralGrid();
       loadData();
-      isProductModalOpen = false;
-      newProduct = { name: '', price: '', category: '', description: '', imageUrl: '' };
+      resetProductForm();
     } catch (err: any) {
-      alert('Add failed: ' + (err?.message || 'unknown error'));
+      alert((editingProductId ? 'Edit' : 'Add') + ' failed: ' + (err?.message || 'unknown error'));
     } finally {
       isLoading = false;
     }
@@ -803,7 +829,7 @@
                           <div>
                             <div class="text-sm font-bold text-white">{v.store_name || 'Legacy Vendor'}</div>
                             <a href={`https://${subdomainFor(v)}`} target="_blank" rel="noreferrer" class="text-[10px] text-aura-green/80 hover:text-aura-green font-mono hover:underline">{subdomainFor(v)}</a>
-                            <div class="text-[9px] text-gray-600 font-mono">#{v.id} · {st.skus} products · {(v as any).district || '—'}</div>
+                            <div class="text-[9px] text-gray-600 font-mono">#{v.id} · {st.skus} products · {(v as any).district || '—'}{#if (v as any).category} · 🏷 {(v as any).category}{/if}</div>
                           </div>
                         </div>
                       </td>
@@ -996,7 +1022,15 @@
                     <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-60"></div>
                     <div class="absolute top-4 right-4 flex flex-col gap-2">
                       <button
+                        onclick={() => openEditProduct(p)}
+                        title="Edit product"
+                        class="p-2.5 bg-aura-green/80 backdrop-blur-md text-white rounded-xl shadow-2xl hover:bg-aura-green transition-all opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 duration-300"
+                      >
+                        <Pencil size={16} />
+                      </button>
+                      <button
                         onclick={() => handleDeleteProduct(p.id)}
+                        title="Delete product"
                         class="p-2.5 bg-red-500/80 backdrop-blur-md text-white rounded-xl shadow-2xl hover:bg-red-600 transition-all opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 duration-300"
                       >
                         <Trash2 size={16} />
@@ -1053,6 +1087,7 @@
                         {/if}
                       </div>
                       <p class="text-[10px] text-gray-500 line-clamp-2">{p.description}</p>
+                      <button onclick={() => openEditProduct(p)} class="w-full py-2.5 bg-aura-green/10 border border-aura-green/25 text-aura-green rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-aura-green hover:text-white transition-all cursor-pointer flex items-center justify-center gap-1.5"><Pencil size={12} /> Edit before approving</button>
                       <div class="grid grid-cols-2 gap-3 pt-2">
                         <button onclick={() => handleRejectProduct(p.id)} class="py-3 bg-red-500/10 border border-red-500/20 text-red-400 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-red-500 hover:text-white transition-all cursor-pointer">Reject</button>
                         <button onclick={() => handleApproveProduct(p.id)} class="py-3 bg-green-500/10 border border-green-500/20 text-green-400 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-green-500 hover:text-white transition-all cursor-pointer">Approve</button>
@@ -1473,15 +1508,15 @@
           <div class="bg-aura-black/90 rounded-[1.95rem] p-6">
             <div class="flex justify-between items-center mb-6">
               <div>
-                <h2 class="text-xl font-serif font-black text-white leading-none mb-1">GLOBAL UPLOAD</h2>
-                <p class="text-[6px] uppercase tracking-[0.4em] text-gray-500 font-bold">Inject items into the Aura Grid</p>
+                <h2 class="text-xl font-serif font-black text-white leading-none mb-1">{editingProductId ? 'EDIT PRODUCT' : 'GLOBAL UPLOAD'}</h2>
+                <p class="text-[6px] uppercase tracking-[0.4em] text-gray-500 font-bold">{editingProductId ? 'Update price · name · category · store' : 'Inject items into the Aura Grid'}</p>
               </div>
-              <button onclick={() => isProductModalOpen = false} class="p-2 bg-white/5 border border-white/10 rounded-full text-gray-500 hover:text-white transition-all">
+              <button onclick={resetProductForm} class="p-2 bg-white/5 border border-white/10 rounded-full text-gray-500 hover:text-white transition-all">
                 <XCircle size={18} />
               </button>
             </div>
 
-            <form onsubmit={handleAddProduct} class="space-y-4">
+            <form onsubmit={handleSaveProduct} class="space-y-4">
               <div class="space-y-4">
                 <div class="grid grid-cols-1 gap-4">
                   <div class="space-y-1.5">
@@ -1508,6 +1543,24 @@
                   <div class="space-y-1">
                     <label class="text-[8px] text-gray-500 font-black uppercase tracking-widest px-1">Description Protocol</label>
                     <textarea required bind:value={newProduct.description} class="w-full h-20 bg-white/5 border border-white/10 rounded-xl p-3 text-[11px] text-white focus:outline-none focus:border-aura-green resize-none transition-all placeholder:text-gray-800 font-medium" placeholder="Enter neural metadata for this artifact..."></textarea>
+                  </div>
+
+                  <div class="grid grid-cols-2 gap-3">
+                    <div class="space-y-1">
+                      <label class="text-[8px] text-gray-500 font-black uppercase tracking-widest px-1">Store / Vendor</label>
+                      <select bind:value={newProduct.vendorId} class="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-[11px] text-white focus:outline-none focus:border-aura-green appearance-none cursor-pointer">
+                        <option value="" class="bg-black text-white">— No vendor —</option>
+                        {#each vendors as v}
+                          <option value={v.id} class="bg-black text-white">{v.store_name} (#{v.id})</option>
+                        {/each}
+                      </select>
+                    </div>
+                    <div class="space-y-1">
+                      <label class="text-[8px] text-gray-500 font-black uppercase tracking-widest px-1">Visibility</label>
+                      <button type="button" onclick={() => newProduct.isActive = !newProduct.isActive} class="w-full px-3 py-2.5 rounded-lg text-[11px] font-black border transition-all {newProduct.isActive ? 'bg-aura-green/15 border-aura-green/40 text-aura-green' : 'bg-amber-500/10 border-amber-500/30 text-amber-400'}">
+                        {newProduct.isActive ? '● Live' : '○ Pending (Review)'}
+                      </button>
+                    </div>
                   </div>
                 </div>
 
@@ -1549,14 +1602,14 @@
               </div>
 
               <div class="flex gap-2 pt-3 border-t border-white/5">
-                <button type="button" onclick={() => isProductModalOpen = false} class="flex-1 py-3 border border-white/5 bg-white/5 rounded-lg text-[8px] font-black uppercase tracking-widest text-gray-500 hover:bg-white/10 hover:text-white transition-all active:scale-95">
-                  Abort
+                <button type="button" onclick={resetProductForm} class="flex-1 py-3 border border-white/5 bg-white/5 rounded-lg text-[8px] font-black uppercase tracking-widest text-gray-500 hover:bg-white/10 hover:text-white transition-all active:scale-95">
+                  {editingProductId ? 'Cancel' : 'Abort'}
                 </button>
                 <button type="submit" disabled={isLoading || isUploadingImage} class="flex-[2] py-3 bg-gradient-to-r from-aura-green via-indigo-600 to-aura-green bg-[length:200%_100%] animate-gradient text-white rounded-lg font-black uppercase tracking-widest text-[8px] hover:shadow-[0_0_30px_rgba(16,185,129,0.3)] transition-all active:scale-95 disabled:opacity-50 flex items-center justify-center gap-1.5">
                     {#if isLoading}
-                      Uploading Hub <Loader2 size={12} class="animate-spin inline" />
+                      {editingProductId ? 'Saving' : 'Uploading Hub'} <Loader2 size={12} class="animate-spin inline" />
                     {:else}
-                      Finalize Deployment <Zap size={12} class="inline fill-current" />
+                      {editingProductId ? 'Save Changes' : 'Finalize Deployment'} <Zap size={12} class="inline fill-current" />
                     {/if}
                 </button>
               </div>

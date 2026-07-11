@@ -90,6 +90,48 @@ export const POST: RequestHandler = async ({ request, platform }) => {
   return json({ ok: true, product: data });
 };
 
+// Edit one of the vendor's OWN products (price / name / description / category / image).
+// vendor_id can never change here — a vendor can only edit within their own store.
+export const PATCH: RequestHandler = async ({ request, url, platform }) => {
+  const { admin, vend } = await vendorFromToken(request);
+  const id = url.searchParams.get('id');
+  if (!id) throw error(400, 'id query param required');
+  const { data: existing } = await admin.from('products').select('vendor_id').eq('id', id).single();
+  if (!existing || existing.vendor_id !== vend.id) throw error(403, 'You can only edit your own products');
+
+  const b = await request.json();
+  const row: Record<string, any> = {};
+  if (b.name !== undefined) row.name = String(b.name);
+  if (b.price !== undefined) row.price = Number(b.price);
+  if (b.category !== undefined) row.category = b.category || 'Others';
+  if (b.description !== undefined) row.description = String(b.description || '');
+  if (b.image_url !== undefined || b.imageUrl !== undefined) row.image_url = b.image_url || b.imageUrl || '';
+  if (b.stock_quantity !== undefined) row.stock_quantity = Number(b.stock_quantity);
+  if (Object.keys(row).length === 0) throw error(400, 'no fields to update');
+
+  const { data: updated, error: e } = await admin.from('products').update(row).eq('id', id).select().single();
+  if (e) throw error(500, e.message);
+
+  // Re-score + re-embed in the background (name/desc/price may have changed). We update the
+  // Aura moderation SCORE but do NOT auto-unpublish on an edit, so fixing a typo never
+  // unexpectedly hides a live listing (the admin still sees the fresh score in Review).
+  const enrich = async () => {
+    try {
+      const m = await withTimeout(moderateListing(updated.name, updated.description || '', Number(updated.price) || 0, updated.category || 'Others'), 12000);
+      if (m) await admin.from('products').update({ moderation_score: Math.round(Number(m.trust_score) || 0), moderation_note: m.note || null }).eq('id', id);
+    } catch { /* Gemini offline / columns absent — ignore */ }
+    try {
+      const emb = await withTimeout(embedText([updated.name, updated.category, updated.description].filter(Boolean).join('. ')), 10000);
+      if (emb) await admin.from('products').update({ embedding: `[${emb.join(',')}]` }).eq('id', id);
+    } catch { /* embedding column absent — backfill catches it */ }
+  };
+  const waitUntil = (platform as any)?.context?.waitUntil;
+  if (typeof waitUntil === 'function') waitUntil(enrich());
+  else enrich().catch(() => {});
+
+  return json({ ok: true, product: updated });
+};
+
 export const DELETE: RequestHandler = async ({ request, url }) => {
   const { admin, vend } = await vendorFromToken(request);
   const id = url.searchParams.get('id');

@@ -1,7 +1,7 @@
 <script lang="ts">
   import { browser } from '$app/environment';
   import { fade, scale } from 'svelte/transition';
-  import { Zap, LayoutDashboard, Users, ShieldCheck, Cpu, Network, Package, Plus, Layout, Palette, Eye, Globe, BarChart3, Sparkles, Loader2, Upload } from '@lucide/svelte';
+  import { Zap, LayoutDashboard, Users, ShieldCheck, Cpu, Network, Package, Plus, Layout, Palette, Eye, Globe, BarChart3, Sparkles, Loader2, Upload, Pencil } from '@lucide/svelte';
   import ProductCard from '$lib/components/ProductCard.svelte';
   import { analyzeWebsiteProducts } from '$lib/geminiService';
   import { getVendors, getProductsByVendor, syncWithNeuralGrid } from '$lib/mockData';
@@ -46,6 +46,8 @@
   let isAddingProduct = $state(false);
   let newProduct = $state({ name: '', price: '', category: 'General', description: '', imageUrl: '' });
   let isSaving = $state(false);
+  // When set, the product modal EDITS this own-product (PATCH) instead of adding (POST).
+  let editingProductId = $state<number | null>(null);
   // A4 — AI merchandising (photo → listing) state.
   let merchLoading = $state(false);
   let merchQuality = $state<number | null>(null);
@@ -321,25 +323,54 @@
     }
   }
 
+  function closeProductModal() {
+    isAddingProduct = false;
+    editingProductId = null;
+    newProduct = { name: '', price: '', category: 'General', description: '', imageUrl: '' };
+    merchQuality = null; merchNote = '';
+  }
+  // Open the modal to EDIT one of my own products (price / name / category / description / image).
+  function openEditProduct(p: any) {
+    editingProductId = p.id;
+    newProduct = {
+      name: p.name || '',
+      price: String(p.price ?? ''),
+      category: p.category || 'General',
+      description: p.description || '',
+      imageUrl: p.imageUrl || p.image_url || ''
+    };
+    merchQuality = null; merchNote = '';
+    isAddingProduct = true;
+  }
+  // Add (POST) or Edit (PATCH) my own product.
   async function handleAddManualProduct() {
     if (!vendor || isSaving) return;
     if (!newProduct.name.trim() || newProduct.price === '') { alert('Please add a name and price.'); return; }
     isSaving = true;
     try {
-      await vendorPost({
+      const body = {
         name: newProduct.name,
         price: Number(newProduct.price),
         category: newProduct.category,
         description: newProduct.description,
         image_url: newProduct.imageUrl || ''
-      });
+      };
+      if (editingProductId != null) {
+        const res = await fetch(`/api/vendor/products?id=${editingProductId}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${vendorToken()}` },
+          body: JSON.stringify(body)
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data.message || `HTTP ${res.status}`);
+      } else {
+        await vendorPost(body);
+      }
       await syncWithNeuralGrid();
       loadVendorData();
-      isAddingProduct = false;
-      newProduct = { name: '', price: '', category: 'General', description: '', imageUrl: '' };
-      merchQuality = null; merchNote = '';
+      closeProductModal();
     } catch (err: any) {
-      alert('Add failed: ' + (err?.message || 'unknown error'));
+      alert((editingProductId ? 'Edit' : 'Add') + ' failed: ' + (err?.message || 'unknown error'));
     } finally {
       isSaving = false;
     }
@@ -500,10 +531,10 @@
   <div class="min-h-screen bg-[#050505] text-white selection:bg-aura-green/30">
     {#if isAddingProduct}
       <div class="fixed inset-0 z-[120] flex items-center justify-center p-6" transition:fade={{ duration: 200 }}>
-        <div class="absolute inset-0 bg-black/90 backdrop-blur-3xl" onclick={() => isAddingProduct = false} />
+        <div class="absolute inset-0 bg-black/90 backdrop-blur-3xl" onclick={closeProductModal} />
         <div class="relative bg-[#0A0A0A] border border-white/10 rounded-[3rem] w-full max-w-xl p-10 shadow-2xl overflow-hidden" transition:scale={{ duration: 300 }}>
           <div class="absolute top-0 right-0 p-10 opacity-5 pointer-events-none"><Plus size={120} /></div>
-          <h2 class="text-3xl font-serif font-black italic mb-8">Add Neural Asset</h2>
+          <h2 class="text-3xl font-serif font-black italic mb-8">{editingProductId ? 'Edit Product' : 'Add Neural Asset'}</h2>
           <div class="space-y-6">
             <label class="block cursor-pointer">
               <input type="file" accept="image/*" onchange={handleMerchandise} class="hidden" disabled={merchLoading} />
@@ -542,9 +573,9 @@
             <button onclick={handleAddManualProduct} disabled={isSaving}
               class="w-full py-5 bg-white text-black rounded-2xl font-black uppercase tracking-widest text-[11px] hover:bg-aura-green hover:text-white transition-all shadow-xl disabled:opacity-60 flex items-center justify-center gap-3">
               {#if isSaving}
-                <Loader2 size={16} class="animate-spin" /> Deploying…
+                <Loader2 size={16} class="animate-spin" /> {editingProductId ? 'Saving…' : 'Deploying…'}
               {:else}
-                Deploy to Catalog
+                {editingProductId ? 'Save Changes' : 'Deploy to Catalog'}
               {/if}
             </button>
           </div>
@@ -831,7 +862,15 @@
                 {#each products as p (p.id)}
                   <div class="relative group/card">
                     <button
+                      onclick={() => openEditProduct(p)}
+                      title="Edit product"
+                      class="absolute -top-2 right-8 z-20 w-8 h-8 bg-aura-green/90 text-white rounded-full flex items-center justify-center opacity-0 group-hover/card:opacity-100 transition-opacity hover:bg-aura-green shadow-lg"
+                    >
+                      <Pencil size={14} />
+                    </button>
+                    <button
                       onclick={() => handleDelete(p.id)}
+                      title="Delete product"
                       class="absolute -top-2 -right-2 z-20 w-8 h-8 bg-red-500/80 rounded-full flex items-center justify-center opacity-0 group-hover/card:opacity-100 transition-opacity hover:bg-red-600 shadow-lg"
                     >
                       <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
