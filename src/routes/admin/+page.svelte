@@ -1,7 +1,7 @@
 <script lang="ts">
   import { browser } from '$app/environment';
   import { fade, slide, scale } from 'svelte/transition';
-  import { TrendingUp, Users, ShoppingCart, Activity, Globe, Zap, ShieldCheck, ShieldAlert, Shield, Trash2, CheckCircle, XCircle, Plus, Search, Filter, RefreshCw, Package, Tag, Building2, BarChart3, CreditCard, Upload, Loader2, Image as ImageIcon, Network, KeyRound, ChevronDown, Pencil } from '@lucide/svelte';
+  import { TrendingUp, Users, ShoppingCart, Activity, Globe, Zap, ShieldCheck, ShieldAlert, Shield, Trash2, CheckCircle, XCircle, Plus, Search, Filter, RefreshCw, Package, Tag, Building2, BarChart3, CreditCard, Upload, Loader2, Image as ImageIcon, Network, KeyRound, ChevronDown, Pencil, Sparkles, Send } from '@lucide/svelte';
   import { getEcosystemStats, getVendors, getProducts, getOrders, getCategories, addProduct, deleteProduct, deleteVendor, deleteCategory, getOrderById, getLiveSales, syncWithNeuralGrid } from '$lib/mockData';
   import { mapVendorRow, mapProductRow } from '$lib/seedCatalog';
 
@@ -207,7 +207,7 @@
   // Derived subdomain for a vendor (matches src/hooks.ts slug reroute).
   const subdomainFor = (v: any) => `${v.slug}.snehalata.com`;
 
-  type Tab = 'OVERVIEW' | 'VENDORS' | 'IMPORT' | 'PRODUCTS' | 'REVIEW' | 'ORDERS' | 'CATEGORIES' | 'TRACKING';
+  type Tab = 'COMMAND' | 'OVERVIEW' | 'VENDORS' | 'IMPORT' | 'PRODUCTS' | 'REVIEW' | 'ORDERS' | 'CATEGORIES' | 'TRACKING';
 
   let isAuthenticated = $state(false);
   let stats = $state<EcosystemStats | null>(null);
@@ -233,6 +233,46 @@
   let pendingProducts = $state<any[]>([]);
   let dbOrders = $state<any[]>([]);
   let expandedOrder = $state<number | null>(null);
+
+  // ── Aura Command Console: NL command → Aura plans structured actions → owner confirms → run ──
+  let cmdInput = $state('');
+  let cmdBusy = $state<'plan' | 'run' | ''>('');
+  let cmdReply = $state('');
+  let cmdActions = $state<any[]>([]);
+  let cmdResults = $state<any[]>([]);
+  let cmdLog = $state<{ q: string; a: string }[]>([]);
+  async function cmdPlan() {
+    const command = cmdInput.trim();
+    if (!command || cmdBusy) return;
+    cmdBusy = 'plan'; cmdReply = ''; cmdActions = []; cmdResults = [];
+    try {
+      const res = await fetch('/api/admin/command', { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-admin-pass': adminPass() }, body: JSON.stringify({ command }) });
+      const d = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(d.message || `HTTP ${res.status}`);
+      cmdReply = d.reply || '';
+      cmdActions = d.actions || [];
+      if (!cmdActions.length) cmdLog = [{ q: command, a: cmdReply || 'কোনো action বের করা গেল না।' }, ...cmdLog].slice(0, 12);
+    } catch (e: any) {
+      cmdReply = 'Error: ' + (e?.message || 'failed');
+    } finally { cmdBusy = ''; }
+  }
+  async function cmdConfirm() {
+    if (!cmdActions.length || cmdBusy) return;
+    cmdBusy = 'run';
+    const q = cmdInput.trim();
+    try {
+      const res = await fetch('/api/admin/command', { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-admin-pass': adminPass() }, body: JSON.stringify({ confirm: cmdActions }) });
+      const d = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(d.message || `HTTP ${res.status}`);
+      cmdResults = d.results || [];
+      cmdLog = [{ q, a: d.summary || 'done' }, ...cmdLog].slice(0, 12);
+      cmdActions = []; cmdReply = ''; cmdInput = '';
+      await loadData(); // refresh vendors / inventory / review after the mutations
+    } catch (e: any) {
+      cmdReply = 'Run failed: ' + (e?.message || 'error');
+    } finally { cmdBusy = ''; }
+  }
+  function cmdCancel() { cmdActions = []; cmdReply = ''; }
 
   async function loadOrders() {
     try {
@@ -682,6 +722,10 @@
             <span class="{activeTab === 'OVERVIEW' ? 'text-white' : 'text-gray-600'} group-hover:text-aura-green transition-colors"><BarChart3 size={14} /></span>
             <span>Overview</span>
           </button>
+          <button onclick={() => activeTab = 'COMMAND'} class={tabBtnClass('COMMAND')}>
+            <span class="{activeTab === 'COMMAND' ? 'text-white' : 'text-gray-600'} group-hover:text-aura-green transition-colors"><Sparkles size={14} /></span>
+            <span>Aura Command</span>
+          </button>
           <button onclick={() => activeTab = 'VENDORS'}
             class="flex items-center gap-2.5 px-6 py-4 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-300 cursor-pointer relative z-10 whitespace-nowrap active:scale-95 group border {activeTab === 'VENDORS' ? 'bg-aura-green text-white shadow-[0_15px_40px_rgba(16,185,129,0.4)] border-white/20' : 'bg-white/5 text-gray-400 border-white/5 hover:text-white hover:bg-white/10'}"
           >
@@ -724,7 +768,59 @@
 
     <main class="max-w-7xl mx-auto px-6 py-10 space-y-12">
       {#key activeTab}
-        {#if activeTab === 'OVERVIEW'}
+        {#if activeTab === 'COMMAND'}
+          <div transition:fade={{ duration: 400 }} class="space-y-6 max-w-3xl mx-auto">
+            <div>
+              <h2 class="text-2xl font-serif font-black text-white flex items-center gap-2"><Sparkles size={22} class="text-aura-green" /> Aura Command</h2>
+              <p class="text-[10px] text-gray-500 uppercase tracking-widest font-black mt-1">সাধারণ ভাষায় হুকুম দিন — Aura কী করবে দেখাবে, আপনি Confirm করলে তবেই live-এ চলবে</p>
+            </div>
+            <div class="bg-white/[0.03] border border-aura-green/20 rounded-3xl p-5 space-y-3">
+              <textarea bind:value={cmdInput} rows="2" placeholder={'যেমন: "Fahmi Borka House-এর pending product গুলো approve করো" · "https://site.com fetch করে X নামে store বানাও" · "product #123 এর দাম ৯৯০ করো"'} class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-gray-700 focus:outline-none focus:border-aura-green resize-none"></textarea>
+              <button onclick={cmdPlan} disabled={!!cmdBusy || !cmdInput.trim()} class="px-6 py-3 bg-aura-green text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-white hover:text-black transition-all disabled:opacity-50 flex items-center gap-2">
+                {#if cmdBusy === 'plan'}<Loader2 size={14} class="animate-spin" />{:else}<Send size={14} />{/if} Ask Aura
+              </button>
+            </div>
+            {#if cmdReply || cmdActions.length}
+              <div class="bg-aura-green/[0.06] border border-aura-green/25 rounded-3xl p-5 space-y-4">
+                {#if cmdReply}<p class="text-sm text-aura-cream">{cmdReply}</p>{/if}
+                {#if cmdActions.length}
+                  <div class="space-y-2">
+                    <p class="text-[10px] font-black uppercase tracking-widest text-gray-400">Aura যা করবে ({cmdActions.length}) — Confirm করলে চলবে:</p>
+                    {#each cmdActions as act}
+                      <div class="flex items-start gap-2 bg-black/30 border border-white/10 rounded-xl px-4 py-2.5 text-[13px] text-white">
+                        <span class="text-aura-green mt-0.5">▸</span><span>{act.preview}</span>
+                      </div>
+                    {/each}
+                  </div>
+                  <div class="flex gap-2">
+                    <button onclick={cmdConfirm} disabled={!!cmdBusy} class="flex-1 py-3 bg-aura-green text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-white hover:text-black transition-all disabled:opacity-50 flex items-center justify-center gap-2">
+                      {#if cmdBusy === 'run'}<Loader2 size={14} class="animate-spin" /> চলছে…{:else}<CheckCircle size={14} /> Confirm & Run{/if}
+                    </button>
+                    <button onclick={cmdCancel} disabled={!!cmdBusy} class="px-6 py-3 bg-white/5 border border-white/10 text-gray-300 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-white/10 transition-all">Cancel</button>
+                  </div>
+                {/if}
+              </div>
+            {/if}
+            {#if cmdResults.length}
+              <div class="bg-white/[0.03] border border-white/10 rounded-3xl p-5 space-y-2">
+                <p class="text-[10px] font-black uppercase tracking-widest text-aura-green">ফলাফল</p>
+                {#each cmdResults as r}
+                  <div class="flex items-start gap-2 text-[13px] {r.ok ? 'text-aura-cream' : 'text-red-300'}">
+                    <span>{r.ok ? '✓' : '✕'}</span><span>{r.preview} — {r.note}</span>
+                  </div>
+                {/each}
+              </div>
+            {/if}
+            {#if cmdLog.length}
+              <div class="space-y-1.5">
+                <p class="text-[9px] font-black uppercase tracking-widest text-gray-600 px-1">সাম্প্রতিক</p>
+                {#each cmdLog as h}
+                  <div class="text-[11px] text-gray-500 bg-white/[0.02] rounded-lg px-3 py-2"><span class="text-gray-400">"{h.q}"</span> → {h.a}</div>
+                {/each}
+              </div>
+            {/if}
+          </div>
+        {:else if activeTab === 'OVERVIEW'}
           <div transition:fade={{ duration: 500 }} class="space-y-12">
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               <div class="bg-aura-glass border border-aura-glassBorder rounded-2xl p-6 relative overflow-hidden group hover:bg-white/[0.05] transition-all">

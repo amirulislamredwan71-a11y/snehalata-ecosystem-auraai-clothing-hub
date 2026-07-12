@@ -150,6 +150,74 @@ export const generateAuraFallback = async (message: string, inventory: string, v
   return response.text;
 };
 
+// ── Aura Command Console: turn the admin's natural-language order into a STRUCTURED,
+// reviewable action plan. NO execution here — the /api/admin/command endpoint validates +
+// runs the plan only after the owner confirms. Returns { reply, actions[] }. ──
+export const planAdminCommand = async (command: string, context: string) => {
+  const sys = `You are Aura, the operations agent for the SNEHALATA marketplace ADMIN command center.
+Convert the admin's natural-language command into a concrete action plan the server will execute AFTER the admin confirms.
+Rules:
+- Use ONLY vendors/products that appear in the CONTEXT below. NEVER invent ids. If you can't map the command to real ids, return actions:[] and explain in "reply".
+- Prefer the smallest set of actions that fulfils the command. Put a short, clear Bengali+English confirmation in "reply".
+Supported action "type" values (set only the fields relevant to that type):
+- "approve_pending": publish pending (awaiting-review) products live. fields: vendor_id (number) OR product_ids (number[]) OR all (bool = every pending product).
+- "reject_pending": permanently delete pending products. same fields as approve_pending.
+- "import_url": scrape a website and create/fill a store from it. fields: url (string, required), store_name (string, optional), deep (bool = use headless render).
+- "delete_products": permanently delete LIVE products. fields: product_ids (number[]) OR vendor_id (number = all of that vendor's products).
+- "edit_product": change one product. fields: product_id (number, required) + any of price (number), name (string), category (string), is_active (bool).
+- "set_price": set price on products. fields: (product_ids (number[]) OR vendor_id (number)) + price (number) OR above_market (bool = a little above the category average).
+- "set_vendor_status": fields: vendor_id (number, required), status ("approved" | "blocked" | "pending").
+
+CONTEXT — live vendors (id · name · pending · total) and note:
+${context}`;
+  const res = await withRetry(() =>
+    ai.models.generateContent({
+      model: 'gemini-3.1-flash-lite',
+      contents: command,
+      config: {
+        systemInstruction: sys,
+        temperature: 0.15,
+        responseMimeType: 'application/json',
+        responseSchema: {
+          type: Type.OBJECT,
+          properties: {
+            reply: { type: Type.STRING },
+            actions: {
+              type: Type.ARRAY,
+              items: {
+                type: Type.OBJECT,
+                properties: {
+                  type: { type: Type.STRING },
+                  vendor_id: { type: Type.NUMBER },
+                  product_ids: { type: Type.ARRAY, items: { type: Type.NUMBER } },
+                  all: { type: Type.BOOLEAN },
+                  url: { type: Type.STRING },
+                  store_name: { type: Type.STRING },
+                  deep: { type: Type.BOOLEAN },
+                  product_id: { type: Type.NUMBER },
+                  price: { type: Type.NUMBER },
+                  above_market: { type: Type.BOOLEAN },
+                  name: { type: Type.STRING },
+                  category: { type: Type.STRING },
+                  status: { type: Type.STRING }
+                },
+                required: ['type']
+              }
+            }
+          },
+          required: ['reply', 'actions']
+        }
+      }
+    })
+  );
+  try {
+    const j = JSON.parse(res.text || '{}');
+    return { reply: String(j.reply || ''), actions: Array.isArray(j.actions) ? j.actions : [] };
+  } catch {
+    return { reply: res.text || 'Could not parse the command.', actions: [] };
+  }
+};
+
 export const getAIRecommendations = async (historySummary: string, availableProducts: string) => {
     const response = await ai.models.generateContent({
         model: 'gemini-3.1-flash-lite',
