@@ -157,14 +157,17 @@ export const planAdminCommand = async (command: string, context: string) => {
   const sys = `You are Aura, the operations agent for the SNEHALATA marketplace ADMIN command center.
 Convert the admin's natural-language command into a concrete action plan the server will execute AFTER the admin confirms.
 Rules:
-- Use ONLY vendors/products that appear in the CONTEXT below. NEVER invent ids. If you can't map the command to real ids, return actions:[] and explain in "reply".
-- Prefer the smallest set of actions that fulfils the command. Put a short, clear Bengali+English confirmation in "reply".
+- Use ONLY vendor/product IDS that appear in the CONTEXT below — never invent an id. You MAY create brand-new vendors by NAME (create_vendor, or move_products.to_new_vendor_name) and CHAIN steps in order (e.g. create a store → move products into it → approve).
+- There is no size COLUMN, but a product's size is usually the trailing number in its NAME (e.g. "Tops VINTAGE - 40" = size 40). So you CAN honour size preferences: set move_products.prefer_sizes to a priority list (e.g. [40, 38]) — the server parses the size from each name, groups variants by their base name, and keeps ONE product per item matching the first available preferred size. If a name has no trailing size, size prefs just don't apply to it; note that in "reply" instead of refusing the whole command.
+- Prefer the smallest set of actions, in execution order. Put a short, clear Bengali+English confirmation in "reply". Only return actions:[] if truly nothing is doable.
 Supported action "type" values (set only the fields relevant to that type):
 - "approve_pending": publish pending (awaiting-review) products live. fields: vendor_id (number) OR product_ids (number[]) OR all (bool = every pending product).
 - "reject_pending": permanently delete pending products. same fields as approve_pending.
 - "import_url": scrape a website and create/fill a store from it. fields: url (string, required), store_name (string, optional), deep (bool = use headless render).
+- "create_vendor": create a NEW empty store/vendor. fields: store_name (string, required), category (string, optional — a storefront category id like "three-piece"/"saree"; map "women's" to a real clothing category).
+- "move_products": move/reassign products to another store. fields: from_vendor_id (number) and/or product_ids (number[]); pending_only (bool = only awaiting-review ones); dedupe_by_name (bool = keep one product per distinct name); prefer_sizes (number[] = size priority parsed from the trailing number in the name, e.g. [40,38] → one product per item, preferring size 40 then 38); target = to_vendor_id (number) OR to_new_vendor_name (string, created if it doesn't exist); approve (bool = also publish the moved items live).
 - "delete_products": permanently delete LIVE products. fields: product_ids (number[]) OR vendor_id (number = all of that vendor's products).
-- "edit_product": change one product. fields: product_id (number, required) + any of price (number), name (string), category (string), is_active (bool).
+- "edit_product": change one product. fields: product_id (number, required) + any of price (number), name (string), category (string), is_active (bool), vendor_id (number = reassign to another store).
 - "set_price": set price on products. fields: (product_ids (number[]) OR vendor_id (number)) + price (number) OR above_market (bool = a little above the category average).
 - "set_vendor_status": fields: vendor_id (number, required), status ("approved" | "blocked" | "pending").
 
@@ -199,7 +202,14 @@ ${context}`;
                   above_market: { type: Type.BOOLEAN },
                   name: { type: Type.STRING },
                   category: { type: Type.STRING },
-                  status: { type: Type.STRING }
+                  status: { type: Type.STRING },
+                  from_vendor_id: { type: Type.NUMBER },
+                  to_vendor_id: { type: Type.NUMBER },
+                  to_new_vendor_name: { type: Type.STRING },
+                  pending_only: { type: Type.BOOLEAN },
+                  dedupe_by_name: { type: Type.BOOLEAN },
+                  prefer_sizes: { type: Type.ARRAY, items: { type: Type.NUMBER } },
+                  approve: { type: Type.BOOLEAN }
                 },
                 required: ['type']
               }
