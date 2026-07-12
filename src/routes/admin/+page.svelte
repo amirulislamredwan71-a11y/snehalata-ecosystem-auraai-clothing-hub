@@ -1413,8 +1413,8 @@
     </main>
 
     {#if vendorCred}
-      <div class="fixed inset-0 z-[120] flex items-center justify-center p-6 backdrop-blur-3xl bg-black/70" transition:fade={{ duration: 200 }}>
-        <div class="w-full max-w-md bg-[#0A0A0A] border border-white/10 rounded-[2rem] p-8 shadow-2xl" transition:scale={{ duration: 300 }}>
+      <div class="fixed inset-0 z-[120] flex items-center justify-center p-3 sm:p-6 overflow-y-auto backdrop-blur-3xl bg-black/70" transition:fade={{ duration: 200 }}>
+        <div class="w-full max-w-md max-h-[90dvh] overflow-y-auto bg-[#0A0A0A] border border-white/10 rounded-[2rem] p-6 sm:p-8 shadow-2xl" transition:scale={{ duration: 300 }}>
           <div class="flex items-center gap-3 mb-6">
             <div class="p-3 bg-blue-500/10 rounded-xl"><KeyRound size={22} class="text-blue-400" /></div>
             <div>
@@ -1442,8 +1442,8 @@
     {/if}
 
     {#if editVendor}
-      <div class="fixed inset-0 z-[120] flex items-center justify-center p-6 backdrop-blur-3xl bg-black/70" transition:fade={{ duration: 200 }}>
-        <div class="w-full max-w-md bg-[#0A0A0A] border border-white/10 rounded-[2rem] p-8 shadow-2xl" transition:scale={{ duration: 300 }}>
+      <div class="fixed inset-0 z-[120] flex items-center justify-center p-3 sm:p-6 overflow-y-auto backdrop-blur-3xl bg-black/70" transition:fade={{ duration: 200 }}>
+        <div class="w-full max-w-md max-h-[90dvh] overflow-y-auto bg-[#0A0A0A] border border-white/10 rounded-[2rem] p-6 sm:p-8 shadow-2xl" transition:scale={{ duration: 300 }}>
           <div class="flex items-center justify-between mb-6">
             <div class="flex items-center gap-3">
               <div class="p-3 bg-white/5 rounded-xl"><Pencil size={20} class="text-aura-green" /></div>
@@ -1498,9 +1498,9 @@
     {/if}
 
     {#if isCategoryModalOpen}
-      <div class="fixed inset-0 z-[100] flex items-center justify-center p-4 backdrop-blur-3xl bg-black/60" transition:fade={{ duration: 200 }}>
+      <div class="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-4 overflow-y-auto backdrop-blur-3xl bg-black/60" transition:fade={{ duration: 200 }}>
         <div class="w-full max-w-md bg-aura-glass border border-aura-glassBorder rounded-2xl p-0.5 shadow-2xl" transition:scale={{ duration: 300 }}>
-          <div class="bg-aura-black/95 rounded-xl p-10">
+          <div class="bg-aura-black/95 rounded-xl p-6 sm:p-10 max-h-[90dvh] overflow-y-auto">
             <div class="flex justify-between items-center mb-8">
               <h2 class="text-2xl font-serif font-black text-white">ADD CATEGORY</h2>
               <button onclick={() => isCategoryModalOpen = false} class="text-gray-500 hover:text-white transition-colors">
@@ -1530,9 +1530,9 @@
     {/if}
 
     {#if isProductModalOpen}
-      <div class="fixed inset-0 z-[100] flex items-center justify-center p-4 backdrop-blur-3xl bg-black/60" transition:fade={{ duration: 200 }}>
+      <div class="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-4 overflow-y-auto backdrop-blur-3xl bg-black/60" transition:fade={{ duration: 200 }}>
         <div class="w-full max-w-md bg-aura-glass border border-aura-glassBorder rounded-[2rem] p-0.5 shadow-[0_0_60px_rgba(16,185,129,0.15)]" transition:scale={{ duration: 300 }}>
-          <div class="bg-aura-black/90 rounded-[1.95rem] p-6">
+          <div class="bg-aura-black/90 rounded-[1.95rem] p-6 max-h-[90dvh] overflow-y-auto">
             <div class="flex justify-between items-center mb-6">
               <div>
                 <h2 class="text-xl font-serif font-black text-white leading-none mb-1">{editingProductId ? 'EDIT PRODUCT' : 'GLOBAL UPLOAD'}</h2>
