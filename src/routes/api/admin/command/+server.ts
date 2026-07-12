@@ -2,6 +2,7 @@ import { json, error } from '@sveltejs/kit';
 import { env } from '$env/dynamic/private';
 import { adminClient } from '$lib/server/vendorSync';
 import { planAdminCommand } from '$lib/server/gemini.server';
+import { withTimeout } from '$lib/seedCatalog';
 import type { RequestHandler } from './$types';
 
 // Aura Command Console — natural-language admin agent. Two phases, always confirm-gated for
@@ -221,11 +222,18 @@ export const POST: RequestHandler = async (event) => {
   // ── Phase A: plan (no execution) ──
   const command = String(b?.command || '').trim();
   if (!command) throw error(400, 'command is required');
-  let plan;
+  let plan: any = null;
   try {
-    plan = await planAdminCommand(command, ctx.text);
-  } catch (e: any) {
-    throw error(503, 'Aura is busy — please try again. ' + (e?.message || ''));
+    plan = await withTimeout(planAdminCommand(command, ctx.text), 40000);
+  } catch {
+    plan = null;
+  }
+  if (!plan) {
+    return json({
+      ok: true,
+      reply: 'Aura এই command-টা সময়মতো plan করতে পারেনি — একটু ভেঙে ছোট করে দিন (যেমন: আগে "Sneha Fasion নামে store বানাও", পরে "Daamcom-এর size 40/38 গুলো Sneha Fasion-এ move করে approve করো")। Please split it into two shorter commands and retry.',
+      actions: []
+    });
   }
   const actions = (plan.actions || []).map((act: any) => ({ ...act, preview: previewAction(act, ctx) }));
   return json({ ok: true, reply: plan.reply, actions });

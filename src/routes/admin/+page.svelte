@@ -685,17 +685,17 @@
   <div class="min-h-screen bg-black flex items-center justify-center text-aura-green animate-pulse font-mono tracking-widest uppercase">Initializing Command Center...</div>
 {:else}
   <div class="min-h-screen bg-black text-white pb-20">
-    <header class="bg-[#050505] border-b border-white/10 sticky top-20 z-40">
-      <div class="max-w-7xl mx-auto px-6 py-6 border-x border-white/5 bg-gradient-to-b from-white/[0.02] to-transparent">
-        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+    <header class="bg-[#050505] border-b border-white/10 sticky top-0 z-40">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6 border-x border-white/5 bg-gradient-to-b from-white/[0.02] to-transparent">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 sm:gap-6">
           <div>
             <div class="flex items-center gap-3 mb-1">
-              <h1 class="text-3xl font-serif font-black text-white tracking-tight">CEO COMMAND CENTER</h1>
+              <h1 class="text-xl sm:text-3xl font-serif font-black text-white tracking-tight">CEO COMMAND CENTER</h1>
               <div class="px-2 py-0.5 bg-aura-green/20 border border-aura-green/30 rounded text-[8px] font-black uppercase tracking-widest text-aura-green">Root Access</div>
             </div>
             <p class="text-[10px] uppercase tracking-[0.4em] text-gray-500 font-bold">Snehalata Ecosystem Infrastructure</p>
           </div>
-          <div class="flex items-center gap-4">
+          <div class="flex items-center flex-wrap gap-2 sm:gap-4">
             <button
               onclick={loadData}
               class="p-3 bg-white/5 border border-white/10 rounded-xl text-gray-400 hover:text-white transition-all {isLoading ? 'animate-spin' : ''}"
@@ -715,7 +715,7 @@
             </div>
           </div>
         </div>
-        <div class="flex items-center gap-2 md:gap-4 mt-8 overflow-x-auto no-scrollbar pb-4 -mx-1 px-1">
+        <div class="flex items-center gap-2 md:gap-4 mt-5 sm:mt-8 overflow-x-auto no-scrollbar pb-4 -mx-1 px-1">
           <button onclick={() => activeTab = 'OVERVIEW'}
             class="flex items-center gap-2.5 px-6 py-4 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-300 cursor-pointer relative z-10 whitespace-nowrap active:scale-95 group border {activeTab === 'OVERVIEW' ? 'bg-aura-green text-white shadow-[0_15px_40px_rgba(16,185,129,0.4)] border-white/20' : 'bg-white/5 text-gray-400 border-white/5 hover:text-white hover:bg-white/10'}"
           >

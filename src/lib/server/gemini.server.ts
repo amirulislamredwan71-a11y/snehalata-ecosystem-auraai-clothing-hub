@@ -171,6 +171,10 @@ Supported action "type" values (set only the fields relevant to that type):
 - "set_price": set price on products. fields: (product_ids (number[]) OR vendor_id (number)) + price (number) OR above_market (bool = a little above the category average).
 - "set_vendor_status": fields: vendor_id (number, required), status ("approved" | "blocked" | "pending").
 
+EFFICIENCY: emit the SMALLEST plan. For "move one-per-item by size to a (new) store and approve", use exactly ONE move_products action with prefer_sizes — NEVER one action per product, and keep actions ≤ 4.
+Example — command "Daamcom-er pending theke size 40 (na thakle 38), sob vinno item er ekta, 'Sneha Fasion' name e notun store banaye move kore approve koro" (Daamcom = #23 in CONTEXT) →
+{"reply":"Daamcom-এর pending থেকে প্রতি item-এর size-40 (নাহলে 38) 'Sneha Fasion' নতুন স্টোরে move + approve করছি।","actions":[{"type":"move_products","from_vendor_id":23,"pending_only":true,"prefer_sizes":[40,38],"to_new_vendor_name":"Sneha Fasion","approve":true}]}
+
 CONTEXT — live vendors (id · name · pending · total) and note:
 ${context}`;
   const res = await withRetry(() =>
