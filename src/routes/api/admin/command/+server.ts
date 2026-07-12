@@ -110,9 +110,12 @@ async function execAction(a: any, act: any, event: any): Promise<{ ok: boolean; 
       return { ok: true, affected: v.created ? 1 : 0, note: v.created ? `created store "${v.store_name}" (#${v.id})` : `store "${v.store_name}" already exists (#${v.id})` };
     }
     case 'move_products': {
-      let target = Number(act.to_vendor_id) || 0;
+      // Prefer an explicit NEW store name (find-or-create) over a possibly-hallucinated
+      // to_vendor_id — this keeps execution consistent with the previewed plan.
+      let target = 0;
       let targetName = '';
-      if (!target && act.to_new_vendor_name) { const v = await findOrCreateVendor(a, act.to_new_vendor_name, act.category); target = v.id; targetName = v.store_name; }
+      if (act.to_new_vendor_name) { const v = await findOrCreateVendor(a, act.to_new_vendor_name, act.category); target = v.id; targetName = v.store_name; }
+      else if (act.to_vendor_id) target = Number(act.to_vendor_id) || 0;
       if (!target) return { ok: false, note: 'no target vendor' };
       let sel = a.from('products').select('id,name');
       if (Array.isArray(act.product_ids) && act.product_ids.length) sel = sel.in('id', act.product_ids);
