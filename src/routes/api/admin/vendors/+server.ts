@@ -19,6 +19,16 @@ function genPassword() {
   return `Sneh-${a}${b}@${n}`;
 }
 
+// Fresh, complete vendor list for the admin dashboard (service_role, never cached) —
+// so the admin never shows the stale/partial public-catalog copy.
+export const GET: RequestHandler = async ({ request, setHeaders }) => {
+  assertAdmin(request);
+  setHeaders({ 'cache-control': 'no-store' });
+  const { data, error: e } = await adminClient().from('vendors').select('*').order('id', { ascending: true });
+  if (e) throw error(500, e.message);
+  return json({ ok: true, vendors: data || [] });
+};
+
 // Admin: generate & set a fresh unique password for a vendor's login.
 export const POST: RequestHandler = async ({ request, url }) => {
   assertAdmin(request);

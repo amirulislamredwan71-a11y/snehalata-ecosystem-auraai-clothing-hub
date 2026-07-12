@@ -38,13 +38,19 @@ function cleanProduct(body: any) {
 }
 
 // List products for admin review. ?pending=1 → only items awaiting review (is_active=false).
-export const GET: RequestHandler = async ({ request, url }) => {
+export const GET: RequestHandler = async ({ request, url, setHeaders }) => {
   assertAdmin(request);
   const sb = adminClient();
-  let query = sb.from('products').select('*, vendors(store_name)').order('id', { ascending: false });
+  // Explicit storefront/admin columns — NEVER `*` here (that ships the huge `embedding`
+  // vector on every row → multi-MB payload). Include the vendor name for the Review UI.
+  let query = sb
+    .from('products')
+    .select('id,name,price,category,image_url,description,stock_quantity,vendor_id,is_active,created_at,moderation_score,moderation_note,vendors(store_name)')
+    .order('id', { ascending: false });
   if (url.searchParams.get('pending') === '1') query = query.eq('is_active', false);
   const { data, error: e } = await query;
   if (e) throw error(500, e.message);
+  setHeaders({ 'cache-control': 'no-store' });
   return json({ ok: true, products: data });
 };
 

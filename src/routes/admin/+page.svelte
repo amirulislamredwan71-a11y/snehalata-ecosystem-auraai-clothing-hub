@@ -3,6 +3,7 @@
   import { fade, slide, scale } from 'svelte/transition';
   import { TrendingUp, Users, ShoppingCart, Activity, Globe, Zap, ShieldCheck, ShieldAlert, Shield, Trash2, CheckCircle, XCircle, Plus, Search, Filter, RefreshCw, Package, Tag, Building2, BarChart3, CreditCard, Upload, Loader2, Image as ImageIcon, Network, KeyRound, ChevronDown, Pencil } from '@lucide/svelte';
   import { getEcosystemStats, getVendors, getProducts, getOrders, getCategories, addProduct, deleteProduct, deleteVendor, deleteCategory, getOrderById, getLiveSales, syncWithNeuralGrid } from '$lib/mockData';
+  import { mapVendorRow, mapProductRow } from '$lib/seedCatalog';
 
   const adminPass = () => (typeof localStorage !== 'undefined' ? localStorage.getItem('aura_admin_pass') || '' : '');
   import type { EcosystemStats, Vendor, Product, Category } from '$lib/types';
@@ -374,19 +375,38 @@
     }
   }
 
-  function loadData() {
+  // Load the WHOLE admin view fresh + atomically from the service_role admin endpoints
+  // (never the CDN-cached public catalog + never the async seed-first mockData store), so
+  // the vendor list, inventory, import dropdown and Review queue all appear together and
+  // current — no "seed first, real later" waves.
+  async function loadData() {
     isLoading = true;
-    const freshStats = getEcosystemStats();
+    try {
+      const [vRes, pRes] = await Promise.all([
+        fetch('/api/admin/vendors', { headers: { 'x-admin-pass': adminPass() }, cache: 'no-store' }),
+        fetch('/api/admin/products', { headers: { 'x-admin-pass': adminPass() }, cache: 'no-store' })
+      ]);
+      const vData = await vRes.json().catch(() => ({}));
+      const pData = await pRes.json().catch(() => ({}));
+      const rawProducts: any[] = pRes.ok ? pData.products || [] : [];
+      // Set all three from the SAME fetch so the grid, Review queue and dropdown are consistent.
+      vendors = (vRes.ok ? vData.vendors || [] : []).map(mapVendorRow);
+      products = rawProducts.filter((p) => p.is_active !== false).map(mapProductRow);
+      pendingProducts = rawProducts.filter((p) => p.is_active === false);
+    } catch {
+      /* keep whatever we already have on a transient error */
+    }
+    await loadOrders();
+    categories = getCategories();
+    orders = getOrders();
+    loadHomeConfig();
+    // Set stats LAST so the "Initializing" gate (!stats) clears only when everything is ready.
+    const freshStats = { ...getEcosystemStats(), totalVendors: vendors.length, activeProducts: products.length };
     stats = freshStats;
     liveStats = freshStats;
-    vendors = getVendors();
-    products = getProducts();
-    orders = getOrders();
-    categories = getCategories();
-    loadPending();
-    loadOrders();
-    loadHomeConfig();
     isLoading = false;
+    // Keep the public storefront store fresh too (non-blocking) so the shopfront reflects edits.
+    syncWithNeuralGrid();
   }
 
   $effect(() => {
