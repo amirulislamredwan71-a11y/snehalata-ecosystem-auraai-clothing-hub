@@ -18,11 +18,12 @@ export const GET: RequestHandler = async () => {
       a.from('vendors').select('*'),
       a.from('categories').select('*')
     ]);
-    // Truncate description to a short snippet — cards/modal never render it; only the home
-    // JSON-LD + Aura use a snippet. Full description stays on the SSR /product/[id] page.
-    // This alone cut the payload from ~1 MB to ~250 KB (478 products).
+    // THE real weight: a few rows stored the whole image as a base64 `data:` URL (one was
+    // 200 KB by itself) → the catalog ballooned to ~1 MB. Never ship base64 to the client —
+    // null it so productImg() shows the branded fallback. Also trim description to a snippet.
     const products = (pRes.data || []).map((p: any) => ({
       ...p,
+      image_url: typeof p.image_url === 'string' && p.image_url.startsWith('data:') ? null : p.image_url,
       description: p.description ? String(p.description).slice(0, 140) : p.description
     }));
     return json(

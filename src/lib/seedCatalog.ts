@@ -302,7 +302,9 @@ export const mapProductRow = (p: any): Product => ({
   description: p.description,
   price: Number(p.price),
   category: p.category,
-  imageUrl: p.image_url,
+  // Never carry a giant base64 `data:` image into SSR/props — it bloats the page HTML.
+  // productImg() falls back to the branded placeholder for an empty URL.
+  imageUrl: typeof p.image_url === 'string' && p.image_url.startsWith('data:') ? '' : p.image_url,
   externalUrl: p.external_url,
   // Real DB schema has no vendor_id column; 0 => no vendor chip rendered.
   vendorId: p.vendor_id ?? 0,
