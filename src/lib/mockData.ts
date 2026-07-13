@@ -35,7 +35,8 @@ let remoteVendors: Vendor[] = [];
 let remoteProducts: Product[] = [];
 let remoteCategories: Category[] = [];
 
-export const syncWithNeuralGrid = async () => {
+let syncInFlight: Promise<void> | null = null;
+const _doSync = async () => {
   if (!browser) return;
 
   // The project's legacy anon key is disabled, so we can't read Supabase directly
@@ -67,6 +68,16 @@ export const syncWithNeuralGrid = async () => {
 
   if (browser) window.dispatchEvent(new Event('productUpdated'));
   if (browser) window.dispatchEvent(new Event('vendorUpdated'));
+};
+
+// Dedupe concurrent calls: the module-load call + the layout $effect both trigger a sync on
+// first load — without this they'd each pull the catalog. One in-flight fetch per burst;
+// later refreshes (after admin edits) still re-fetch once the previous one settles.
+export const syncWithNeuralGrid = async (): Promise<void> => {
+  if (!browser) return;
+  if (syncInFlight) return syncInFlight;
+  syncInFlight = _doSync().finally(() => { syncInFlight = null; });
+  return syncInFlight;
 };
 
 const INITIAL_ORDERS: Order[] = [

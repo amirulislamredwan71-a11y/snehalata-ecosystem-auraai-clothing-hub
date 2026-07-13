@@ -18,7 +18,7 @@ import { getRealStats, getTrending } from '$lib/server/stats';
 export const load: PageServerLoad = async ({ setHeaders }) => {
   // Edge-cache the SSR home so repeat/first visits are served from the CDN in ~ms
   // instead of waiting on the ~2.5s Supabase reads. Revalidates in the background.
-  setHeaders({ 'Cache-Control': 'public, s-maxage=120, stale-while-revalidate=600' });
+  setHeaders({ 'Cache-Control': 'public, s-maxage=600, stale-while-revalidate=3600' });
 
   let vendors = [...SEED_VENDORS];
   let products = [...SEED_PRODUCTS];

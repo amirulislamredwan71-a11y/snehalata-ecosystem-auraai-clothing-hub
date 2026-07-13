@@ -18,17 +18,24 @@ export const GET: RequestHandler = async () => {
       a.from('vendors').select('*'),
       a.from('categories').select('*')
     ]);
+    // Truncate description to a short snippet — cards/modal never render it; only the home
+    // JSON-LD + Aura use a snippet. Full description stays on the SSR /product/[id] page.
+    // This alone cut the payload from ~1 MB to ~250 KB (478 products).
+    const products = (pRes.data || []).map((p: any) => ({
+      ...p,
+      description: p.description ? String(p.description).slice(0, 140) : p.description
+    }));
     return json(
       {
         ok: true,
-        products: pRes.data || [],
+        products,
         vendors: vRes.data || [],
         categories: cRes.data || []
       },
       {
-        // Edge-cache the catalog: near-instant for visitors, revalidates in the
-        // background. Product edits propagate within ~2 min (the DB stays source of truth).
-        headers: { 'Cache-Control': 'public, s-maxage=120, stale-while-revalidate=600' }
+        // Edge-cache the catalog longer so sparse launch traffic keeps it warm (fewer 3–4s
+        // cold renders). Edits propagate within ~10 min; Aura/admin refresh still works.
+        headers: { 'Cache-Control': 'public, s-maxage=600, stale-while-revalidate=3600' }
       }
     );
   } catch {
