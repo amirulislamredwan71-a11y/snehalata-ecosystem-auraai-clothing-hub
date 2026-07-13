@@ -2,16 +2,19 @@
   import { page } from '$app/stores';
   import { CheckCircle2, Truck, ShoppingBag } from '@lucide/svelte';
   import { onMount } from 'svelte';
+  import { metaTrack } from '$lib/pixel';
 
   const orderId = $derived($page.url.searchParams.get('order') || '');
   const tracking = $derived($page.url.searchParams.get('t') || '');
 
-  // Payment settled → clear the cart so it isn't re-ordered.
+  // Payment settled → clear the cart so it isn't re-ordered + fire the Meta Purchase conversion.
   onMount(() => {
     try {
       localStorage.setItem('aura_cart', '[]');
       window.dispatchEvent(new Event('cartUpdated'));
     } catch { /* ignore */ }
+    const v = Number($page.url.searchParams.get('v')) || 0;
+    metaTrack('Purchase', { value: v, currency: 'BDT' });
   });
 </script>
 

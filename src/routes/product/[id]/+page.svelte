@@ -5,6 +5,7 @@
   import Stars from '$lib/components/Stars.svelte';
   import ProductCard from '$lib/components/ProductCard.svelte';
   import { track } from '$lib/analytics';
+  import { metaTrack } from '$lib/pixel';
 
   let { data } = $props();
 
@@ -86,6 +87,7 @@
     localStorage.setItem('aura_cart', JSON.stringify(cart));
     window.dispatchEvent(new Event('cartUpdated'));
     track('add_to_cart', { product_id: Number(product.id), vendor_id: vendor ? Number(vendor.id) : null, meta: { qty, size } });
+    metaTrack('AddToCart', { content_ids: [String(product.id)], content_type: 'product', content_name: product.name, value: Number(product.price) * qty, currency: 'BDT' });
     if (buyNow) goto('/cart');
     else {
       added = true;

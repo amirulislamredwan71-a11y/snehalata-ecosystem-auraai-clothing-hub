@@ -2,6 +2,7 @@
   import { goto } from '$app/navigation';
   import { Eye, X, Plus, Minus, CheckCircle2, ShoppingBag, Shirt, Sparkles, ShieldCheck, Palette, Loader2, Share2, Zap } from '@lucide/svelte';
   import { track } from '$lib/analytics';
+  import { metaTrack } from '$lib/pixel';
   import { productImg, imgFallback } from '$lib/imageUpload';
   import { priceStats, fairVerdict } from '$lib/fairPrice';
   import { reviewAgg, loadReviewAgg } from '$lib/reviews';
@@ -124,6 +125,7 @@
     localStorage.setItem('aura_cart', JSON.stringify(cart));
     window.dispatchEvent(new Event('cartUpdated'));
     track('add_to_cart', { product_id: Number(product.id), vendor_id: vendor ? Number(vendor.id) : null, meta: { qty, size } });
+    metaTrack('AddToCart', { content_ids: [String(product.id)], content_type: 'product', content_name: product.name, value: Number(product.price) * qty, currency: 'BDT' });
   }
 
   function handleQuickAdd(e: MouseEvent) {

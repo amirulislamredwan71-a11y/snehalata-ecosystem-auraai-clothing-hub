@@ -3,6 +3,7 @@
   import { fade, fly, scale } from 'svelte/transition';
   import { getOrders, addOrder, getProducts } from '$lib/mockData';
   import { BD_LOCATIONS } from '$lib/locationData';
+  import { metaTrack } from '$lib/pixel';
   import type { Order, Product, OrderStatus, TimelineEntry } from '$lib/types';
 
   interface CartItem extends Product {
@@ -67,6 +68,7 @@
       return;
     }
     placing = true;
+    metaTrack('InitiateCheckout', { value: total, currency: 'BDT', num_items: cartItems.length });
     try {
       const res = await fetch('/api/orders', {
         method: 'POST',
@@ -107,6 +109,8 @@
         mine.unshift({ id: data.orderId, tracking: completedTracking, phone: formData.phone, name: formData.name, total: data.total, at: new Date().toISOString() });
         localStorage.setItem('aura_my_orders', JSON.stringify(mine.slice(0, 50)));
       } catch { /* ignore storage errors */ }
+      // COD / manual-MFS orders complete here; online orders fire Purchase on /payment/success.
+      metaTrack('Purchase', { value: data.total || total, currency: 'BDT', num_items: data.itemCount || 1 });
       checkoutStep = 'DONE';
     } catch (e: any) {
       error = e?.message || 'Could not place order. Please try again.';

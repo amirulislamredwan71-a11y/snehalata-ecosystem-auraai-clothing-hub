@@ -25,12 +25,14 @@ export const POST: RequestHandler = async ({ request, url }) => {
   // success redirect OR IPN → validate the payment server-side before trusting it.
   let paid = false;
   let tracking = '';
+  let orderTotal = 0;
   if (orderId && valId) {
     const v = await validatePayment(valId);
     if (v.valid) {
       const a = adminClient();
       const { data: o } = await a.from('orders').select('id,total,payment_status,created_at').eq('id', orderId).single();
       if (o) {
+        orderTotal = Number(o.total) || 0;
         // amount must match (guard against tampering); allow a 1-taka rounding slack
         const amountOk = v.amount == null || Math.abs(Number(v.amount) - Number(o.total)) <= 1;
         if (amountOk && o.payment_status !== 'PAID') {
@@ -43,7 +45,7 @@ export const POST: RequestHandler = async ({ request, url }) => {
   }
 
   if (mode === 'success') {
-    if (paid) throw redirect(303, `/payment/success?order=${orderId}&t=${encodeURIComponent(tracking)}`);
+    if (paid) throw redirect(303, `/payment/success?order=${orderId}&t=${encodeURIComponent(tracking)}&v=${orderTotal}`);
     throw redirect(303, `/payment/fail?order=${orderId}`);
   }
   return json({ ok: true, paid });
