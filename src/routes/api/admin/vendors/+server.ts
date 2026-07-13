@@ -81,7 +81,25 @@ export const PATCH: RequestHandler = async ({ request, url }) => {
 
   const { data, error: e } = await adminClient().from('vendors').update(update).eq('id', id).select().single();
   if (e) throw error(500, e.message);
-  return json({ ok: true, vendor: data });
+
+  // The storefront filters by PRODUCT category, not the vendor tag — so setting a vendor's
+  // category ALSO moves every one of its products to that category tile. This is what makes
+  // "pick a category for the store → it actually fixes" work (was the recurring Others bug).
+  let productsMoved = 0;
+  if (body.category !== undefined && body.category) {
+    const catId = String(body.category).toLowerCase();
+    const CANON: Record<string, string> = {
+      womens: 'Womens', saree: 'Saree', panjabi: 'Panjabi', 'three-piece': 'Three-Piece', borka: 'Borka',
+      shirt: 'Shirt', 't-shirt': 'T-Shirt', pant: 'Pant', baby: 'Baby', market: 'Market',
+      cosmetics: 'Cosmetics', undergarments: 'Undergarments', gadgets: 'Gadgets', others: 'Others'
+    };
+    const canon = CANON[catId] || catId.replace(/(^|[-\s])([a-z])/g, (_m, s, c) => s + c.toUpperCase());
+    try {
+      const { data: moved } = await adminClient().from('products').update({ category: canon }).eq('vendor_id', id).select('id');
+      productsMoved = (moved || []).length;
+    } catch { /* products move is best-effort */ }
+  }
+  return json({ ok: true, vendor: data, productsMoved });
 };
 
 export const DELETE: RequestHandler = async ({ request, url }) => {

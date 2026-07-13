@@ -43,11 +43,12 @@ async function buildContext(a: any) {
 
 // Snap a free-form category name onto a real storefront category (the storefront filters by
 // product.category, so this must be one of the known ones or the tile can't show it).
-const KNOWN_CATS = ['Saree', 'Panjabi', 'Three-Piece', 'Borka', 'Shirt', 'T-Shirt', 'Pant', 'Baby', 'Cosmetics', 'Undergarments', 'Gadgets', 'Market', 'Others'];
+const KNOWN_CATS = ['Womens', 'Saree', 'Panjabi', 'Three-Piece', 'Borka', 'Shirt', 'T-Shirt', 'Pant', 'Baby', 'Cosmetics', 'Undergarments', 'Gadgets', 'Market', 'Others'];
 function snapCategory(raw: string): string {
   const n = String(raw || '').toLowerCase().trim();
   const exact = KNOWN_CATS.find((c) => c.toLowerCase() === n);
   if (exact) return exact;
+  if (n.includes('women') || n.includes('ladies') || n.includes('নারী')) return 'Womens';
   if (n.includes('under') || n.includes('lingerie') || n.includes('night') || n.includes('bra') || n.includes('panty')) return 'Undergarments';
   if (n.includes('saree') || n.includes('sari')) return 'Saree';
   if (n.includes('panjabi') || n.includes('punjabi') || n.includes('kurta')) return 'Panjabi';

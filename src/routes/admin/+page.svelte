@@ -1606,6 +1606,7 @@
                   <option value={c.id} class="bg-black">{c.name}</option>
                 {/each}
               </select>
+              <p class="text-[9px] text-aura-green/80 px-1">✓ সেভ করলে এই store-এর <b>সব product</b> এই category-তে চলে যাবে।</p>
             </div>
             <div class="space-y-1">
               <label class="text-[9px] text-gray-500 font-black uppercase tracking-widest px-1">Commission % (Fixed mode)</label>

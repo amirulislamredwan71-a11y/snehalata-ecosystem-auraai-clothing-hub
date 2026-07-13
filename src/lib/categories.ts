@@ -5,6 +5,7 @@ import { LayoutGrid, Store, TrendingUp, Sparkles, Zap } from '@lucide/svelte';
 // dedicated image in /static/categories (falls back to a gradient when absent).
 export const ECO_CATEGORIES = [
   { id: 'all', name: 'সব সংগ্রহ (All)', icon: LayoutGrid, cover: '' },
+  { id: 'womens', name: "নারী (Women's)", icon: Store, cover: '' },
   { id: 'saree', name: 'শাড়ি (Saree)', icon: Store, cover: '/categories/saree.jpg' },
   { id: 'panjabi', name: 'পাঞ্জাবি (Panjabi)', icon: Store, cover: '/categories/panjabi.jpg' },
   { id: 'three-piece', name: 'থ্রি-পিস (3-Piece)', icon: Store, cover: '/categories/three-piece.jpg' },
