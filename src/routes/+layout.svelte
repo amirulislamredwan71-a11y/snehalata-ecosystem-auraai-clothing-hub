@@ -34,7 +34,6 @@
 
   $effect(() => {
     if (!browser) return;
-    syncWithNeuralGrid();
     // Fair-Price Truth stats — rebuilt from the live catalog (global, all pages).
     const refreshStats = () => priceStats.set(buildPriceStats(getProducts()));
     refreshStats();
@@ -63,12 +62,19 @@
           if (cfg?.featured) featuredConfig.set({ vendorSlugs: cfg.featured.vendorSlugs ?? [], productIds: cfg.featured.productIds ?? [] });
         })
         .catch(() => {});
-    refreshConfig();
     window.addEventListener('siteConfigUpdated', refreshConfig);
 
-    // Live review aggregates (product + vendor avg/count) — one global fetch drives every
-    // ProductCard star-badge and the vendor rail rating. No-op if the table isn't provisioned.
-    loadReviewAgg();
+    // Non-critical data (full catalog sync, owner site-config, review aggregates) — deferred
+    // OFF the first-paint critical path so the page is interactive immediately on laptop +
+    // mobile. The home already renders real SSR products via hydrateFromSSR, so the full
+    // catalog + config + review stars filling in a beat later is invisible.
+    const idle = (fn: () => void) =>
+      'requestIdleCallback' in window ? (window as any).requestIdleCallback(fn, { timeout: 1500 }) : setTimeout(fn, 300);
+    idle(() => {
+      syncWithNeuralGrid();
+      refreshConfig();
+      loadReviewAgg();
+    });
 
     const load = () =>
       import('$lib/components/ChatAssistant.svelte').then((m) => {

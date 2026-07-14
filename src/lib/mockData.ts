@@ -42,6 +42,13 @@ const _doSync = async () => {
   // The project's legacy anon key is disabled, so we can't read Supabase directly
   // from the browser. Fetch the live catalog through the service_role-backed
   // /api/catalog endpoint instead (falls back to seed if it fails).
+  // Only re-render the storefront when the catalog actually changed. On first load the
+  // store is already seeded from the SSR page data (hydrateFromSSR), so a sync that returns
+  // the same set must NOT dispatch — that avoids a needless re-render of the just-painted grid.
+  const sig = (arr: { id: any }[]) => arr.map((x) => x.id).join(',');
+  let productsChanged = false;
+  let vendorsChanged = false;
+
   try {
     const res = await fetch('/api/catalog');
     const d = await res.json().catch(() => ({}));
@@ -55,19 +62,38 @@ const _doSync = async () => {
       }));
     }
     if (Array.isArray(d?.vendors)) {
-      remoteVendors = d.vendors.map(mapVendorRow);
+      const next = d.vendors.map(mapVendorRow);
+      vendorsChanged = sig(next) !== sig(remoteVendors);
+      remoteVendors = next;
       MOCK_STATS.totalVendors = remoteVendors.length;
     }
     if (Array.isArray(d?.products)) {
-      remoteProducts = d.products.map(mapProductRow);
+      const next = d.products.map(mapProductRow);
+      productsChanged = sig(next) !== sig(remoteProducts);
+      remoteProducts = next;
       MOCK_STATS.activeProducts = remoteProducts.length;
     }
   } catch (err) {
     console.warn('Sync failed.', err);
   }
 
-  if (browser) window.dispatchEvent(new Event('productUpdated'));
-  if (browser) window.dispatchEvent(new Event('vendorUpdated'));
+  if (browser && productsChanged) window.dispatchEvent(new Event('productUpdated'));
+  if (browser && vendorsChanged) window.dispatchEvent(new Event('vendorUpdated'));
+};
+
+// Seed the client store from the page's SSR `load` data so the FIRST client render uses
+// real products/vendors (the SSR-capped set) instead of the 16-item seed — killing the
+// seed→full "flash". Only fills when the remote cache is still empty; the deferred
+// syncWithNeuralGrid() then replaces these with the FULL live catalog.
+export const hydrateFromSSR = (products?: Product[], vendors?: Vendor[]) => {
+  if (Array.isArray(products) && products.length && !remoteProducts.length) {
+    remoteProducts = products;
+    MOCK_STATS.activeProducts = remoteProducts.length;
+  }
+  if (Array.isArray(vendors) && vendors.length && !remoteVendors.length) {
+    remoteVendors = vendors;
+    MOCK_STATS.totalVendors = remoteVendors.length;
+  }
 };
 
 // Dedupe concurrent calls: the module-load call + the layout $effect both trigger a sync on

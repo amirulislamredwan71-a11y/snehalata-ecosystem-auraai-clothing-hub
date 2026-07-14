@@ -5,7 +5,7 @@
   import { Search, LayoutGrid, ChevronRight, TrendingUp, Zap, ArrowRight, ShieldCheck, Menu, X, Filter, Globe, Store, History, Camera, Sparkles, Play, Truck, Lock, ChevronDown, Wallet, Shirt, MapPin } from '@lucide/svelte';
   import ProductCard from '$lib/components/ProductCard.svelte';
   import { priceStats, fairVerdict } from '$lib/fairPrice';
-  import { getProducts, getVendors } from '$lib/mockData';
+  import { getProducts, getVendors, hydrateFromSSR } from '$lib/mockData';
   import { BD_LOCATIONS } from '$lib/locationData';
   import { ECO_CATEGORIES } from '$lib/categories';
   import { siteCategories, featuredConfig, stockedCategoryIds } from '$lib/ui';
@@ -166,6 +166,9 @@
     if (!browser) return;
     // This effect ONLY writes state (products / vendors / recentIds) and never reads
     // reactive state, so it runs once on mount + on events — no self-dependency loop.
+    // Seed the store from the SSR page data so getProducts() returns REAL products on the
+    // very first mount (no 16-item seed flash); the deferred catalog sync fills the full set.
+    hydrateFromSSR(data?.products, data?.vendors);
     const refresh = () => {
       products = getProducts();
       vendors = getVendors();
@@ -299,6 +302,26 @@
             (a, b) => (featuredVendorIds.includes(b.vendorId) ? 1 : 0) - (featuredVendorIds.includes(a.vendorId) ? 1 : 0)
           )
   );
+
+  // Progressive grid render — paint only the first page of cards, then auto-append more on
+  // scroll (IntersectionObserver) or via the "আরও দেখুন" button. The FULL catalog stays
+  // reachable, but we never mount hundreds of ProductCards at once (the real laptop/mobile cost).
+  let visibleCount = $state(24);
+  // Reset to the first page whenever the visible SET changes (category / search / district).
+  // A background catalog refresh does NOT reset this (its deps don't change), so scroll holds.
+  $effect(() => {
+    void [selectedCategory, searchQuery, semanticActive, selectedDistrict];
+    visibleCount = 24;
+  });
+  function autoloadMore(node: HTMLElement) {
+    if (!browser) return;
+    const io = new IntersectionObserver(
+      (entries) => { if (entries[0]?.isIntersecting) visibleCount = Math.min(visibleCount + 24, displayProducts.length); },
+      { rootMargin: '600px' }
+    );
+    io.observe(node);
+    return { destroy: () => io.disconnect() };
+  }
 
   let categoryVendors = $derived(vendors.filter(v => {
     const matchesDistrict = selectedDistrict === 'all' || v.district === selectedDistrict;
@@ -882,11 +905,22 @@
         </div>
       {:else}
       <div class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-10">
-        {#each displayProducts as p, idx (p.id)}
-          <div transition:fly={{ y: 30, duration: 400, delay: idx * 50 }}>
+        {#each displayProducts.slice(0, visibleCount) as p, idx (p.id)}
+          <div transition:fly={{ y: 30, duration: 400, delay: Math.min(idx, 11) * 40 }}>
             <ProductCard product={p} vendor={vendors.find(v => v.id === p.vendorId)} />
           </div>
         {/each}
+
+        {#if visibleCount < displayProducts.length}
+          <div class="col-span-full flex justify-center pt-6 pb-2" use:autoloadMore>
+            <button
+              type="button"
+              onclick={() => (visibleCount = Math.min(visibleCount + 24, displayProducts.length))}
+              class="px-8 py-3 rounded-full border border-aura-green/30 bg-white/5 text-sm font-semibold text-aura-green hover:bg-aura-green/10 transition-colors">
+              আরও দেখুন · Load more ({displayProducts.length - visibleCount})
+            </button>
+          </div>
+        {/if}
 
         {#if displayProducts.length === 0}
           {@const emptyCat = selectedCategory !== 'all' && !semanticActive && searchQuery === ''}
