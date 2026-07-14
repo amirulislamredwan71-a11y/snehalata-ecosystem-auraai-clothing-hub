@@ -1,7 +1,8 @@
 <script lang="ts">
   import { browser } from '$app/environment';
   import { fade, scale } from 'svelte/transition';
-  import { Zap, LayoutDashboard, Users, ShieldCheck, Cpu, Network, Package, Plus, Layout, Palette, Eye, Globe, BarChart3, Sparkles, Loader2, Upload, Pencil } from '@lucide/svelte';
+  import { Zap, LayoutDashboard, Users, ShieldCheck, Cpu, Network, Package, Plus, Layout, Palette, Eye, EyeOff, Globe, BarChart3, Sparkles, Loader2, Upload, Pencil } from '@lucide/svelte';
+  let showLoginPw = $state(false);
   import ProductCard from '$lib/components/ProductCard.svelte';
   import { getVendors, getProductsByVendor, syncWithNeuralGrid } from '$lib/mockData';
   import { fileToCompressedDataURL } from '$lib/imageUpload';
@@ -369,7 +370,7 @@
       const res = await fetch('/api/vendor/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: loginEmail, password: loginPassword })
+        body: JSON.stringify({ identifier: loginEmail, password: loginPassword })
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.message || 'Login failed');
@@ -443,10 +444,10 @@
                   </div>
                   <input
                     autofocus
-                    type="email"
+                    type="text"
                     required
                     bind:value={loginEmail}
-                    placeholder="enter your corporate email"
+                    placeholder="মোবাইল নম্বর বা ইমেইল"
                     class="w-full bg-black/40 border border-white/10 rounded-2xl pl-16 pr-6 py-5 text-sm text-white focus:outline-none focus:border-aura-green transition-all placeholder:text-gray-800"
                   />
                 </div>
@@ -458,12 +459,15 @@
                     <ShieldCheck size={18} />
                   </div>
                   <input
-                    type="password"
+                    type={showLoginPw ? 'text' : 'password'}
                     required
                     bind:value={loginPassword}
                     placeholder="vendor access key"
-                    class="w-full bg-black/40 border border-white/10 rounded-2xl pl-16 pr-6 py-5 text-sm text-white focus:outline-none focus:border-aura-green transition-all placeholder:text-gray-800"
+                    class="w-full bg-black/40 border border-white/10 rounded-2xl pl-16 pr-14 py-5 text-sm text-white focus:outline-none focus:border-aura-green transition-all placeholder:text-gray-800"
                   />
+                  <button type="button" onclick={() => (showLoginPw = !showLoginPw)} aria-label="Show password" class="absolute right-5 top-1/2 -translate-y-1/2 text-gray-500 hover:text-aura-green transition-colors cursor-pointer">
+                    {#if showLoginPw}<EyeOff size={18} />{:else}<Eye size={18} />{/if}
+                  </button>
                 </div>
               </div>
               <div class="flex gap-4">

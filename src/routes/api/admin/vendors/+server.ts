@@ -68,7 +68,7 @@ export const PATCH: RequestHandler = async ({ request, url }) => {
     update.status = norm;
   }
   // Editable profile fields (whitelist — only columns known to exist on `vendors`).
-  for (const f of ['store_name', 'owner_name', 'website_url', 'district', 'area', 'description', 'category']) {
+  for (const f of ['store_name', 'owner_name', 'website_url', 'district', 'area', 'description', 'category', 'phone']) {
     if (body[f] !== undefined) update[f] = body[f] === '' ? null : body[f];
   }
   // Per-vendor fixed commission % (used in the global "Fixed" commission mode).

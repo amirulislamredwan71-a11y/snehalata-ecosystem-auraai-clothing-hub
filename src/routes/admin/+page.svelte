@@ -416,6 +416,7 @@
       id: v.id,
       store_name: v.store_name || '',
       owner_name: (v as any).owner_name || '',
+      phone: (v as any).phone || '',
       website_url: (v as any).website_url || '',
       district: (v as any).district || '',
       category: (v as any).category || '',
@@ -974,6 +975,7 @@
                             <div class="text-sm font-bold text-white">{v.store_name || 'Legacy Vendor'}</div>
                             <a href={`https://${subdomainFor(v)}`} target="_blank" rel="noreferrer" class="text-[10px] text-aura-green/80 hover:text-aura-green font-mono hover:underline">{subdomainFor(v)}</a>
                             <div class="text-[9px] text-gray-600 font-mono">#{v.id} · {st.skus} products · {(v as any).district || '—'}{#if (v as any).category} · 🏷 {(v as any).category}{/if}</div>
+                            {#if (v as any).phone}<div class="text-[9px] text-aura-green font-mono">📞 {(v as any).phone}</div>{/if}
                           </div>
                         </div>
                       </td>
@@ -1584,6 +1586,10 @@
             <div class="space-y-1">
               <label class="text-[9px] text-gray-500 font-black uppercase tracking-widest px-1">Owner Name</label>
               <input bind:value={editVendor.owner_name} class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-aura-green" />
+            </div>
+            <div class="space-y-1">
+              <label class="text-[9px] text-gray-500 font-black uppercase tracking-widest px-1">📞 Phone (identity)</label>
+              <input bind:value={editVendor.phone} type="tel" placeholder="01712XXXXXX" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-aura-green placeholder:text-gray-700" />
             </div>
             <div class="space-y-1">
               <label class="text-[9px] text-gray-500 font-black uppercase tracking-widest px-1">Website URL</label>

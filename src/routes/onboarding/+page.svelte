@@ -6,8 +6,9 @@
     ShieldCheck, AlertTriangle, Loader2, Sparkles, Building2,
     LogIn, FileText, ChevronRight, CheckCircle2, Globe,
     Wand2, Cpu, ArrowLeft, LayoutDashboard, Shirt, Check,
-    Tag, MapPin
+    Tag, MapPin, Phone, Eye, EyeOff
   } from '@lucide/svelte';
+  let showPw = $state(false);
   import { auditVendorDescription } from '$lib/geminiService';
   import { siteCategories } from '$lib/ui';
   import { BD_LOCATIONS } from '$lib/locationData';
@@ -18,6 +19,7 @@
   let formData = $state({
     ownerName: '',
     shopName: '',
+    phone: '',
     email: '',
     password: '',
     description: '',
@@ -55,6 +57,7 @@
         body: JSON.stringify({
           shopName: formData.shopName,
           ownerName: formData.ownerName,
+          phone: formData.phone,
           email: formData.email,
           password: formData.password,
           description: formData.description,
@@ -228,10 +231,20 @@
                     </div>
 
                     <div class="space-y-2">
-                      <label class="text-[10px] text-gray-500 font-black uppercase tracking-widest px-1">Email Address</label>
+                      <label class="text-[10px] text-gray-500 font-black uppercase tracking-widest px-1">মোবাইল নম্বর · Phone <span class="text-aura-green">*</span></label>
+                      <div class="relative group">
+                        <div class="absolute left-5 top-1/2 -translate-y-1/2 text-gray-600 group-focus-within:text-aura-green transition-colors"><Phone size={18} /></div>
+                        <input type="tel" bind:value={formData.phone} placeholder="Ex: 01712XXXXXX" required inputmode="numeric"
+                          class="w-full bg-black/40 border border-white/10 rounded-2xl pl-14 pr-6 py-4 text-sm text-white focus:outline-none focus:border-aura-green transition-all placeholder:text-gray-800" />
+                      </div>
+                      <p class="text-[9px] text-gray-600 px-1">এই নম্বর দিয়েই লগইন করবেন (email ঐচ্ছিক)।</p>
+                    </div>
+
+                    <div class="space-y-2">
+                      <label class="text-[10px] text-gray-500 font-black uppercase tracking-widest px-1">Email <span class="text-gray-600 normal-case">(ঐচ্ছিক)</span></label>
                       <div class="relative group">
                         <div class="absolute left-5 top-1/2 -translate-y-1/2 text-gray-600 group-focus-within:text-aura-green transition-colors"><Globe size={18} /></div>
-                        <input type="email" bind:value={formData.email} placeholder="Ex: shafi@example.com" required
+                        <input type="email" bind:value={formData.email} placeholder="Ex: shafi@example.com (optional)"
                           class="w-full bg-black/40 border border-white/10 rounded-2xl pl-14 pr-6 py-4 text-sm text-white focus:outline-none focus:border-aura-green transition-all placeholder:text-gray-800" />
                       </div>
                     </div>
@@ -240,8 +253,11 @@
                       <label class="text-[10px] text-gray-500 font-black uppercase tracking-widest px-1">Dashboard Password</label>
                       <div class="relative group">
                         <div class="absolute left-5 top-1/2 -translate-y-1/2 text-gray-600 group-focus-within:text-aura-green transition-colors"><ShieldCheck size={18} /></div>
-                        <input type="password" bind:value={formData.password} placeholder="Set a password (min 6 characters)" required minlength="6"
-                          class="w-full bg-black/40 border border-white/10 rounded-2xl pl-14 pr-6 py-4 text-sm text-white focus:outline-none focus:border-aura-green transition-all placeholder:text-gray-800" />
+                        <input type={showPw ? 'text' : 'password'} bind:value={formData.password} placeholder="Set a password (min 6 characters)" required minlength="6"
+                          class="w-full bg-black/40 border border-white/10 rounded-2xl pl-14 pr-14 py-4 text-sm text-white focus:outline-none focus:border-aura-green transition-all placeholder:text-gray-800" />
+                        <button type="button" onclick={() => (showPw = !showPw)} aria-label="Show password" class="absolute right-5 top-1/2 -translate-y-1/2 text-gray-500 hover:text-aura-green transition-colors cursor-pointer">
+                          {#if showPw}<EyeOff size={18} />{:else}<Eye size={18} />{/if}
+                        </button>
                       </div>
                     </div>
 
