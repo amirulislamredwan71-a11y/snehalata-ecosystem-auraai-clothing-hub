@@ -35,18 +35,39 @@ export type ImportedProduct = {
 };
 
 const UA =
-  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
+  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36';
 
 function normalizeUrl(url: string): string {
   return /^https?:\/\//i.test(url) ? url : `https://${url}`;
 }
 
+// The bare domain and its www. counterpart, so a store that only serves (or only
+// keeps a valid cert / feed) on one host still imports. axios follows clean 3xx
+// redirects on its own; this covers the cases where the other host hard-fails.
+function originVariants(origin: string): string[] {
+  try {
+    const u = new URL(origin);
+    const alt = u.host.startsWith('www.') ? u.host.slice(4) : 'www.' + u.host;
+    const a = `${u.protocol}//${u.host}`;
+    const b = `${u.protocol}//${alt}`;
+    return a === b ? [a] : [a, b];
+  } catch {
+    return [origin];
+  }
+}
+
 async function httpGet(target: string, timeout = 12000): Promise<any | null> {
   try {
     const r = await axios.get(target, {
-      headers: { 'User-Agent': UA, Accept: 'text/html,application/json,application/xml;q=0.9,*/*;q=0.8' },
+      headers: {
+        'User-Agent': UA,
+        // Browser-like headers reduce Cloudflare/WAF "bot" blocks that silently 403 a bare UA.
+        'Accept-Language': 'en-US,en;q=0.9,bn;q=0.8',
+        Accept: 'text/html,application/xhtml+xml,application/json,application/xml;q=0.9,*/*;q=0.8'
+      },
       timeout,
-      maxContentLength: 8_000_000,
+      maxContentLength: 12_000_000,
+      maxRedirects: 5,
       // Some feeds/sites 403 without a referer; keep it forgiving.
       validateStatus: (s) => s >= 200 && s < 400
     });
@@ -181,25 +202,39 @@ function jsonLdProducts(html: string, origin: string): ImportedProduct[] {
   return out.filter((p) => p.name);
 }
 
-// ── 3. Sitemap sweep — for non-Shopify sites, collect product URLs and JSON-LD each ──
-async function fromSitemap(origin: string, cap = 40): Promise<ImportedProduct[]> {
+// ── 3. Sitemap sweep — for non-Shopify sites, collect product URLs and extract each ──
+// Per product page: JSON-LD Product first; if none, fall back to OpenGraph tags (og:title/
+// og:image/price). The og fallback is what lets custom + SPA stores that only server-inject
+// per-product meta (no JSON-LD) still import — the common case for Laravel/React BD shops.
+async function fromSitemap(origin: string, cap = 48): Promise<ImportedProduct[]> {
   const seen = new Set<string>();
   const productUrls: string[] = [];
-  const sitemaps = [`${origin}/sitemap.xml`, `${origin}/sitemap_index.xml`, `${origin}/product-sitemap.xml`];
+  const sitemaps = [
+    `${origin}/sitemap.xml`,
+    `${origin}/sitemap_index.xml`,
+    `${origin}/product-sitemap.xml`,
+    `${origin}/sitemap-products.xml`
+  ];
   const queue = [...sitemaps];
+  const tried = new Set<string>();
   let fetched = 0;
-  while (queue.length && productUrls.length < cap && fetched < 8) {
+  while (queue.length && productUrls.length < cap && fetched < 10) {
     const sm = queue.shift()!;
+    if (tried.has(sm)) continue;
+    tried.add(sm);
     const xml = await httpGet(sm, 8000);
     if (!xml || typeof xml !== 'string') continue;
     fetched++;
     const locs = [...xml.matchAll(/<loc>\s*([^<\s]+)\s*<\/loc>/gi)].map((m) => m[1]);
     for (const loc of locs) {
-      if (/\.xml($|\?)/i.test(loc)) {
-        if (/product/i.test(loc)) queue.unshift(loc);
+      if (/\.xml($|\?|\.gz)/i.test(loc)) {
+        // Follow child sitemaps; prioritise ones that look product/catalog-related.
+        if (/product|catalog|shop|item|collection/i.test(loc)) queue.unshift(loc);
+        else queue.push(loc);
         continue;
       }
-      if (/\/(product|products|shop|item|p)\//i.test(loc) && !seen.has(loc)) {
+      // Match /product/<slug>, /products/<slug>, /shop/<slug>, /item/<slug>, /p/<slug>.
+      if (/\/(product|products|shop|item|p)\/[^/]/i.test(loc) && !seen.has(loc)) {
         seen.add(loc);
         productUrls.push(loc);
       }
@@ -210,9 +245,16 @@ async function fromSitemap(origin: string, cap = 40): Promise<ImportedProduct[]>
   const batch = 6;
   for (let i = 0; i < productUrls.length && i < cap; i += batch) {
     const slice = productUrls.slice(i, i + batch);
-    const pages = await Promise.all(slice.map((u) => httpGet(u, 8000)));
-    for (const html of pages) {
-      if (typeof html === 'string') out.push(...jsonLdProducts(html, origin));
+    const pages = await Promise.all(slice.map((u) => httpGet(u, 8000).then((h) => [u, h] as const)));
+    for (const [u, html] of pages) {
+      if (typeof html !== 'string') continue;
+      const ld = jsonLdProducts(html, origin);
+      if (ld.length) {
+        out.push(...ld);
+      } else {
+        const og = ogProduct(html, origin, u); // custom/SPA stores: per-product OpenGraph
+        if (og) out.push(og);
+      }
     }
   }
   return out;
@@ -240,6 +282,53 @@ function ogImage(html: string, origin: string): string {
   if (og?.[1]) return toAbsolute(og[1], origin);
   const ld = jsonLdProducts(html, origin).find((p) => p.imageUrl);
   return ld?.imageUrl || '';
+}
+
+// Read a <meta property|name="X" content="Y"> value (either attribute order).
+function metaContent(html: string, key: string): string {
+  const k = key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const m =
+    html.match(new RegExp(`<meta[^>]+(?:property|name)=["']${k}["'][^>]+content=["']([^"']*)["']`, 'i')) ||
+    html.match(new RegExp(`<meta[^>]+content=["']([^"']*)["'][^>]+(?:property|name)=["']${k}["']`, 'i'));
+  return m?.[1] ? m[1].trim() : '';
+}
+
+// Best-effort price from a product page: OpenGraph/product price meta first, else the
+// first BDT/৳/Tk price token in the HTML. Returns 0 when the price is client-rendered.
+function extractPrice(html: string): number {
+  const meta =
+    metaContent(html, 'product:price:amount') ||
+    metaContent(html, 'og:price:amount') ||
+    metaContent(html, 'twitter:data1');
+  if (meta) {
+    const p = parsePrice(meta);
+    if (p > 0) return p;
+  }
+  const m = html.match(/(?:৳|Tk\.?|BDT|Rs\.?)\s?([0-9][0-9,]{1,7})(?:\.[0-9]{1,2})?/i);
+  return m ? parsePrice(m[1]) : 0;
+}
+
+// Build ONE product from a product page's OpenGraph tags — the reliable path for custom
+// & SPA stores (Laravel/React/Vue) that render products client-side but STILL server-inject
+// per-product og:title / og:image for SEO (e.g. koreanmartbd.com). JSON-LD is preferred
+// (fromSitemap tries it first); this catches the large class of sites that lack it.
+function ogProduct(html: string, origin: string, url: string): ImportedProduct | null {
+  const type = metaContent(html, 'og:type').toLowerCase();
+  const title = metaContent(html, 'og:title') || metaContent(html, 'twitter:title');
+  const image = metaContent(html, 'og:image') || metaContent(html, 'twitter:image');
+  if (!title || !image) return null;
+  // Skip non-product og pages (home / blog / category) unless the URL itself is a product.
+  const looksProduct = /\/(product|products|item|p)\//i.test(url);
+  if (!looksProduct && type && !type.includes('product')) return null;
+  return {
+    name: title.slice(0, 200),
+    price: extractPrice(html),
+    imageUrl: toAbsolute(image, origin),
+    description: (metaContent(html, 'og:description') || '').slice(0, 500),
+    category: undefined,
+    url,
+    confidence: 72
+  };
 }
 
 // For products that came through without an image but DO have their own page URL,
@@ -270,8 +359,21 @@ function dedupeByName(items: ImportedProduct[]): ImportedProduct[] {
 }
 
 
+// Per-import diagnostics — so the admin sees WHICH strategy ran and WHY a store yielded
+// 0 products, instead of a silent black box. Surfaced by the sync endpoints.
+export type ImportDiag = {
+  origin: string;
+  engine: string; // shopify | woo | sitemap | jsonld | structured+ai | ai | none
+  shopify: number;
+  woo: number;
+  jsonld: number; // homepage JSON-LD
+  sitemap: number; // JSON-LD + OpenGraph swept from product pages
+  ai: number;
+  note?: string;
+};
+
 /** Import a vendor's whole catalog from their website — structured first, AI last. */
-export async function scrapeProducts(url: string): Promise<ImportedProduct[]> {
+export async function scrapeProducts(url: string, diag: Partial<ImportDiag> = {}): Promise<ImportedProduct[]> {
   const target = normalizeUrl(url);
   let origin = target;
   try {
@@ -279,35 +381,56 @@ export async function scrapeProducts(url: string): Promise<ImportedProduct[]> {
   } catch {
     /* keep as-is */
   }
+  Object.assign(diag, { origin, engine: 'none', shopify: 0, woo: 0, jsonld: 0, sitemap: 0, ai: 0 });
 
-  // 1. Shopify feed — the cleanest, whole-catalog path.
-  const shopify = await fromShopify(origin);
-  if (shopify.length) return dedupeByName(shopify);
-
-  // 1b. WooCommerce Store API — full catalog on any WP/Woo store.
-  const woo = await fromWooStore(origin);
-  if (woo.length) return dedupeByName(woo);
+  // 1 / 1b. Structured whole-catalog feeds — try the given host AND its www. counterpart
+  // (a store may only serve a valid cert / feed on one of them).
+  for (const o of originVariants(origin)) {
+    const shopify = await fromShopify(o);
+    if (shopify.length) {
+      diag.shopify = shopify.length; diag.engine = 'shopify'; diag.origin = o;
+      return dedupeByName(shopify);
+    }
+    const woo = await fromWooStore(o);
+    if (woo.length) {
+      diag.woo = woo.length; diag.engine = 'woo'; diag.origin = o;
+      return dedupeByName(woo);
+    }
+  }
 
   const html = await httpGet(target, 12000);
   if (typeof html === 'string') {
     // 2. JSON-LD on the landing page.
     const onPage = jsonLdProducts(html, origin);
-    // 3. Sitemap sweep to get the FULL catalog (not just what's on the homepage).
+    // 3. Sitemap sweep — FULL catalog via JSON-LD OR OpenGraph on each product page.
     const swept = await fromSitemap(origin);
+    diag.jsonld = onPage.length;
+    diag.sitemap = swept.length;
     const structured = dedupeByName([...onPage, ...swept]);
     if (structured.length) {
       // Recover images for products whose JSON-LD omitted them (fetch their page → og:image).
       await enrichImages(structured, origin);
     }
-    if (structured.length >= 3) return structured;
+    if (structured.length >= 3) {
+      diag.engine = swept.length >= onPage.length ? 'sitemap' : 'jsonld';
+      return structured;
+    }
     if (structured.length) {
       // A couple structured hits — try AI too and merge for better coverage.
       const ai = await geminiFallback(html);
+      diag.ai = ai.length; diag.engine = 'structured+ai';
       return dedupeByName([...structured, ...ai]);
     }
-    // 4. No structured data at all → AI reads the page.
-    return dedupeByName(await geminiFallback(html));
+    // 4. No structured data at all → AI reads the visible page.
+    const ai = await geminiFallback(html);
+    diag.ai = ai.length; diag.engine = ai.length ? 'ai' : 'none';
+    if (!ai.length) {
+      diag.note =
+        'No Shopify/WooCommerce feed, no JSON-LD or OpenGraph product pages in the sitemap, and nothing the AI could read on the homepage. This is almost certainly a client-rendered (SPA) store with no public product feed — it needs the store’s own API or a headless render to import.';
+    }
+    return dedupeByName(ai);
   }
+  diag.note = `Could not fetch ${target} — the site blocked the request, is down, or is behind a bot challenge (Cloudflare/WAF).`;
   return [];
 }
 
@@ -345,7 +468,8 @@ export async function syncVendor(
 ) {
   if (!vendor.website_url) return { imported: 0, found: 0, note: 'no website configured' };
 
-  const items = await scrapeProducts(vendor.website_url);
+  const diagnostics: Partial<ImportDiag> = {};
+  const items = await scrapeProducts(vendor.website_url, diagnostics);
   const { data: existing } = await a.from('products').select('name').eq('vendor_id', vendor.id);
   const have = new Set((existing || []).map((p: any) => String(p.name || '').toLowerCase().trim()));
 
@@ -363,8 +487,8 @@ export async function syncVendor(
       is_active: false // pending admin review before going live on the storefront
     }));
 
-  if (!rows.length) return { imported: 0, found: items.length };
+  if (!rows.length) return { imported: 0, found: items.length, diagnostics };
   const { error } = await a.from('products').insert(rows);
   if (error) throw new Error(error.message);
-  return { imported: rows.length, found: items.length };
+  return { imported: rows.length, found: items.length, diagnostics };
 }

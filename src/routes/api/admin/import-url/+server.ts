@@ -85,6 +85,7 @@ export const POST: RequestHandler = async ({ request }) => {
   // ── import the catalog into that store (all pending / is_active:false) ──
   let imported = 0;
   let found = 0;
+  let diagnostics: any = null;
 
   if (deep) {
     let items: { name: string; price: number; imageUrl: string }[] = [];
@@ -122,10 +123,11 @@ export const POST: RequestHandler = async ({ request }) => {
       const r = await syncVendor(a, { id: vendor.id, store_name: vendor.store_name, website_url: url });
       imported = r.imported || 0;
       found = r.found || 0;
+      diagnostics = (r as any).diagnostics || null;
     } catch (e: any) {
       throw error(502, 'Fetch failed: ' + (e?.message || 'unknown error'));
     }
   }
 
-  return json({ ok: true, imported, found, vendor: { id: vendor.id, store_name: vendor.store_name, created } });
+  return json({ ok: true, imported, found, diagnostics, vendor: { id: vendor.id, store_name: vendor.store_name, created } });
 };
