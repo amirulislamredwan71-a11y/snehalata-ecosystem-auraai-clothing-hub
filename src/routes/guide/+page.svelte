@@ -35,12 +35,11 @@
       <p class="text-gray-400 mt-3 max-w-2xl mx-auto text-sm leading-relaxed">বাংলাদেশের প্রথম AI-নিয়ন্ত্রিত মার্কেটপ্লেস — ক্রেতা ও বিক্রেতা দুজনের জন্যই সহজ। নিচে ধাপে-ধাপে দেখানো হলো।</p>
     </div>
 
-    <!-- Video walkthrough (self-hosted; only downloads on play) -->
+    <!-- Video walkthrough (YouTube — adaptive streaming, light on mobile) -->
     <div class="mb-10 rounded-[2rem] overflow-hidden border border-aura-green/20 bg-black shadow-2xl shadow-aura-green/5">
-      <video class="w-full aspect-video bg-black" controls preload="none" playsinline poster="/guide/infographic-1.jpg">
-        <source src="/videos/snehalata-intro.mp4" type="video/mp4" />
-        আপনার ব্রাউজার ভিডিও সাপোর্ট করে না।
-      </video>
+      <div class="aspect-video">
+        <iframe class="w-full h-full" src="https://www.youtube.com/embed/kzg8HpkXufE" title="Snehalata — কীভাবে ব্যবহার করবেন" frameborder="0" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+      </div>
     </div>
 
     <!-- Branded showcase — Snehalata-র signature visuals (AR Try-On · সাধ্য Mode · Neural Verified) -->
